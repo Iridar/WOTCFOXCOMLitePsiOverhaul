@@ -62,6 +62,9 @@ final function BuildPsiAbilities(out SoldierRankAbilities InsertAbilities, const
 	AbilityMgr = class'X2AbilityTemplateManager'.static.GetAbilityTemplateManager();
 	GetAbilityTemplates();
 
+	`AMLOG("Going to select:" @ NumSlots @ "abilities out of:" @ AbilitySlots.Length);
+	PrintAbilitySlots();
+
 	ShuffleAbilitySlots();
 	RemoveMutuallyExclusiveAbilities();
 
@@ -70,6 +73,8 @@ final function BuildPsiAbilities(out SoldierRankAbilities InsertAbilities, const
 		while (AbilitySlots.Length > NumSlots)
 		{
 			AverageTier = CalculateAverageTier();
+
+			`AMLOG("Abilities remain:" @ AbilitySlots.Length @ "Average Tier:" @ AverageTier);
 
 			if (AverageTier >= fAverageTierPerRank)
 			{
@@ -83,11 +88,24 @@ final function BuildPsiAbilities(out SoldierRankAbilities InsertAbilities, const
 	}
 
 	AbilitySlots.Sort(SortByTier);
+	PrintAbilitySlots();
 
 	foreach AbilitySlots(AbilitySlot)
 	{
 		InsertAbilities.Abilities.AddItem(AddAbility(AbilitySlot));
 	}
+}
+
+private function PrintAbilitySlots()
+{
+	local SoldierClassAbilityType_FMPO AbilitySlot;
+
+	`AMLOG("===== BEGIN PRINT ======");
+	foreach AbilitySlots(AbilitySlot)
+	{
+		`AMLOG(AbilitySlot.AbilityName @ AbilitySlot.Tier);
+	}
+	`AMLOG("===== END PRINT ======");
 }
 
 private function ShuffleAbilitySlots()
@@ -143,12 +161,13 @@ private function RemoveRandomHighTierAbility()
 	{
 		Index = `SYNC_RAND(ValidAbilitySlots.Length);
 		AbilitySlot = ValidAbilitySlots[Index];
-		
+		`AMLOG("Removing valid high tier ability:" @ AbilitySlot.AbilityName @ AbilitySlot.Tier);
 	}
 	else
 	{
 		Index = `SYNC_RAND(AbilitySlots.Length);
 		AbilitySlot = AbilitySlots[Index];
+		`AMLOG("Removing random ability:" @ AbilitySlot.AbilityName @ AbilitySlot.Tier);
 	}
 	RemoveAbility(AbilitySlot);
 }
@@ -171,12 +190,13 @@ private function RemoveRandomLowTierAbility()
 	{
 		Index = `SYNC_RAND(ValidAbilitySlots.Length);
 		AbilitySlot = ValidAbilitySlots[Index];
-		
+		`AMLOG("Removing valid low tier ability:" @ AbilitySlot.AbilityName @ AbilitySlot.Tier);
 	}
 	else
 	{
 		Index = `SYNC_RAND(AbilitySlots.Length);
 		AbilitySlot = AbilitySlots[Index];
+		`AMLOG("Removing random ability:" @ AbilitySlot.AbilityName @ AbilitySlot.Tier);
 	}
 	RemoveAbility(AbilitySlot);
 }
@@ -212,6 +232,7 @@ private function RemoveAbilitiesWithMissingRequiredPerks()
 			}
 			if (!bRequiredAbilityPresent)
 			{
+				`AMLOG("Removing ability:" @ AbilitySlots[i].AbilityName @ "because it requires an ability that was removed:" @ RequiredAbility);
 				AbilitySlots.Remove(i, 1);
 				break;
 			} 
