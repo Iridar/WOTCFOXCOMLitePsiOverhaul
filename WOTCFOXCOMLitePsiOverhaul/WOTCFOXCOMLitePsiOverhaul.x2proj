@@ -45,6 +45,9 @@
     </Content>
     <Content Include="Src\WOTCFOXCOMLitePsiOverhaul\Classes\X2DLCInfo_WOTCFOXCOMLitePsiOverhaul.uc" />
     <Content Include="Src\WOTCFOXCOMLitePsiOverhaul\Classes\Help.uc" />
+    <Content Include="Src\WOTCFOXCOMLitePsiOverhaul\Classes\X2EventListener_PsiOverhaul.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\WOTCFOXCOMLitePsiOverhaul\Classes\X2StrategyElement_PsiAmp.uc">
       <SubType>Content</SubType>
     </Content>

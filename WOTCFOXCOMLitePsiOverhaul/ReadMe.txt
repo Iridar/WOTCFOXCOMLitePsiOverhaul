@@ -14,28 +14,25 @@ Building and maintaining a Psi Lab now costs the same amount of resources, time 
 
 Any soldier above rookie can undergo training in the Psi Lab.
 Doing so will insert psionic abilities in their tree and grant them access to the Psi Amp slot.
-
 Psionic abilities can be unlocked via soldier's regular promotions or by spending Ability Points.
-
-
-Psi PCS is added.
+event listener for localized ability row
 Event listener allows unlocking psi abilities via CPS.
+set ability point costs via listener
+
 optional Gift
 
 MCM Support
 add config to randomize the free squaddie ability
-
-event listener for localized ability row
-[Psionics X2TechTemplate]
-DisplayName="Psionics"
-
-set ability point costs via listener
+Psi PCS is added.
 
 TESTS:
 Test if psionic training can be interrupted safely
+ability point costs
+psi offense stat not showing?
 
 Add PsiOverhaulv3 and PEXM as incompatible
 
 Highlander IsPsiOperative
 
 CPS is required
+Highlander is required

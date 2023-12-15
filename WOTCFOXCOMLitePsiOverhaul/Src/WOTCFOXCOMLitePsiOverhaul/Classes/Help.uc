@@ -14,6 +14,18 @@ static final function bool IsPsiOperative(const XComGameState_Unit UnitState)
 	return UnitState.GetUnitValue(default.PsiOperativeValue, UV);
 }
 
+static final function int GetPsiOperativeRow(const XComGameState_Unit UnitState)
+{
+	local UnitValue UV;
+
+	if (UnitState.GetUnitValue(default.PsiOperativeValue, UV))
+	{
+		return UV.fValue;
+	}
+
+	return INDEX_NONE;
+}
+
 static final function MarkPsiOperative(out XComGameState_Unit UnitState, const int iFinalRow)
 {
 	UnitState.SetUnitFloatValue(default.PsiOperativeValue, iFinalRow, eCleanup_Never);

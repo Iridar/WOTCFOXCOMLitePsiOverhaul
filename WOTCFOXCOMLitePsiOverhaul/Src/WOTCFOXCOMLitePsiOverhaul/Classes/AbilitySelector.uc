@@ -93,6 +93,8 @@ final function BuildPsiAbilities(out SoldierRankAbilities InsertAbilities, const
 	AbilitySlots.Sort(SortByTier);
 	PrintAbilitySlots();
 
+	// TODO: Put abilities that require other abilities next to each other?
+
 	foreach AbilitySlots(AbilitySlot)
 	{
 		InsertAbilities.Abilities.AddItem(AddAbility(AbilitySlot));
@@ -285,4 +287,18 @@ static final function ValidatePsiAbilities()
 	}
 
 	// TODO: Remove duplicates
+}
+
+static final function int GetAbilityUnlockCost(const name AbilityName)
+{
+	local SoldierClassAbilityType_FMPO AbilitySlot;
+
+	foreach default.AbilitySlots(AbilitySlot)
+	{
+		if (AbilitySlot.AbilityName == AbilityName)
+		{
+			return AbilitySlot.AP;
+		}
+	}
+	return 10;
 }

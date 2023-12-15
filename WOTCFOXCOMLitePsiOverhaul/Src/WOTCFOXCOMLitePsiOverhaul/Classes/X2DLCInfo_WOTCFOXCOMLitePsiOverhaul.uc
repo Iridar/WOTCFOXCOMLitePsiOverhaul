@@ -67,6 +67,12 @@ static event OnPostTemplatesCreated()
 		class'X2StrategyElement_PsiAmp'.default.strSlotLocName = class'UIUtilities_Text'.static.CapsCheckForGermanScharfesS(ItemTemplate.GetItemFriendlyNameNoStats());
 		//class'X2StrategyElement_PsiAmp'.default.strSlotFirstLetter = "";
 	}
+
+	TechTemplate = X2TechTemplate(StratMgr.FindStrategyElementTemplate('Psionics'));
+	if (TechTemplate != none)
+	{
+		class'X2EventListener_PsiOverhaul'.default.PsionicTreeName = class'UIUtilities_Text'.static.CapsCheckForGermanScharfesS(TechTemplate.DisplayName);;
+	}
 }
 
 static private function FillPsiChamberSoldierSlot(XComGameState NewGameState, StateObjectReference SlotRef, StaffUnitInfo UnitInfo, optional bool bTemporary = false)
