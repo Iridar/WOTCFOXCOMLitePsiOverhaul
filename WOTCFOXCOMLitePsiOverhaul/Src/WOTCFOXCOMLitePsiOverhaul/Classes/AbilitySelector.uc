@@ -8,6 +8,7 @@ struct SoldierClassAbilityType_FMPO
 	var name			RandomDeckName;
 	var int				PsiBonus;	// Amount of Psi Offense granted upon unlocking this ability.
 	var float			Tier;		// Subjective power rating of a particular ability. More powerful abilities are put later into the tree.
+	var int				AP;			// Ability Point cost
 
 	var X2AbilityTemplate Template;
 

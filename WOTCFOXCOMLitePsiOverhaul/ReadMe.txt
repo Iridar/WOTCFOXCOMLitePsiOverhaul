@@ -9,13 +9,28 @@ Created with Enhanced Mod Project Template v1.0
 Get news and updates here: 
 https://github.com/Iridar/EnhancedModProjectTemplate 
 
+Psionics can be researched earlier in the campaign, as they now require only the Sectoid Autopsy, and no elerium crystals.
+Building and maintaining a Psi Lab now costs the same amount of resources, time and power as Proving Grounds.
+
 Any soldier above rookie can undergo training in the Psi Lab.
 Doing so will insert psionic abilities in their tree and grant them access to the Psi Amp slot.
+
 Psionic abilities can be unlocked via soldier's regular promotions or by spending Ability Points.
-Psionics can be researched earlier in the campaign.
+
+
 Psi PCS is added.
 Event listener allows unlocking psi abilities via CPS.
 optional Gift
 
+event listener for localized ability row
+[Psionics X2TechTemplate]
+DisplayName="Psionics"
+
+set ability point costs via listener
+
 TESTS:
 Test if psionic training can be interrupted safely
+
+Add PsiOverhaulv3 and PEXM as incompatible
+
+CPS is required

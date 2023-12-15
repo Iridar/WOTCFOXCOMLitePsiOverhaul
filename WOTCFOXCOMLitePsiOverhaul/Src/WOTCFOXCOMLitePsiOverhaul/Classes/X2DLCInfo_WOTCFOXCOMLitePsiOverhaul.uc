@@ -16,6 +16,8 @@ static event OnPostTemplatesCreated()
 	local X2TechTemplate					TechTemplate;
 	local StrategyCost						EmptyCost;
 	local X2StaffSlotTemplate				StaffSlotTemplate;
+	local X2ItemTemplateManager				ItemMgr;
+	local X2ItemTemplate					ItemTemplate;
 
 	StratMgr = class'X2StrategyElementTemplateManager'.static.GetStrategyElementTemplateManager();
 	StratMgr.FindDataTemplateAllDifficulties('PsiChamber', DataTemplates);
@@ -57,6 +59,14 @@ static event OnPostTemplatesCreated()
 	}
 
 	class'AbilitySelector'.static.ValidatePsiAbilities();
+
+	ItemMgr = class'X2ItemTemplateManager'.static.GetItemTemplateManager();
+	ItemTemplate = ItemMgr.FindItemTemplate('PsiAmp_CV');
+	if (ItemTemplate != none)
+	{
+		class'X2StrategyElement_PsiAmp'.default.strSlotLocName = class'UIUtilities_Text'.static.CapsCheckForGermanScharfesS(ItemTemplate.GetItemFriendlyNameNoStats());
+		//class'X2StrategyElement_PsiAmp'.default.strSlotFirstLetter = "";
+	}
 }
 
 static private function FillPsiChamberSoldierSlot(XComGameState NewGameState, StateObjectReference SlotRef, StaffUnitInfo UnitInfo, optional bool bTemporary = false)
@@ -67,11 +77,10 @@ static private function FillPsiChamberSoldierSlot(XComGameState NewGameState, St
 	local XComGameState_HeadquartersProjectPsiTraining_FOXCOM ProjectState;
 	local StateObjectReference EmptyRef;
 	local int SquadIndex;
-	local UnitValue UV;
 
 	class'X2StrategyElement_DefaultStaffSlots'.static.FillSlot(NewGameState, SlotRef, UnitInfo, NewSlotState, NewUnitState);
-
-	if (!NewUnitState.GetUnitValue('IRI_IsPsiOperative', UV)) 
+	
+	if (!class'Help'.static.IsPsiOperative(NewUnitState)) 
 	{
 		NewUnitState.SetStatus(eStatus_PsiTesting);
 
@@ -106,12 +115,13 @@ static private function bool IsUnitValidForPsiChamberSoldierSlot(XComGameState_S
 	//local name AbilityName;
 	local bool bOverridePsiTrain, bCanTrain; //issue #159 - booleans for mod override
 	local XComLWTuple Tuple; //issue #159 - tuple for event
-	local UnitValue UV;
 	local bool bUnitInitiallyValid;
 
 	Unit = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(UnitInfo.UnitRef.ObjectID));
+	if (Unit == none)
+		return false;
 
-	if (Unit.GetUnitValue('IRI_IsPsiOperative', UV))
+	if (class'Help'.static.IsPsiOperative(Unit))
 		return false;
 
 	if (Unit.CanBeStaffed()

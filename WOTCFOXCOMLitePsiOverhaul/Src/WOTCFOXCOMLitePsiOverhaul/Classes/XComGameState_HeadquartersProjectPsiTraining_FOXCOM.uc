@@ -96,6 +96,13 @@ function OnProjectCompleted()
 	}
 	
 	iFinalRow = InjectPsiPerks(UnitState, NewGameState);	
+
+	// Mark soldier so they can't undergo psionic training again. Unit value will store the index of the row where psionic abilities start.
+	class'Help'.static.MarkPsiOperative(UnitState, iFinalRow);
+
+	// This will equip a Psi Amp into the freshly unlocked slot
+	UnitState.ValidateLoadout(NewGameState);
+
 	`GAMERULES.SubmitGameState(NewGameState);
 
 	AbilityName = UnitState.GetAbilityName(0, iFinalRow); 
@@ -175,17 +182,5 @@ private function int InjectPsiPerks(out XComGameState_Unit UnitState, out XComGa
 	// Instantly learn squaddie ability
 	UnitState.BuySoldierProgressionAbility(NewGameState, 0, iFinalRow);
 
-	// Mark soldier so they can't undergo psionic training again. Unit value will store the index of the row where psionic abilities start.
-	// For a soldier class that normally has 3 perk rows + XCOM row, the Unit Value is recorded as "4". So perks go:
-	// 0: Class
-	// 1: Class
-	// 2: Class
-	// 3: XCOM
-	// 4: psionic 1 - iFinalRow
-	// 5: psionic 2
-	UnitState.SetUnitFloatValue('IRI_IsPsiOperative', iFinalRow, eCleanup_Never);
-
 	return iFinalRow;
 }
-
-
