@@ -6,8 +6,8 @@ struct SoldierClassAbilityType_FMPO
 	var EInventorySlot	ApplyToWeaponSlot;
 	var name			UtilityCat;
 	var name			RandomDeckName;
-	var int				PsiBonus; // Amount of Psi Offense granted upon unlocking this ability.
-	var float			Tier; // Subjective power rating of a particular ability. More powerful abilities are put later into the tree.
+	var int				PsiBonus;	// Amount of Psi Offense granted upon unlocking this ability.
+	var float			Tier;		// Subjective power rating of a particular ability. More powerful abilities are put later into the tree.
 
 	var X2AbilityTemplate Template;
 
@@ -19,152 +19,11 @@ struct SoldierClassAbilityType_FMPO
 
 var private config array<SoldierClassAbilityType_FMPO>	AbilitySlots;
 var private config float								fAverageTierPerRank;
-
-//var private array<SoldierClassAbilityType_FMPO>			SelectedAbilities;
-
 var private X2AbilityTemplateManager					AbilityMgr;
-//var private float										iNumRanks;
-/*
-private function RebuildDeck()
-{
-	AbilitySlots = default.AbilitySlots;
-}
-
-private function SoldierClassAbilityType_FMPO SelectAbilityByTier(array<SoldierClassAbilityType_FMPO> SelectedAbilities)
-{
-	local SoldierClassAbilityType_FMPO			SelectedAbility;
-	local array<SoldierClassAbilityType_FMPO>	AbilitiesOfTier;
-}
-*/
-/*
-private function bool DoValidAbilitiesRemain()
-{
-	local SoldierClassAbilityType_FMPO AbilitySlot;
-
-	foreach AbilitySlots(AbilitySlot)
-	{
-		if (IsRemainingAbilityValid(AbilitySlot))
-		{
-			return true;
-		}
-	}
-	return false;
-}
-
-private function bool IsRemainingAbilityValid(const out SoldierClassAbilityType_FMPO AbilitySlot)
-{
-	local SoldierClassAbilityType_FMPO	SelectedAbility;
-	local name							RequiredAbility;
-	local bool							bRequiredAbilitySelected;
-
-	foreach AbilitySlot.Template.PrerequisiteAbilities(RequiredAbility)
-	{
-		if (Left(string(RequiredAbility), 4) == "NOT_")
-			continue;
-
-		bRequiredAbilitySelected = false;
-		foreach SelectedAbilities(SelectedAbility)
-		{
-			if (SelectedAbility.AbilityName == RequiredAbility)
-			{
-				bRequiredAbilitySelected = true;
-				break;
-			}
-		}
-		if (!bRequiredAbilitySelected)
-		{
-			return false;
-		} 
-	}
-	return true;
-}
-
-*/
-
-
-
-/*
-private function bool CanAbilityBeAdded(const out SoldierClassAbilityType_FMPO AbilitySlot)
-{
-	local SoldierClassAbilityType_FMPO	SelectedAbility;
-	local name							RequiredAbility;
-	local bool							bRequiredAbilitySelected;
-	local float							CurrentAverageTier;
-	local float							PotentialAverageTier;
-	local float							DeltaFromCurrentTier;
-	local float							DeltaFromPotentialTier;
-
-	// Looks complicated, but basically the idea is that the ability can be added
-	// only if it will bring the current average tier closer to the desired value. 
-	CurrentAverageTier = fAverageTierPerRank;
-	PotentialAverageTier = CurrentAverageTier + AbilitySlot.Tier / iNumRanks;
-
-	DeltaFromCurrentTier = Abs(default.fAverageTierPerRank - CurrentAverageTier);
-	DeltaFromPotentialTier = Abs(default.fAverageTierPerRank - PotentialAverageTier);
-
-	`AMLOG(AbilitySlot.AbilityName @ `ShowVar(CurrentAverageTier) @ `ShowVar(PotentialAverageTier) @ `ShowVar(DeltaFromCurrentTier) @ `ShowVar(DeltaFromPotentialTier));
-
-	if (DeltaFromCurrentTier - DeltaFromPotentialTier)
-	{
-		`AMLOG("Tier mismatch");
-		return false;
-	}
-
-	// If this ability requires other abilities, check if they're already selected.
-	foreach AbilitySlot.Template.PrerequisiteAbilities(RequiredAbility)
-	{
-		if (Left(string(RequiredAbility), 4) == "NOT_")
-			continue;
-
-		bRequiredAbilitySelected = false;
-		foreach SelectedAbilities(SelectedAbility)
-		{
-			if (SelectedAbility.AbilityName == RequiredAbility)
-			{
-				bRequiredAbilitySelected = true;
-				break;
-			}
-		}
-		if (!bRequiredAbilitySelected)
-		{
-			`AMLOG("Missing required ability:" @ RequiredAbility);
-			return false;
-		} 
-	}
-	`AMLOG("Ability can be selected");
-	return true;
-}*/
 
 private function SoldierClassAbilityType AddAbility(const out SoldierClassAbilityType_FMPO AbilitySlot)
 {	
-	local SoldierClassAbilityType	ReturnAbility;
-	//local name						RequiredAbility;
-	//local name						MutuallyExclusiveAbilityName;
-	//local int i;
-	//
-	//fAverageTierPerRank += AbilitySlot.Tier / iNumRanks;
-	//
-	//SelectedAbilities.AddItem(AbilitySlot);
-	//
-	//// Prevent the same ability from being selected again
-	//AbilitySlots.RemoveItem(AbilitySlot);
-	//
-	//// Prevent mutually exclusive abilities from being selected
-	//foreach AbilitySlot.Template.PrerequisiteAbilities(RequiredAbility)
-	//{
-	//	if (Left(string(RequiredAbility), 4) != "NOT_")
-	//		continue;
-	//
-	//	MutuallyExclusiveAbilityName = name(Right(string(RequiredAbility), Len(string(RequiredAbility)) - 4));
-	//
-	//	for (i = AbilitySlots.Length - 1; i >= 0; i--)
-	//	{
-	//		if (AbilitySlots[i].AbilityName == MutuallyExclusiveAbilityName)
-	//		{
-	//			AbilitySlots.Remove(i, 1);
-	//		}
-	//	}
-	//}
+	local SoldierClassAbilityType ReturnAbility;
 
 	ReturnAbility.AbilityName = AbilitySlot.AbilityName;
 	ReturnAbility.ApplyToWeaponSlot = AbilitySlot.ApplyToWeaponSlot;
@@ -198,22 +57,10 @@ private function GetAbilityTemplates()
 final function BuildPsiAbilities(out SoldierRankAbilities InsertAbilities, const int NumSlots)
 {
 	local SoldierClassAbilityType_FMPO	AbilitySlot;
-	local int							Index;
 	local float							AverageTier;
-
-	//Index = `SYNC_RAND(AbilitySlots.Length);
-	//		SelectedAbility = AbilitySlots[Index];
-	//
-	//		if (CanAbilityBeAdded(SelectedAbility))
-	//		{
-	//			InsertAbilities.Abilities.AddItem(AddAbility(SelectedAbility));
-	//		}
-	//fPowerBudget = NumSlots * fAverageTierPerRank;
 
 	AbilityMgr = class'X2AbilityTemplateManager'.static.GetAbilityTemplateManager();
 	GetAbilityTemplates();
-	//fAverageTierPerRank = 0;
-	//iNumRanks = NumSlots;
 
 	ShuffleAbilitySlots();
 	RemoveMutuallyExclusiveAbilities();
@@ -239,7 +86,7 @@ final function BuildPsiAbilities(out SoldierRankAbilities InsertAbilities, const
 
 	foreach AbilitySlots(AbilitySlot)
 	{
-		InsertAbilities.Abilities.AddItem(AddAbility(SelectedAbility));
+		InsertAbilities.Abilities.AddItem(AddAbility(AbilitySlot));
 	}
 }
 
@@ -295,16 +142,18 @@ private function RemoveRandomHighTierAbility()
 	if (ValidAbilitySlots.Length > 0)
 	{
 		Index = `SYNC_RAND(ValidAbilitySlots.Length);
-		RemoveAbility(ValidAbilitySlots[Index]);
+		AbilitySlot = ValidAbilitySlots[Index];
+		
 	}
 	else
 	{
 		Index = `SYNC_RAND(AbilitySlots.Length);
-		RemoveAbility(AbilitySlot[Index]);
+		AbilitySlot = AbilitySlots[Index];
 	}
+	RemoveAbility(AbilitySlot);
 }
 
-private function RemoveRandomHighLowAbility()
+private function RemoveRandomLowTierAbility()
 {
 	local SoldierClassAbilityType_FMPO			AbilitySlot;
 	local array<SoldierClassAbilityType_FMPO>	ValidAbilitySlots;
@@ -321,13 +170,15 @@ private function RemoveRandomHighLowAbility()
 	if (ValidAbilitySlots.Length > 0)
 	{
 		Index = `SYNC_RAND(ValidAbilitySlots.Length);
-		RemoveAbility(ValidAbilitySlots[Index]);
+		AbilitySlot = ValidAbilitySlots[Index];
+		
 	}
 	else
 	{
 		Index = `SYNC_RAND(AbilitySlots.Length);
-		RemoveAbility(AbilitySlot[Index]);
+		AbilitySlot = AbilitySlots[Index];
 	}
+	RemoveAbility(AbilitySlot);
 }
 
 private function RemoveAbility(const out SoldierClassAbilityType_FMPO AbilitySlot)
@@ -386,11 +237,11 @@ private function int SortByTier(SoldierClassAbilityType_FMPO AbilityA, SoldierCl
 {
 	if (AbilityA.Tier > AbilityB.Tier)
 	{
-		return 1;
+		return -1;
 	}
 	if (AbilityA.Tier < AbilityB.Tier)
 	{
-		return -1;
+		return 1;
 	}
 	return 0;
 }

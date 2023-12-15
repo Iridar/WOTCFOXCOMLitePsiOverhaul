@@ -107,6 +107,7 @@ static private function bool IsUnitValidForPsiChamberSoldierSlot(XComGameState_S
 	local bool bOverridePsiTrain, bCanTrain; //issue #159 - booleans for mod override
 	local XComLWTuple Tuple; //issue #159 - tuple for event
 	local UnitValue UV;
+	local bool bUnitInitiallyValid;
 
 	Unit = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(UnitInfo.UnitRef.ObjectID));
 
@@ -135,6 +136,9 @@ static private function bool IsUnitValidForPsiChamberSoldierSlot(XComGameState_S
 		{
 			return bCanTrain;
 		}
+
+		bUnitInitiallyValid = true;
+
 		//if (Unit.GetRank() == 0 && !Unit.CanRankUpSoldier()) // All rookies who have not yet ranked up can be trained as Psi Ops
 		//{
 		//	return true;
@@ -152,5 +156,7 @@ static private function bool IsUnitValidForPsiChamberSoldierSlot(XComGameState_S
 		//}
 	}
 
-	return Unit.GetRank() > 0;
+	// TODO: Exclude SPARKs
+
+	return bUnitInitiallyValid && Unit.GetRank() > 0;
 }

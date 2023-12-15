@@ -70,6 +70,7 @@ function OnProjectCompleted()
 	local name								AbilityName;
 	local XComGameState						NewGameState;
 	local int								CurrentPsiOffense;
+	local int								iFinalRow;
 
 	OrderInput.OrderType = eHeadquartersOrderType_PsiTrainingCompleted;
 	OrderInput.AcquireObjectReference = self.GetReference();
@@ -94,29 +95,31 @@ function OnProjectCompleted()
 		UnitState.kAppearance.iEyeColor = default.iEyeColor;
 	}
 	
-	InjectPsiPerks(UnitState, NewGameState);	
+	iFinalRow = InjectPsiPerks(UnitState, NewGameState);	
 	`GAMERULES.SubmitGameState(NewGameState);
 
-	AbilityName = UnitState.GetAbilityName(0 /*iAbilityRank*/, 1 /*iAbilityBranch*/); 
+	AbilityName = UnitState.GetAbilityName(0, iFinalRow); 
 	AbilityTemplate = class'X2AbilityTemplateManager'.static.GetAbilityTemplateManager().FindAbilityTemplate(AbilityName);
-
-	`HQPRES.UIPsiTrainingComplete(ProjectFocus, AbilityTemplate);
+	`HQPRES.UIPsiTrainingComplete(ProjectFocus, AbilityTemplate); // 
 	
 	// Start Issue #534
 	TriggerPsiProjectCompleted(UnitState, AbilityName);
 	// End Issue #534
+
+	//class'X2StrategyGameRulesetDataStructures'.static.ShowClassMovie('PsiOperative', UnitState.GetReference());
 }
 
 
-private function InjectPsiPerks(out XComGameState_Unit UnitState, out XComGameState NewGameState)
+private function int InjectPsiPerks(out XComGameState_Unit UnitState, out XComGameState NewGameState)
 {
 	local SoldierRankAbilities		InsertAbilities;
 	local AbilitySelector			Selector;
 	local int iFinalRow;
+	local int iRank;
 	local int i;	
 
 	if (UnitState.GetSoldierClassTemplate() == none)
-		return;
+		return INDEX_NONE;
 
 	// Calculate the index of the last ability row for this soldier.
 	// Cycle through the entire ability tree so that if there's even one perk on the final row, all psionic rows will go below it.
@@ -128,7 +131,10 @@ private function InjectPsiPerks(out XComGameState_Unit UnitState, out XComGameSt
 	Selector = new class'AbilitySelector';
 	Selector.BuildPsiAbilities(InsertAbilities, UnitState.GetSoldierClassTemplate().GetMaxConfiguredRank());
 
-	UnitState.AbilityTree[i] = InsertAbilities;
+	for (iRank = 0; iRank < InsertAbilities.Abilities.Length; iRank++)
+	{
+		UnitState.AbilityTree[iRank].Abilities[iFinalRow] = InsertAbilities.Abilities[iRank];
+	}
 
 	// Instantly learn squaddie ability
 	UnitState.BuySoldierProgressionAbility(NewGameState, 0, iFinalRow);
@@ -142,6 +148,8 @@ private function InjectPsiPerks(out XComGameState_Unit UnitState, out XComGameSt
 	// 4: psionic 1 - iFinalRow
 	// 5: psionic 2
 	UnitState.SetUnitFloatValue('IRI_IsPsiOperative', iFinalRow, eCleanup_Never);
+
+	return iFinalRow;
 }
 
 
