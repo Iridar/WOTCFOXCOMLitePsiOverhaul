@@ -16,3 +16,6 @@ Psionics can be researched earlier in the campaign.
 Psi PCS is added.
 Event listener allows unlocking psi abilities via CPS.
 optional Gift
+
+TESTS:
+Test if psionic training can be interrupted safely

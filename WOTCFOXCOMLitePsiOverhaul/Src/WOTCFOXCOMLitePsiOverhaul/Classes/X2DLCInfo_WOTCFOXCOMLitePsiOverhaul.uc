@@ -160,3 +160,22 @@ static private function bool IsUnitValidForPsiChamberSoldierSlot(XComGameState_S
 
 	return bUnitInitiallyValid && Unit.GetRank() > 0;
 }
+
+static function bool DisplayQueuedDynamicPopup(DynamicPropertySet PropertySet)
+{
+	local XComHQPresentationLayer Pres;
+	local UIAlert_PsiTraining_FOXCOM Alert;
+
+	if (PropertySet.PrimaryRoutingKey == 'UIAlert_PsiTraining_FOXCOM')
+	{
+		Pres = `HQPRES;
+
+		Alert = Pres.Spawn(class'UIAlert_PsiTraining_FOXCOM', Pres);
+		Alert.DisplayPropertySet = PropertySet;
+		Alert.eAlertName = PropertySet.SecondaryRoutingKey;
+
+		Pres.ScreenStack.Push(Alert);
+		return true;
+	}
+	return false;
+}

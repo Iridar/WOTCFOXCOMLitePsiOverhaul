@@ -66,7 +66,7 @@ function OnProjectCompleted()
 {
 	local HeadquartersOrderInputContext		OrderInput;
 	local XComGameState_Unit				UnitState;
-	local X2AbilityTemplate					AbilityTemplate;
+	//local X2AbilityTemplate					AbilityTemplate;
 	local name								AbilityName;
 	local XComGameState						NewGameState;
 	local int								CurrentPsiOffense;
@@ -99,16 +99,52 @@ function OnProjectCompleted()
 	`GAMERULES.SubmitGameState(NewGameState);
 
 	AbilityName = UnitState.GetAbilityName(0, iFinalRow); 
-	AbilityTemplate = class'X2AbilityTemplateManager'.static.GetAbilityTemplateManager().FindAbilityTemplate(AbilityName);
-	`HQPRES.UIPsiTrainingComplete(ProjectFocus, AbilityTemplate); // 
+	//AbilityTemplate = class'X2AbilityTemplateManager'.static.GetAbilityTemplateManager().FindAbilityTemplate(AbilityName);
 	
+	//`HQPRES.UIPsiTrainingComplete(ProjectFocus, AbilityTemplate); // 
+	ShowTrainingCompletedPopUp(ProjectFocus, AbilityName);
+
 	// Start Issue #534
 	TriggerPsiProjectCompleted(UnitState, AbilityName);
 	// End Issue #534
-
-	//class'X2StrategyGameRulesetDataStructures'.static.ShowClassMovie('PsiOperative', UnitState.GetReference());
 }
 
+private function ShowTrainingCompletedPopUp(StateObjectReference UnitRef, const name AbilityName)
+{
+	local DynamicPropertySet PropertySet;
+
+	if (AbilityName != '')
+	{
+		class'X2StrategyGameRulesetDataStructures'.static.BuildDynamicPropertySet(PropertySet, 'UIAlert_PsiTraining_FOXCOM', 'eAlert_PsiTraining_FOXCOMTrainingComplete', TrainingCompleteCB, true, true, true, false);
+		class'X2StrategyGameRulesetDataStructures'.static.AddDynamicNameProperty(PropertySet, 'EventToTrigger', '');
+		class'X2StrategyGameRulesetDataStructures'.static.AddDynamicStringProperty(PropertySet, 'SoundToPlay', "Geoscape_CrewMemberLevelledUp");
+		class'X2StrategyGameRulesetDataStructures'.static.AddDynamicIntProperty(PropertySet, 'UnitRef', UnitRef.ObjectID);
+		class'X2StrategyGameRulesetDataStructures'.static.AddDynamicNameProperty(PropertySet, 'AbilityTemplate', AbilityName);
+		`HQPRES.QueueDynamicPopup(PropertySet);
+	}
+}
+
+
+simulated function TrainingCompleteCB(Name eAction, out DynamicPropertySet AlertData, optional bool LocbInstant = false)
+{
+	local XComGameState_Unit UnitState;
+	
+	if (eAction == 'eUIAction_Accept' || eAction == 'eUIAction_Cancel')
+	{
+		if (!`HQPRES.m_kAvengerHUD.Movie.Stack.HasInstanceOf(class'UIArmory_Promotion')) // If we are already in the promotion screen, just close this popup
+		{
+			if (eAction == 'eUIAction_Accept')
+			{
+				UnitState = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(class'X2StrategyGameRulesetDataStructures'.static.GetDynamicIntProperty(AlertData, 'UnitRef')));
+
+				if (UnitState != none)
+				{
+					class'X2StrategyGameRulesetDataStructures'.static.ShowClassMovie('PsiOperative', UnitState.GetReference());
+				}
+			}
+		}
+	}
+}
 
 private function int InjectPsiPerks(out XComGameState_Unit UnitState, out XComGameState NewGameState)
 {

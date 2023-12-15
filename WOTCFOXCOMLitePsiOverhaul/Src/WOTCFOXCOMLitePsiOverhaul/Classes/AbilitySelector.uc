@@ -68,6 +68,8 @@ final function BuildPsiAbilities(out SoldierRankAbilities InsertAbilities, const
 	ShuffleAbilitySlots();
 	RemoveMutuallyExclusiveAbilities();
 
+	// TODO: Remove abilities already present in soldier's ability tree
+
 	if (AbilitySlots.Length > NumSlots)
 	{
 		while (AbilitySlots.Length > NumSlots)

@@ -40,6 +40,9 @@
     <Content Include="Src\WOTCFOXCOMLitePsiOverhaul\Classes\AbilitySelector.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\WOTCFOXCOMLitePsiOverhaul\Classes\UIAlert_PsiTraining_FOXCOM.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\WOTCFOXCOMLitePsiOverhaul\Classes\X2DLCInfo_WOTCFOXCOMLitePsiOverhaul.uc" />
     <Content Include="Src\WOTCFOXCOMLitePsiOverhaul\Classes\Help.uc" />
     <Content Include="Src\WOTCFOXCOMLitePsiOverhaul\Classes\ConfigEngine.uc" />
