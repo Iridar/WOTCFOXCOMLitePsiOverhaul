@@ -22,6 +22,9 @@ Psi PCS is added.
 Event listener allows unlocking psi abilities via CPS.
 optional Gift
 
+MCM Support
+add config to randomize the free squaddie ability
+
 event listener for localized ability row
 [Psionics X2TechTemplate]
 DisplayName="Psionics"
@@ -32,5 +35,7 @@ TESTS:
 Test if psionic training can be interrupted safely
 
 Add PsiOverhaulv3 and PEXM as incompatible
+
+Highlander IsPsiOperative
 
 CPS is required
