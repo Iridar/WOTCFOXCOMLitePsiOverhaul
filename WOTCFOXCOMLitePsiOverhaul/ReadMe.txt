@@ -25,11 +25,15 @@ increase psi offense for unlocking ability
 AP costs don't seem to work
 Add exclusion lists for soldier classes and characters
 automatically exclude soldiers that can use psi amp as a class weapon?
+add psi amp slot only if the soldier class doesn't already have psi amp as their only secondary
+map abilities to the secondary weapon if the soldier class has psi amp as the only secondary weapon
+add psionic infusor item
 
 MCM Support:
 
 # The Gift
 Gift Chance
+Guarantee Gift for Psi Operatives
 
 # Psi Abilities
 Randomize Free Ability

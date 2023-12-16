@@ -127,7 +127,11 @@ static private function bool IsUnitValidForPsiChamberSoldierSlot(XComGameState_S
 	if (Unit == none)
 		return false;
 
-	if (class'Help'.static.IsPsiOperative(Unit))
+	if (class'Help'.static.IsPsiOperative(Unit) || class'Help'.static.IsGiftless(Unit))
+		return false;
+
+	// Should exclude SPARKs
+	if (Unit.IsRobotic())
 		return false;
 
 	if (Unit.CanBeStaffed()
@@ -171,8 +175,6 @@ static private function bool IsUnitValidForPsiChamberSoldierSlot(XComGameState_S
 		//	}
 		//}
 	}
-
-	// TODO: Exclude SPARKs
 
 	return bUnitInitiallyValid && Unit.GetRank() > 0;
 }

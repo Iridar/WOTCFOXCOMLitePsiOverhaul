@@ -5,6 +5,8 @@ var private config bool	bSkipAppearanceChanges;
 var private config int	iHairColor;
 var private config int	iEyeColor;
 
+`include(WOTCFOXCOMLitePsiOverhaul\Src\ModConfigMenuAPI\MCM_API_CfgHelpers.uci)
+
 function SetProjectFocus(StateObjectReference FocusRef, optional XComGameState NewGameState, optional StateObjectReference AuxRef)
 {
 	local XComGameStateHistory History;
@@ -71,6 +73,7 @@ function OnProjectCompleted()
 	local XComGameState						NewGameState;
 	local int								CurrentPsiOffense;
 	local int								iFinalRow;
+	local bool								bHasGift;
 
 	OrderInput.OrderType = eHeadquartersOrderType_PsiTrainingCompleted;
 	OrderInput.AcquireObjectReference = self.GetReference();
@@ -80,49 +83,69 @@ function OnProjectCompleted()
 	UnitState = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(ProjectFocus.ObjectID));
 	if (UnitState == none)
 		return;
+
+	bHasGift = RollUnitHasGift(UnitState);
 	
 	NewGameState = class'XComGameStateContext_ChangeContainer'.static.CreateChangeState("Complete psionic Training");
 	UnitState = XComGameState_Unit(NewGameState.ModifyStateObject(UnitState.Class, UnitState.ObjectID));
 
-	// TODO: Roll for Gift here
-
-	CurrentPsiOffense = UnitState.GetMaxStat(eStat_PsiOffense);
-	UnitState.SetBaseMaxStat(eStat_PsiOffense, CurrentPsiOffense + InitialPsiOffenseBonus);
-
-	if (!bSkipAppearanceChanges)
+	if (bHasGift)
 	{
-		UnitState.kAppearance.iHairColor = default.iHairColor;
-		UnitState.kAppearance.iEyeColor = default.iEyeColor;
-	}
+		CurrentPsiOffense = UnitState.GetMaxStat(eStat_PsiOffense);
+		UnitState.SetBaseMaxStat(eStat_PsiOffense, CurrentPsiOffense + InitialPsiOffenseBonus);
+
+		if (!bSkipAppearanceChanges)
+		{
+			UnitState.kAppearance.iHairColor = default.iHairColor;
+			UnitState.kAppearance.iEyeColor = default.iEyeColor;
+		}
 	
-	iFinalRow = InjectPsiPerks(UnitState, NewGameState);	
+		iFinalRow = InjectPsiPerks(UnitState, NewGameState);	
 
-	// Mark soldier so they can't undergo psionic training again. Unit value will store the index of the row where psionic abilities start.
-	class'Help'.static.MarkPsiOperative(UnitState, iFinalRow);
+		// Mark soldier so they can't undergo psionic training again. Unit value will store the index of the row where psionic abilities start.
+		class'Help'.static.MarkPsiOperative(UnitState, iFinalRow);
 
-	// This will equip a Psi Amp into the freshly unlocked slot
-	UnitState.ValidateLoadout(NewGameState);
+		// This will equip a Psi Amp into the freshly unlocked slot
+		UnitState.ValidateLoadout(NewGameState);
+	}
+	else
+	{
+		class'Help'.static.MarkGiftless(UnitState);
+	}
 
 	`GAMERULES.SubmitGameState(NewGameState);
 
-	AbilityName = UnitState.GetAbilityName(0, iFinalRow); 
-	//AbilityTemplate = class'X2AbilityTemplateManager'.static.GetAbilityTemplateManager().FindAbilityTemplate(AbilityName);
-	
-	//`HQPRES.UIPsiTrainingComplete(ProjectFocus, AbilityTemplate); // 
-	ShowTrainingCompletedPopUp(ProjectFocus, AbilityName);
+	if (bHasGift)
+	{
+		AbilityName = UnitState.GetAbilityName(0, iFinalRow); 
+		ShowTrainingCompletedPopUp(ProjectFocus, AbilityName);
+	}
+	else
+	{
+		ShowTrainingCompletedPopUp(ProjectFocus, '', true);
+	}
 
 	// Start Issue #534
 	TriggerPsiProjectCompleted(UnitState, AbilityName);
 	// End Issue #534
 }
 
-private function ShowTrainingCompletedPopUp(StateObjectReference UnitRef, const name AbilityName)
+private function ShowTrainingCompletedPopUp(StateObjectReference UnitRef, const name AbilityName, optional bool bGiftless = false)
 {
 	local DynamicPropertySet PropertySet;
+	local name AlertName;
 
-	if (AbilityName != '')
+	if (AbilityName != '' || bGiftless)
 	{
-		class'X2StrategyGameRulesetDataStructures'.static.BuildDynamicPropertySet(PropertySet, 'UIAlert_PsiTraining_FOXCOM', 'eAlert_PsiTraining_FOXCOMTrainingComplete', TrainingCompleteCB, true, true, true, false);
+		if (bGiftless)
+		{
+			AlertName = 'eAlert_PsiTraining_FOXCOMTrainingFailed';
+		}
+		else
+		{
+			AlertName = 'eAlert_PsiTraining_FOXCOMTrainingComplete';
+		}
+		class'X2StrategyGameRulesetDataStructures'.static.BuildDynamicPropertySet(PropertySet, 'UIAlert_PsiTraining_FOXCOM', AlertName, TrainingCompleteCB, true, true, true, false);
 		class'X2StrategyGameRulesetDataStructures'.static.AddDynamicNameProperty(PropertySet, 'EventToTrigger', '');
 		class'X2StrategyGameRulesetDataStructures'.static.AddDynamicStringProperty(PropertySet, 'SoundToPlay', "Geoscape_CrewMemberLevelledUp");
 		class'X2StrategyGameRulesetDataStructures'.static.AddDynamicIntProperty(PropertySet, 'UnitRef', UnitRef.ObjectID);
@@ -183,4 +206,26 @@ private function int InjectPsiPerks(out XComGameState_Unit UnitState, out XComGa
 	UnitState.BuySoldierProgressionAbility(NewGameState, 0, iFinalRow);
 
 	return iFinalRow;
+}
+
+private function bool RollUnitHasGift(const XComGameState_Unit UnitState)
+{
+	local CharacterPoolManager	CharPool;
+	local XComGameState_Unit	CPUnitState;
+
+	if (`GETMCMVAR(GIFT_PSIOP_GUARANTEED))
+	{
+		CharPool = `CHARACTERPOOLMGR;
+	
+		foreach CharPool.CharacterPool(CPUnitState)
+		{
+			if (CPUnitState.GetFullName() == UnitState.GetFullName() &&
+				CPUnitState.GetSoldierClassTemplateName() == 'PsiOperative')
+			{
+				return true;
+			}
+		}
+	}
+
+	return `SYNC_RAND(100) < `GETMCMVAR(GIFT_CHANCE);
 }
