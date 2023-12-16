@@ -16,6 +16,8 @@
     <Folder Include="Src\" />
     <Folder Include="Content\" />
     <Folder Include="ContentForCook\" />
+    <Folder Include="Src\ModConfigMenuAPI\" />
+    <Folder Include="Src\ModConfigMenuAPI\Classes\" />
     <Folder Include="Src\WOTCFOXCOMLitePsiOverhaul\" />
     <Folder Include="Src\WOTCFOXCOMLitePsiOverhaul\Classes\" />
   </ItemGroup>
@@ -24,6 +26,9 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Config\XComStrategyTuning.ini">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Config\XComWOTCFOXCOMLitePsiOverhaul_DEFAULT.ini">
       <SubType>Content</SubType>
     </Content>
     <Content Include="ReadMe.txt" />
@@ -37,10 +42,61 @@
     <Content Include="Localization\XComGame.int" />
     <Content Include="Localization\WOTCFOXCOMLitePsiOverhaul.int" />
     <Content Include="Src\extra_globals.uci" />
+    <Content Include="Src\ModConfigMenuAPI\Classes\MCM_API.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\ModConfigMenuAPI\Classes\MCM_API_Button.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\ModConfigMenuAPI\Classes\MCM_API_Checkbox.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\ModConfigMenuAPI\Classes\MCM_API_Dropdown.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\ModConfigMenuAPI\Classes\MCM_API_Instance.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\ModConfigMenuAPI\Classes\MCM_API_Label.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\ModConfigMenuAPI\Classes\MCM_API_Setting.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\ModConfigMenuAPI\Classes\MCM_API_SettingsGroup.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\ModConfigMenuAPI\Classes\MCM_API_SettingsPage.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\ModConfigMenuAPI\Classes\MCM_API_Slider.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\ModConfigMenuAPI\Classes\MCM_API_Spinner.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\ModConfigMenuAPI\Classes\MCM_OptionsScreen.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\ModConfigMenuAPI\MCM_API_CfgHelpers.uci">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\ModConfigMenuAPI\MCM_API_Includes.uci">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\WOTCFOXCOMLitePsiOverhaul\Classes\AbilitySelector.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\WOTCFOXCOMLitePsiOverhaul\Classes\UIAlert_PsiTraining_FOXCOM.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\WOTCFOXCOMLitePsiOverhaul\Classes\WOTCFOXCOMLitePsiOverhaul_Defaults.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\WOTCFOXCOMLitePsiOverhaul\Classes\WOTCFOXCOMLitePsiOverhaul_MCMScreen.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\WOTCFOXCOMLitePsiOverhaul\Classes\WOTCFOXCOMLitePsiOverhaul_MCMScreenListener.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\WOTCFOXCOMLitePsiOverhaul\Classes\X2DLCInfo_WOTCFOXCOMLitePsiOverhaul.uc" />

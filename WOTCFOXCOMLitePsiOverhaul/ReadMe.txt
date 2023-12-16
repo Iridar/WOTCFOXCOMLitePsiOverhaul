@@ -20,9 +20,32 @@ Event listener allows unlocking psi abilities via CPS.
 set ability point costs via listener
 
 optional Gift
+add psionic outline to stack soldier class icon
+increase psi offense for unlocking ability
+AP costs don't seem to work
+Add exclusion lists for soldier classes and characters
+automatically exclude soldiers that can use psi amp as a class weapon?
 
-MCM Support
-add config to randomize the free squaddie ability
+MCM Support:
+
+# The Gift
+Gift Chance
+
+# Psi Abilities
+Randomize Free Ability
+
+# Psi Training
+Change soldier appearance
+Allow training rookies as Psi Operatives
+
+# Strategy
+Remove Psionics Research Cost
+Make Psi Lab Cheaper
+
+# Misc
+Debug Logging
+
+
 Psi PCS is added.
 
 TESTS:
@@ -34,5 +57,13 @@ Add PsiOverhaulv3 and PEXM as incompatible
 
 Highlander IsPsiOperative
 
+[WOTC] FOXCOM Psionics
+
 CPS is required
 Highlander is required
+
+(WOTC) UI Mod for Defense/Mobility/Psi
+https://steamcommunity.com/sharedfiles/filedetails/?id=1281427768
+
+PEXM is currently incompatible.
+Psi Overhaul v3 is incompatible.
