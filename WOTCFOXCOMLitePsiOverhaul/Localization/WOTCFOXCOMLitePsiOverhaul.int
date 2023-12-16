@@ -17,6 +17,9 @@ GIFT_CHANCE_Tip = ""
 GIFT_PSIOP_GUARANTEED_Label = "Guarantee Gift for Char. Pool Psi Operatives"
 GIFT_PSIOP_GUARANTEED_Tip = "If enabled, and if a soldier has Psi Operative class selected in Character Pool, they will be guaranteed to have The Gift during a campaign, regardless of what their actual soldier class is."
 
+RANDOMIZE_FREE_ABILITY_Label = "Randomize free ability"
+RANDOMIZE_FREE_ABILITY_Tip = "If enabled, the free psionic ability soldiers receive after completing the psionic training will be selected at random, rather than always getting the lowest tier ability for free."
+
 
 LabelEnd = "Created by Iridar | www.patreon.com/Iridar"
 LabelEndTooltip = "Thank you for using my mods, I hope you enjoy! Please consider supporting me at Patreon so I can afford the time to make more awesome mods <3")

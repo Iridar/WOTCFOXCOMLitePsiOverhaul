@@ -13,15 +13,16 @@ var localized string LabelEndTooltip;
 
 `MCM_API_AutoSliderVars(GIFT_CHANCE);
 `MCM_API_AutoCheckBoxVars(GIFT_PSIOP_GUARANTEED);
-
+`MCM_API_AutoCheckBoxVars(RANDOMIZE_FREE_ABILITY);
 `MCM_API_AutoCheckBoxVars(DEBUG_LOGGING);
+
 
 
 `include(WOTCFOXCOMLitePsiOverhaul\Src\ModConfigMenuAPI\MCM_API_CfgHelpers.uci)
 
 `MCM_API_AutoSliderFns(GIFT_CHANCE,, 1);
 `MCM_API_AutoCheckBoxFns(GIFT_PSIOP_GUARANTEED, 1);
-
+`MCM_API_AutoCheckBoxFns(RANDOMIZE_FREE_ABILITY, 1);
 `MCM_API_AutoCheckBoxFns(DEBUG_LOGGING, 1);
 
 
@@ -47,6 +48,8 @@ simulated function ClientModCallback(MCM_API_Instance ConfigAPI, int GameMode)
 	
 
 	Group = Page.AddGroup('Group', GroupHeaders[1]); // "Psionic Abilities"
+	`MCM_API_AutoAddCheckBox(Group, RANDOMIZE_FREE_ABILITY);
+	
 	Group = Page.AddGroup('Group', GroupHeaders[2]); // "Psionic Training"
 	Group = Page.AddGroup('Group', GroupHeaders[3]); // "The Gift"
 
@@ -66,12 +69,15 @@ simulated function LoadSavedSettings()
 	GIFT_CHANCE = `GETMCMVAR(GIFT_CHANCE);
 	DEBUG_LOGGING = `GETMCMVAR(DEBUG_LOGGING);
 	GIFT_PSIOP_GUARANTEED = `GETMCMVAR(GIFT_PSIOP_GUARANTEED);
+	RANDOMIZE_FREE_ABILITY = `GETMCMVAR(RANDOMIZE_FREE_ABILITY);
 }
 
 simulated function ResetButtonClicked(MCM_API_SettingsPage Page)
 {
 	`MCM_API_AutoReset(GIFT_CHANCE);
 	`MCM_API_AutoReset(DEBUG_LOGGING);
+	`MCM_API_AutoReset(RANDOMIZE_FREE_ABILITY);
+	
 	`MCM_API_AutoReset(GIFT_PSIOP_GUARANTEED);
 }
 

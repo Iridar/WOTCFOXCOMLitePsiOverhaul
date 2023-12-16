@@ -20,7 +20,7 @@ Event listener allows unlocking psi abilities via CPS.
 set ability point costs via listener
 
 optional Gift
-add psionic outline to stack soldier class icon
+
 increase psi offense for unlocking ability
 AP costs don't seem to work
 Add exclusion lists for soldier classes and characters
@@ -31,12 +31,7 @@ add psionic infusor item
 
 MCM Support:
 
-# The Gift
-Gift Chance
-Guarantee Gift for Psi Operatives
 
-# Psi Abilities
-Randomize Free Ability
 
 # Psi Training
 Change soldier appearance
@@ -55,11 +50,14 @@ Psi PCS is added.
 TESTS:
 Test if psionic training can be interrupted safely
 ability point costs
-psi offense stat not showing?
 
-Add PsiOverhaulv3 and PEXM as incompatible
+
+-----------------------------------------------------
 
 Highlander IsPsiOperative
+add psionic outline to stack soldier class icon - doesn't work that way, apparently
+
+-----------------------------------------------------
 
 [WOTC] FOXCOM Psionics
 

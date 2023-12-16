@@ -22,6 +22,8 @@ var private config array<SoldierClassAbilityType_FMPO>	AbilitySlots;
 var private config float								fAverageTierPerRank;
 var private X2AbilityTemplateManager					AbilityMgr;
 
+`include(WOTCFOXCOMLitePsiOverhaul\Src\ModConfigMenuAPI\MCM_API_CfgHelpers.uci)
+
 private function SoldierClassAbilityType AddAbility(const out SoldierClassAbilityType_FMPO AbilitySlot)
 {	
 	local SoldierClassAbilityType ReturnAbility;
@@ -59,6 +61,8 @@ final function BuildPsiAbilities(out SoldierRankAbilities InsertAbilities, const
 {
 	local SoldierClassAbilityType_FMPO	AbilitySlot;
 	local float							AverageTier;
+	local SoldierClassAbilityType		InsertAbility;
+	local int							Index;
 
 	AbilityMgr = class'X2AbilityTemplateManager'.static.GetAbilityTemplateManager();
 	GetAbilityTemplates();
@@ -98,6 +102,16 @@ final function BuildPsiAbilities(out SoldierRankAbilities InsertAbilities, const
 	foreach AbilitySlots(AbilitySlot)
 	{
 		InsertAbilities.Abilities.AddItem(AddAbility(AbilitySlot));
+	}
+
+	if (`GETMCMVAR(RANDOMIZE_FREE_ABILITY))
+	{
+		Index = `SYNC_RAND(InsertAbilities.Abilities.Length);
+		InsertAbility = InsertAbilities.Abilities[Index];
+		InsertAbilities.Abilities.RemoveItem(InsertAbility);
+		InsertAbilities.Abilities.InsertItem(0, InsertAbility);
+
+		`AMLOG("Selecting random free ability:" @ InsertAbility.AbilityName);
 	}
 }
 
