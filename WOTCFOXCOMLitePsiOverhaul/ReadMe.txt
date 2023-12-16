@@ -31,10 +31,7 @@ add psionic infusor item
 
 MCM Support:
 
-
-
 # Psi Training
-Change soldier appearance
 Allow training rookies as Psi Operatives
 
 # Strategy

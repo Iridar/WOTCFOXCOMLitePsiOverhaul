@@ -15,8 +15,9 @@ var localized string LabelEndTooltip;
 `MCM_API_AutoCheckBoxVars(GIFT_PSIOP_GUARANTEED);
 `MCM_API_AutoCheckBoxVars(RANDOMIZE_FREE_ABILITY);
 `MCM_API_AutoCheckBoxVars(DEBUG_LOGGING);
-
-
+`MCM_API_AutoCheckBoxVars(CHANGE_APPEARANCE);
+`MCM_API_AutoSliderVars(HAIR_COLOR);
+`MCM_API_AutoSliderVars(EYE_COLOR);
 
 `include(WOTCFOXCOMLitePsiOverhaul\Src\ModConfigMenuAPI\MCM_API_CfgHelpers.uci)
 
@@ -24,7 +25,9 @@ var localized string LabelEndTooltip;
 `MCM_API_AutoCheckBoxFns(GIFT_PSIOP_GUARANTEED, 1);
 `MCM_API_AutoCheckBoxFns(RANDOMIZE_FREE_ABILITY, 1);
 `MCM_API_AutoCheckBoxFns(DEBUG_LOGGING, 1);
-
+`MCM_API_AutoCheckBoxFns(CHANGE_APPEARANCE, 1);
+`MCM_API_AutoSliderFns(HAIR_COLOR,, 1);
+`MCM_API_AutoSliderFns(EYE_COLOR,, 1);
 
 event OnInit(UIScreen Screen)
 {
@@ -34,8 +37,9 @@ event OnInit(UIScreen Screen)
 //Simple one group framework code
 simulated function ClientModCallback(MCM_API_Instance ConfigAPI, int GameMode)
 {
-	local MCM_API_SettingsPage Page;
-	local MCM_API_SettingsGroup Group;
+	local MCM_API_SettingsPage		Page;
+	local MCM_API_SettingsGroup		Group;
+	local XComLinearColorPalette	Palette;
 
 	LoadSavedSettings();
 	Page = ConfigAPI.NewSettingsPage(ModName);
@@ -51,6 +55,14 @@ simulated function ClientModCallback(MCM_API_Instance ConfigAPI, int GameMode)
 	`MCM_API_AutoAddCheckBox(Group, RANDOMIZE_FREE_ABILITY);
 	
 	Group = Page.AddGroup('Group', GroupHeaders[2]); // "Psionic Training"
+	`MCM_API_AutoAddCheckBox(Group, CHANGE_APPEARANCE);
+
+	Palette = `CONTENT.GetColorPalette(ePalette_HairColor);
+	`MCM_API_AutoAddSLider(Group, HAIR_COLOR, 0, Palette.Entries.Length - 1, 1);
+
+	Palette = `CONTENT.GetColorPalette(ePalette_EyeColor);
+	`MCM_API_AutoAddSLider(Group, EYE_COLOR, 0, Palette.Entries.Length - 1, 1);
+
 	Group = Page.AddGroup('Group', GroupHeaders[3]); // "The Gift"
 
 	`MCM_API_AutoAddSLider(Group, GIFT_CHANCE, 0, 100, 1);
@@ -70,14 +82,21 @@ simulated function LoadSavedSettings()
 	DEBUG_LOGGING = `GETMCMVAR(DEBUG_LOGGING);
 	GIFT_PSIOP_GUARANTEED = `GETMCMVAR(GIFT_PSIOP_GUARANTEED);
 	RANDOMIZE_FREE_ABILITY = `GETMCMVAR(RANDOMIZE_FREE_ABILITY);
+	CHANGE_APPEARANCE = `GETMCMVAR(CHANGE_APPEARANCE);
+
+	HAIR_COLOR = `GETMCMVAR(HAIR_COLOR);
+	EYE_COLOR = `GETMCMVAR(EYE_COLOR);
 }
 
 simulated function ResetButtonClicked(MCM_API_SettingsPage Page)
 {
+	`MCM_API_AutoReset(HAIR_COLOR);
+	`MCM_API_AutoReset(EYE_COLOR);
+
 	`MCM_API_AutoReset(GIFT_CHANCE);
 	`MCM_API_AutoReset(DEBUG_LOGGING);
 	`MCM_API_AutoReset(RANDOMIZE_FREE_ABILITY);
-	
+	`MCM_API_AutoReset(CHANGE_APPEARANCE);
 	`MCM_API_AutoReset(GIFT_PSIOP_GUARANTEED);
 }
 

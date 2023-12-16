@@ -1,9 +1,6 @@
 class XComGameState_HeadquartersProjectPsiTraining_FOXCOM extends XComGameState_HeadquartersProjectPsiTraining config(PsiOverhaul);
 
 var private config int	InitialPsiOffenseBonus;
-var private config bool	bSkipAppearanceChanges;
-var private config int	iHairColor;
-var private config int	iEyeColor;
 
 `include(WOTCFOXCOMLitePsiOverhaul\Src\ModConfigMenuAPI\MCM_API_CfgHelpers.uci)
 
@@ -94,10 +91,10 @@ function OnProjectCompleted()
 		CurrentPsiOffense = UnitState.GetMaxStat(eStat_PsiOffense);
 		UnitState.SetBaseMaxStat(eStat_PsiOffense, CurrentPsiOffense + InitialPsiOffenseBonus);
 
-		if (!bSkipAppearanceChanges)
+		if (`GETMCMVAR(CHANGE_APPEARANCE))
 		{
-			UnitState.kAppearance.iHairColor = default.iHairColor;
-			UnitState.kAppearance.iEyeColor = default.iEyeColor;
+			UnitState.kAppearance.iHairColor = `GETMCMVAR(HAIR_COLOR);
+			UnitState.kAppearance.iEyeColor = `GETMCMVAR(EYE_COLOR);
 		}
 	
 		iFinalRow = InjectPsiPerks(UnitState, NewGameState);	
