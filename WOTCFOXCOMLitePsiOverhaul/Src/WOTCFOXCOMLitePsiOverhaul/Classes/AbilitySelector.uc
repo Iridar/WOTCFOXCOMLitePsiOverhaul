@@ -117,7 +117,7 @@ final function BuildPsiAbilities(out SoldierRankAbilities InsertAbilities, const
 		InsertAbility = AbilitySlots[Index];
 
 		// Don't select perks that require other perks
-		if (InsertAbility.Template.PrerequisiteAbilities.Length == 0)
+		if (!DoesAbilityRequireAnotherAbility(InsertAbility) && !IsAbilityRequiredByAnotherAbility(InsertAbility.AbilityName))
 		{
 			AbilitySlots.RemoveItem(InsertAbility);
 			AbilitySlots.InsertItem(0, InsertAbility);
@@ -145,9 +145,25 @@ private function PrintAbilitySlots()
 }
 
 private function ShuffleAbilitySlots()
-{
-	// TODO: Reimplement in script just in case
+{	
+	local SoldierClassAbilityType_FMPO			AbilitySlot;
+	local array<SoldierClassAbilityType_FMPO>	ShuffledAbilitySlots;
+	local int									Index;
+
 	AbilitySlots.RandomizeOrder();
+
+	// Reshuffle manually just in case
+
+	while (AbilitySlots.Length > 0)
+	{
+		Index = `SYNC_RAND(AbilitySlots.Length);
+		AbilitySlot = AbilitySlots[Index];
+
+		AbilitySlots.RemoveItem(AbilitySlot);
+		ShuffledAbilitySlots.AddItem(AbilitySlot);
+	}
+
+	AbilitySlots = ShuffledAbilitySlots;
 }
 
 private function RemoveAbilitiesPresentInSoldierAbilityTree()
@@ -303,6 +319,35 @@ private function RemoveAbilitiesWithMissingRequiredPerks()
 				AbilitySlots.Remove(i, 1);
 				break;
 			} 
+		}
+	}
+}
+
+private function bool DoesAbilityRequireAnotherAbility(const out SoldierClassAbilityType_FMPO AbilitySlot)
+{
+	local name RequiredAbility;
+
+	foreach AbilitySlot.Template.PrerequisiteAbilities(RequiredAbility)
+	{
+		if (Left(string(RequiredAbility), 4) != "NOT_")
+		{
+			return true;
+		}
+	}
+}
+private function bool IsAbilityRequiredByAnotherAbility(const name AbilityName)
+{
+	local SoldierClassAbilityType_FMPO AbilitySlot;
+	local name RequiredAbility;
+
+	foreach AbilitySlots(AbilitySlot)
+	{
+		foreach AbilitySlot.Template.PrerequisiteAbilities(RequiredAbility)
+		{
+			if (RequiredAbility == AbilityName)
+			{
+				return true;
+			}
 		}
 	}
 }
