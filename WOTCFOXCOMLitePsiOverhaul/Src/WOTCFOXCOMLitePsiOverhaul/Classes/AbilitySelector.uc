@@ -22,6 +22,9 @@ var private config array<SoldierClassAbilityType_FMPO>	AbilitySlots;
 var private config float								fAverageTierPerRank;
 var private X2AbilityTemplateManager					AbilityMgr;
 
+var XComGameState_Unit	UnitState;
+var private bool		bSecondaryPsiAmp;
+
 `include(WOTCFOXCOMLitePsiOverhaul\Src\ModConfigMenuAPI\MCM_API_CfgHelpers.uci)
 
 private function SoldierClassAbilityType AddAbility(const out SoldierClassAbilityType_FMPO AbilitySlot)
@@ -29,7 +32,14 @@ private function SoldierClassAbilityType AddAbility(const out SoldierClassAbilit
 	local SoldierClassAbilityType ReturnAbility;
 
 	ReturnAbility.AbilityName = AbilitySlot.AbilityName;
-	ReturnAbility.ApplyToWeaponSlot = AbilitySlot.ApplyToWeaponSlot;
+	if (bSecondaryPsiAmp)
+	{
+		ReturnAbility.ApplyToWeaponSlot = eInvSlot_SecondaryWeapon;
+	}
+	else
+	{
+		ReturnAbility.ApplyToWeaponSlot = AbilitySlot.ApplyToWeaponSlot;
+	}
 	ReturnAbility.UtilityCat = AbilitySlot.UtilityCat;
 
 	return ReturnAbility;
@@ -66,6 +76,8 @@ final function BuildPsiAbilities(out SoldierRankAbilities InsertAbilities, const
 
 	AbilityMgr = class'X2AbilityTemplateManager'.static.GetAbilityTemplateManager();
 	GetAbilityTemplates();
+
+	bSecondaryPsiAmp = class'Help'.static.PsiAmpIsOnlySecondaryForSoldierClass(UnitState);
 
 	`AMLOG("Going to select:" @ NumSlots @ "abilities out of:" @ AbilitySlots.Length);
 	PrintAbilitySlots();

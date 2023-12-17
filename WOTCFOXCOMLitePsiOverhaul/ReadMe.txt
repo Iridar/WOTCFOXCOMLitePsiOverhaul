@@ -20,8 +20,8 @@ Event listener allows unlocking psi abilities via CPS.
 set ability point costs via listener
 optional Gift
 increase psi offense for unlocking ability
-
 map abilities to the secondary weapon if the soldier class has psi amp as the only secondary weapon
+
 add psionic infusor item
 add Psi PCS
 
