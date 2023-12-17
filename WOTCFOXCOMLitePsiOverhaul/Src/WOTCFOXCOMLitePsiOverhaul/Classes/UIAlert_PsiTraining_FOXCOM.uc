@@ -147,6 +147,9 @@ simulated function BuildPsiTraining_FOXCOMTrainingCompleteAlert(string TitleLabe
 		return;
 	}
 
+	UnitState = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(
+		class'X2StrategyGameRulesetDataStructures'.static.GetDynamicIntProperty(DisplayPropertySet, 'UnitRef')));
+
 	AbilityTemplateName = class'X2StrategyGameRulesetDataStructures'.static.GetDynamicNameProperty(DisplayPropertySet, 'AbilityTemplate');
 	if (AbilityTemplateName != '')
 	{
@@ -156,9 +159,7 @@ simulated function BuildPsiTraining_FOXCOMTrainingCompleteAlert(string TitleLabe
 		AbilityDescription = AbilityTemplate.HasLongDescription() ? AbilityTemplate.GetMyLongDescription(, UnitState) : ("Missing 'LocLongDescription' for ability " $ AbilityTemplate.DataName $ "'");
 		AbilityIcon = AbilityTemplate.IconImage;
 	}
-
-	UnitState = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(
-		class'X2StrategyGameRulesetDataStructures'.static.GetDynamicIntProperty(DisplayPropertySet, 'UnitRef')));
+	
 	ClassTemplate = UnitState.GetSoldierClassTemplate();
 	ClassName = Caps(ClassTemplate.DisplayName);
 	ClassIcon = ClassTemplate.IconImage;

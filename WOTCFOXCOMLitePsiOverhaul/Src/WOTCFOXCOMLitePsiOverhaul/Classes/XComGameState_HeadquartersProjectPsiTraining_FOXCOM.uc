@@ -308,6 +308,7 @@ private function int InjectPsiPerks(out XComGameState_Unit UnitState, out XComGa
 	}
 
 	Selector = new class'AbilitySelector';
+	Selector.UnitState = UnitState;
 	Selector.BuildPsiAbilities(InsertAbilities, iNumPerks);
 
 	for (iRank = StartingRank; iRank < InsertAbilities.Abilities.Length; iRank++)
