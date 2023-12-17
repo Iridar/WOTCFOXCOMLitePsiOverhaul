@@ -18,13 +18,16 @@ var localized string LabelEndTooltip;
 `MCM_API_AutoCheckBoxVars(CHANGE_APPEARANCE);
 `MCM_API_AutoSliderVars(HAIR_COLOR);
 `MCM_API_AutoSliderVars(EYE_COLOR);
+`MCM_API_AutoCheckBoxVars(ALLOW_ROOKIES);
+
 
 `include(WOTCFOXCOMLitePsiOverhaul\Src\ModConfigMenuAPI\MCM_API_CfgHelpers.uci)
 
 `MCM_API_AutoSliderFns(GIFT_CHANCE,, 1);
 `MCM_API_AutoCheckBoxFns(GIFT_PSIOP_GUARANTEED, 1);
 `MCM_API_AutoCheckBoxFns(RANDOMIZE_FREE_ABILITY, 1);
-`MCM_API_AutoCheckBoxFns(DEBUG_LOGGING, 1);
+`MCM_API_AutoCheckBoxFns(DEBUG_LOGGING, 1)
+`MCM_API_AutoCheckBoxFns(ALLOW_ROOKIES, 1);
 `MCM_API_AutoCheckBoxFns(CHANGE_APPEARANCE, 1);
 `MCM_API_AutoSliderFns(HAIR_COLOR,, 1);
 `MCM_API_AutoSliderFns(EYE_COLOR,, 1);
@@ -55,6 +58,8 @@ simulated function ClientModCallback(MCM_API_Instance ConfigAPI, int GameMode)
 	`MCM_API_AutoAddCheckBox(Group, RANDOMIZE_FREE_ABILITY);
 	
 	Group = Page.AddGroup('Group', GroupHeaders[2]); // "Psionic Training"
+
+	`MCM_API_AutoAddCheckBox(Group, ALLOW_ROOKIES);
 	`MCM_API_AutoAddCheckBox(Group, CHANGE_APPEARANCE);
 
 	Palette = `CONTENT.GetColorPalette(ePalette_HairColor);
@@ -83,7 +88,7 @@ simulated function LoadSavedSettings()
 	GIFT_PSIOP_GUARANTEED = `GETMCMVAR(GIFT_PSIOP_GUARANTEED);
 	RANDOMIZE_FREE_ABILITY = `GETMCMVAR(RANDOMIZE_FREE_ABILITY);
 	CHANGE_APPEARANCE = `GETMCMVAR(CHANGE_APPEARANCE);
-
+	ALLOW_ROOKIES = `GETMCMVAR(ALLOW_ROOKIES);
 	HAIR_COLOR = `GETMCMVAR(HAIR_COLOR);
 	EYE_COLOR = `GETMCMVAR(EYE_COLOR);
 }
@@ -92,7 +97,7 @@ simulated function ResetButtonClicked(MCM_API_SettingsPage Page)
 {
 	`MCM_API_AutoReset(HAIR_COLOR);
 	`MCM_API_AutoReset(EYE_COLOR);
-
+	`MCM_API_AutoReset(ALLOW_ROOKIES);
 	`MCM_API_AutoReset(GIFT_CHANCE);
 	`MCM_API_AutoReset(DEBUG_LOGGING);
 	`MCM_API_AutoReset(RANDOMIZE_FREE_ABILITY);

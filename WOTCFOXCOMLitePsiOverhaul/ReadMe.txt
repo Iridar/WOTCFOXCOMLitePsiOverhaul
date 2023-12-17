@@ -31,15 +31,14 @@ add psionic infusor item
 
 MCM Support:
 
-# Psi Training
-Allow training rookies as Psi Operatives
-
 # Strategy
 Remove Psionics Research Cost
 Make Psi Lab Cheaper
 
-# Misc
-Debug Logging
+# Psi Training
+Allow training rookies as Psi Operatives
+
+
 
 
 Psi PCS is added.

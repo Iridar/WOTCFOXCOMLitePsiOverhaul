@@ -1,6 +1,7 @@
 class XComGameState_HeadquartersProjectPsiTraining_FOXCOM extends XComGameState_HeadquartersProjectPsiTraining config(PsiOverhaul);
 
 var private config int	InitialPsiOffenseBonus;
+var bool bPsiOperativeTraining;
 
 `include(WOTCFOXCOMLitePsiOverhaul\Src\ModConfigMenuAPI\MCM_API_CfgHelpers.uci)
 
@@ -9,6 +10,12 @@ function SetProjectFocus(StateObjectReference FocusRef, optional XComGameState N
 	local XComGameStateHistory History;
 	local XComGameState_Unit UnitState;
 	local XComGameState_GameTime TimeState;
+
+	if (bPsiOperativeTraining)
+	{
+		super.SetProjectFocus(FocusRef, NewGameState, AuxRef);
+		return;
+	}
 
 	History = `XCOMHISTORY;
 	ProjectFocus = FocusRef; // Unit
@@ -56,6 +63,11 @@ function int CalculatePointsToTrain(optional bool bClassTraining = false)
 {
 	local XComGameState_HeadquartersXCom XComHQ;
 
+	if (bPsiOperativeTraining)
+	{
+		return super.CalculatePointsToTrain(bClassTraining);
+	}
+
 	XComHQ = `XCOMHQ;
 
 	return XComHQ.GetPsiTrainingDays() * XComHQ.XComHeadquarters_DefaultPsiTrainingWorkPerHour * 24 / 10; // TODO: DEBUG ONLY
@@ -72,16 +84,45 @@ function OnProjectCompleted()
 	local int								iFinalRow;
 	local bool								bHasGift;
 
-	OrderInput.OrderType = eHeadquartersOrderType_PsiTrainingCompleted;
-	OrderInput.AcquireObjectReference = self.GetReference();
-
-	class'XComGameStateContext_HeadquartersOrder'.static.IssueHeadquartersOrder(OrderInput);
-
 	UnitState = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(ProjectFocus.ObjectID));
 	if (UnitState == none)
 		return;
 
 	bHasGift = RollUnitHasGift(UnitState);
+
+	if (bPsiOperativeTraining)
+	{
+		if (bHasGift)
+		{
+			super.OnProjectCompleted();
+		}
+		else
+		{
+			OrderInput.OrderType = eHeadquartersOrderType_PsiTrainingCompleted;
+			OrderInput.AcquireObjectReference = self.GetReference();
+
+			class'XComGameStateContext_HeadquartersOrder'.static.IssueHeadquartersOrder(OrderInput);
+
+			NewGameState = class'XComGameStateContext_ChangeContainer'.static.CreateChangeState("Complete psionic Training");
+			UnitState = XComGameState_Unit(NewGameState.ModifyStateObject(UnitState.Class, UnitState.ObjectID));
+			class'Help'.static.MarkGiftless(UnitState);
+			`GAMERULES.SubmitGameState(NewGameState);
+
+			ShowTrainingCompletedPopUp(ProjectFocus, '', true);
+
+			// Start Issue #534
+			TriggerPsiProjectCompleted(UnitState, AbilityName);
+			// End Issue #534
+		}
+		return;
+	}
+
+	// ----------------------------------------------------------------
+
+	OrderInput.OrderType = eHeadquartersOrderType_PsiTrainingCompleted;
+	OrderInput.AcquireObjectReference = self.GetReference();
+
+	class'XComGameStateContext_HeadquartersOrder'.static.IssueHeadquartersOrder(OrderInput);
 	
 	NewGameState = class'XComGameStateContext_ChangeContainer'.static.CreateChangeState("Complete psionic Training");
 	UnitState = XComGameState_Unit(NewGameState.ModifyStateObject(UnitState.Class, UnitState.ObjectID));

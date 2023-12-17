@@ -6,6 +6,8 @@ var config(StrategyTuning) array<int>			Power;
 var config(StrategyTuning) array<int>			UpkeepCost;
 var config(StrategyTuning) bool					bSkipRemovingPsionicsResearchCost;
 
+`include(WOTCFOXCOMLitePsiOverhaul\Src\ModConfigMenuAPI\MCM_API_CfgHelpers.uci)
+
 static event OnPostTemplatesCreated()
 {
 	local X2FacilityTemplate				FacilityTemplate;
@@ -64,14 +66,14 @@ static event OnPostTemplatesCreated()
 	ItemTemplate = ItemMgr.FindItemTemplate('PsiAmp_CV');
 	if (ItemTemplate != none)
 	{
-		class'X2StrategyElement_PsiAmp'.default.strSlotLocName = class'UIUtilities_Text'.static.CapsCheckForGermanScharfesS(ItemTemplate.GetItemFriendlyNameNoStats());
+		class'X2StrategyElement_PsiAmp'.default.strSlotLocName = `CAPS(ItemTemplate.GetItemFriendlyNameNoStats());
 		//class'X2StrategyElement_PsiAmp'.default.strSlotFirstLetter = "";
 	}
 
 	TechTemplate = X2TechTemplate(StratMgr.FindStrategyElementTemplate('Psionics'));
 	if (TechTemplate != none)
 	{
-		class'X2EventListener_PsiOverhaul'.default.PsionicTreeName = class'UIUtilities_Text'.static.CapsCheckForGermanScharfesS(TechTemplate.DisplayName);;
+		class'X2EventListener_PsiOverhaul'.default.PsionicTreeName = `CAPS(TechTemplate.DisplayName);
 	}
 }
 
@@ -86,45 +88,42 @@ static private function FillPsiChamberSoldierSlot(XComGameState NewGameState, St
 
 	class'X2StrategyElement_DefaultStaffSlots'.static.FillSlot(NewGameState, SlotRef, UnitInfo, NewSlotState, NewUnitState);
 	
-	if (!class'Help'.static.IsPsiOperative(NewUnitState)) 
+	NewUnitState.SetStatus(eStatus_PsiTesting);
+
+	if (NewUnitState.GetRank() > 0 && NewUnitState.GetSoldierClassTemplateName() == 'PsiOperative')
+		return;
+
+	NewXComHQ = class'X2StrategyElement_DefaultStaffSlots'.static.GetNewXComHQState(NewGameState);
+
+	ProjectState = XComGameState_HeadquartersProjectPsiTraining_FOXCOM(NewGameState.CreateNewStateObject(class'XComGameState_HeadquartersProjectPsiTraining_FOXCOM'));
+	ProjectState.SetProjectFocus(UnitInfo.UnitRef, NewGameState, NewSlotState.Facility);
+	ProjectState.bPsiOperativeTraining = NewUnitState.GetRank() == 0 || NewUnitState.GetSoldierClassTemplateName() == 'PsiOperative';
+
+	NewXComHQ.Projects.AddItem(ProjectState.GetReference());
+
+	// Remove their gear
+	NewUnitState.MakeItemsAvailable(NewGameState, false);
+
+	// If the unit undergoing training is in the squad, remove them
+	SquadIndex = NewXComHQ.Squad.Find('ObjectID', UnitInfo.UnitRef.ObjectID);
+	if (SquadIndex != INDEX_NONE)
 	{
-		NewUnitState.SetStatus(eStatus_PsiTesting);
-
-		NewXComHQ = class'X2StrategyElement_DefaultStaffSlots'.static.GetNewXComHQState(NewGameState);
-
-		ProjectState = XComGameState_HeadquartersProjectPsiTraining_FOXCOM(NewGameState.CreateNewStateObject(class'XComGameState_HeadquartersProjectPsiTraining_FOXCOM'));
-		ProjectState.SetProjectFocus(UnitInfo.UnitRef, NewGameState, NewSlotState.Facility);
-
-		NewXComHQ.Projects.AddItem(ProjectState.GetReference());
-
-		// Remove their gear
-		NewUnitState.MakeItemsAvailable(NewGameState, false);
-
-		// If the unit undergoing training is in the squad, remove them
-		SquadIndex = NewXComHQ.Squad.Find('ObjectID', UnitInfo.UnitRef.ObjectID);
-		if (SquadIndex != INDEX_NONE)
-		{
-			// Remove them from the squad
-			NewXComHQ.Squad[SquadIndex] = EmptyRef;
-		}
-	}
-	else // The unit is either starting or resuming an ability training project, so set their status appropriately
-	{
-		NewUnitState.SetStatus(eStatus_PsiTraining);
+		// Remove them from the squad
+		NewXComHQ.Squad[SquadIndex] = EmptyRef;
 	}
 }
 
 static private function bool IsUnitValidForPsiChamberSoldierSlot(XComGameState_StaffSlot SlotState, StaffUnitInfo UnitInfo)
 {
 	local XComGameState_Unit Unit; 
-	//local SCATProgression ProgressAbility;
-	//local name AbilityName;
 	local bool bOverridePsiTrain, bCanTrain; //issue #159 - booleans for mod override
 	local XComLWTuple Tuple; //issue #159 - tuple for event
-	local bool bUnitInitiallyValid;
 
 	Unit = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(UnitInfo.UnitRef.ObjectID));
-	if (Unit == none)
+	if (Unit == none || !Unit.IsSoldier())
+		return false;
+
+	if (!`GETMCMVAR(ALLOW_ROOKIES) && Unit.GetRank() == 0)
 		return false;
 
 	if (class'Help'.static.IsPsiOperative(Unit) || class'Help'.static.IsGiftless(Unit))
@@ -135,7 +134,6 @@ static private function bool IsUnitValidForPsiChamberSoldierSlot(XComGameState_S
 		return false;
 
 	if (Unit.CanBeStaffed()
-		&& Unit.IsSoldier()
 		&& Unit.IsActive()
 		&& SlotState.GetMyTemplate().ExcludeClasses.Find(Unit.GetSoldierClassTemplateName()) == INDEX_NONE)
 	{
@@ -157,8 +155,6 @@ static private function bool IsUnitValidForPsiChamberSoldierSlot(XComGameState_S
 			return bCanTrain;
 		}
 
-		bUnitInitiallyValid = true;
-
 		//if (Unit.GetRank() == 0 && !Unit.CanRankUpSoldier()) // All rookies who have not yet ranked up can be trained as Psi Ops
 		//{
 		//	return true;
@@ -176,7 +172,7 @@ static private function bool IsUnitValidForPsiChamberSoldierSlot(XComGameState_S
 		//}
 	}
 
-	return bUnitInitiallyValid && Unit.GetRank() > 0;
+	return true;
 }
 
 static function bool DisplayQueuedDynamicPopup(DynamicPropertySet PropertySet)

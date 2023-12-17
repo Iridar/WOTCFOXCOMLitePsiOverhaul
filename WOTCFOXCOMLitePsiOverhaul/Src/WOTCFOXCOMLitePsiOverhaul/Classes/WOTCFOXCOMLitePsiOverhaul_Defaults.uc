@@ -9,3 +9,4 @@ var config bool DEBUG_LOGGING;
 var config bool CHANGE_APPEARANCE;
 var config bool GIFT_PSIOP_GUARANTEED;
 var config bool RANDOMIZE_FREE_ABILITY;
+var config bool ALLOW_ROOKIES;
