@@ -21,15 +21,7 @@ set ability point costs via listener
 optional Gift
 increase psi offense for unlocking ability
 map abilities to the secondary weapon if the soldier class has psi amp as the only secondary weapon
-
 add psionic infusor item
-add Psi PCS
-
-
-TESTS:
-Test if psionic training can be interrupted safely
-ability point costs
-
 
 -----------------------------------------------------
 
@@ -42,6 +34,7 @@ add psionic outline to stack soldier class icon - doesn't work that way, apparen
 
 CPS is required
 Highlander is required
+Template Master is required
 
 (WOTC) UI Mod for Defense/Mobility/Psi
 https://steamcommunity.com/sharedfiles/filedetails/?id=1281427768

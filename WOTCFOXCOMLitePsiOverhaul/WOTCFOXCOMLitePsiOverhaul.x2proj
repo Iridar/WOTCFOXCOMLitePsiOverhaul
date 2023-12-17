@@ -31,6 +31,9 @@
     <Content Include="Config\XComWOTCFOXCOMLitePsiOverhaul_DEFAULT.ini">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="ContentForCook\IRIFMPsiOverhaul.upk">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="ReadMe.txt" />
     <Content Include="ModPreview.jpg" />
     <Content Include="ContentOptions.json" />

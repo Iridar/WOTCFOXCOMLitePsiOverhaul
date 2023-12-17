@@ -80,7 +80,6 @@ function int CalculatePointsToTrain(optional bool bClassTraining = false)
 
 function OnProjectCompleted()
 {
-	local HeadquartersOrderInputContext		OrderInput;
 	local XComGameState_Unit				UnitState;
 	//local X2AbilityTemplate					AbilityTemplate;
 	local name								AbilityName;
@@ -88,29 +87,51 @@ function OnProjectCompleted()
 	local int								CurrentPsiOffense;
 	local int								iFinalRow;
 	local bool								bHasGift;
+	local bool								bAuroraShard;
+	local XComGameState_HeadquartersXCom	XComHQ;
 
 	UnitState = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(ProjectFocus.ObjectID));
 	if (UnitState == none)
 		return;
 
-	bHasGift = RollUnitHasGift(UnitState);
+	if (class'Help'.static.IsGiftless(UnitState))
+	{	
+		bAuroraShard = true;
+		bHasGift = true;
+	}
+	else
+	{
+		bHasGift = RollUnitHasGift(UnitState);
+	}
 
 	if (bPsiOperativeTraining)
 	{
 		if (bHasGift)
 		{
 			super.OnProjectCompleted();
+
+			if (bAuroraShard)
+			{
+				NewGameState = class'XComGameStateContext_ChangeContainer'.static.CreateChangeState("Complete psionic Training");
+				XComHQ = class'Help'.static.GetAndPrepXComHQ(NewGameState);
+				XComHQ.AddResource(NewGameState, 'IRI_AuroraShard', -1);
+
+				UnitState = XComGameState_Unit(NewGameState.ModifyStateObject(UnitState.Class, UnitState.ObjectID));
+				class'Help'.static.UnmarkGiftless(UnitState);
+
+				`GAMERULES.SubmitGameState(NewGameState);
+
+				ShowShardConsumedPopup();
+			}
 		}
 		else
 		{
-			OrderInput.OrderType = eHeadquartersOrderType_PsiTrainingCompleted;
-			OrderInput.AcquireObjectReference = self.GetReference();
-
-			class'XComGameStateContext_HeadquartersOrder'.static.IssueHeadquartersOrder(OrderInput);
-
 			NewGameState = class'XComGameStateContext_ChangeContainer'.static.CreateChangeState("Complete psionic Training");
 			UnitState = XComGameState_Unit(NewGameState.ModifyStateObject(UnitState.Class, UnitState.ObjectID));
 			class'Help'.static.MarkGiftless(UnitState);
+
+			CompletePsiTraining(NewGameState, GetReference(), UnitState);
+
 			`GAMERULES.SubmitGameState(NewGameState);
 
 			ShowTrainingCompletedPopUp(ProjectFocus, '', true);
@@ -124,10 +145,6 @@ function OnProjectCompleted()
 
 	// ----------------------------------------------------------------
 
-	//OrderInput.OrderType = eHeadquartersOrderType_PsiTrainingCompleted;
-	//OrderInput.AcquireObjectReference = self.GetReference();
-	//class'XComGameStateContext_HeadquartersOrder'.static.IssueHeadquartersOrder(OrderInput);
-	
 	NewGameState = class'XComGameStateContext_ChangeContainer'.static.CreateChangeState("Complete psionic Training");
 	UnitState = XComGameState_Unit(NewGameState.ModifyStateObject(UnitState.Class, UnitState.ObjectID));
 
@@ -151,6 +168,14 @@ function OnProjectCompleted()
 
 		// This will equip a Psi Amp into the freshly unlocked slot
 		UnitState.ValidateLoadout(NewGameState);
+
+		if (bAuroraShard)
+		{
+			XComHQ = class'Help'.static.GetAndPrepXComHQ(NewGameState);
+			XComHQ.AddResource(NewGameState, 'IRI_AuroraShard', -1);
+
+			class'Help'.static.UnmarkGiftless(UnitState);
+		}
 	}
 	else
 	{
@@ -177,9 +202,26 @@ function OnProjectCompleted()
 		ShowTrainingCompletedPopUp(ProjectFocus,, true);
 	}
 
+	if (bAuroraShard)
+	{
+		ShowShardConsumedPopup();
+	}
+
 	// Start Issue #534
 	TriggerPsiProjectCompleted(UnitState, AbilityName);
 	// End Issue #534
+}
+
+private function ShowShardConsumedPopup()
+{
+	local DynamicPropertySet PropertySet;
+
+	class'X2StrategyGameRulesetDataStructures'.static.BuildDynamicPropertySet(PropertySet, 'UIAlert_PsiTraining_FOXCOM', 'eAlert_PsiTraining_ShardConsumed', none, true, true, true, false);
+	class'X2StrategyGameRulesetDataStructures'.static.AddDynamicNameProperty(PropertySet, 'EventToTrigger', '');
+	class'X2StrategyGameRulesetDataStructures'.static.AddDynamicStringProperty(PropertySet, 'SoundToPlay', "Geoscape_CrewMemberLevelledUp");
+	class'X2StrategyGameRulesetDataStructures'.static.AddDynamicIntProperty(PropertySet, 'UnitRef', 0);
+	class'X2StrategyGameRulesetDataStructures'.static.AddDynamicNameProperty(PropertySet, 'AbilityTemplate', '');
+	`HQPRES.QueueDynamicPopup(PropertySet);
 }
 
 static private function CompletePsiTraining(XComGameState AddToGameState, StateObjectReference ProjectRef, XComGameState_Unit UnitState)

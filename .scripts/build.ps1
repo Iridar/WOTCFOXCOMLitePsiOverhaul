@@ -26,5 +26,5 @@ switch ($config)
 }
 
 # Uncomment this line to enable cooking.
-# $builder.SetContentOptionsJsonFilename("ContentOptions.json")
+$builder.SetContentOptionsJsonFilename("ContentOptions.json")
 $builder.InvokeBuild()

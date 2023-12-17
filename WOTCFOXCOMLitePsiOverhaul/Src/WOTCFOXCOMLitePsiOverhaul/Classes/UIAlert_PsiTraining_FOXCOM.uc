@@ -4,12 +4,15 @@ class UIAlert_PsiTraining_FOXCOM extends UIAlert;
 // but it works, so w/e.
 
 var localized string strNoGift;
+var localized string strShardConsumedText;
+var localized string strShardConsumedTitle;
 
 enum UIAlert_PsiTraining_FOXCOM
 {
 	eAlert_PsiTraining_FOXCOMTrainingComplete,
 	eAlert_PsiTraining_FOXCOMTrainingFailed,
 	eAlert_PsiTraining_FOXCOMTrainingCompleteNoAbility,
+	eAlert_PsiTraining_ShardConsumed,
 };
 
 simulated function BuildAlert()
@@ -24,6 +27,9 @@ simulated function BuildAlert()
 		break;	
 	case 'eAlert_PsiTraining_FOXCOMTrainingFailed':
 		BuildSoldierHasNoGiftAlert();
+		break;
+	case 'eAlert_PsiTraining_ShardConsumed':
+		BuildShardConsumedAlert();
 		break;
 	default:
 		AddBG(MakeRect(0, 0, 1000, 500), eUIState_Normal).SetAlpha(0.75f);
@@ -40,12 +46,40 @@ simulated function Name GetLibraryID()
 	switch ( eAlertName )
 	{
 	case 'eAlert_PsiTraining_FOXCOMTrainingComplete':
+	case 'eAlert_PsiTraining_FOXCOMTrainingCompleteNoAbility':
 		return 'Alert_TrainingComplete';
+
 	case 'eAlert_PsiTraining_FOXCOMTrainingFailed':
 		return 'Alert_NegativeSoldierEvent';
+
+	case 'eAlert_PsiTraining_ShardConsumed':
+		return 'Alert_ItemAvailable';
 	default:
 		return '';
 	}
+}
+
+simulated function BuildShardConsumedAlert()
+{
+	local TAlertAvailableInfo kInfo;
+	local X2ItemTemplate ItemTemplate;
+	local X2ItemTemplateManager TemplateManager;
+
+	TemplateManager = class'X2ItemTemplateManager'.static.GetItemTemplateManager();
+
+	ItemTemplate = TemplateManager.FindItemTemplate('IRI_AuroraShard');
+
+	kInfo.strTitle = `CAPS(strShardConsumedTitle);
+	kInfo.strName = ItemTemplate.GetItemFriendlyName(, false);
+	kInfo.strBody = strShardConsumedText;
+	kInfo.strConfirm = m_strAccept;
+	kInfo.strImage = ItemTemplate.strImage;
+	kInfo.eColor = eUIState_Good;
+	kInfo.clrAlert = MakeLinearColor(0.0, 0.75, 0.0, 1);
+
+	kInfo = FillInTyganAlertAvailable(kInfo);
+
+	BuildAvailableAlert(kInfo);
 }
 
 simulated function BuildSoldierHasNoGiftAlert()

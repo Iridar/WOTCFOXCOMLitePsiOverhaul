@@ -40,7 +40,11 @@ static final function MarkPsiOperative(out XComGameState_Unit UnitState, const i
 }
 static final function MarkGiftless(out XComGameState_Unit UnitState)
 {
-	UnitState.SetUnitFloatValue(default.PsiOperativeValue, 1.0f, eCleanup_Never);
+	UnitState.SetUnitFloatValue(default.GiftlessValue, 1.0f, eCleanup_Never);
+}
+static final function UnmarkGiftless(out XComGameState_Unit UnitState)
+{
+	UnitState.ClearUnitValue(default.GiftlessValue);
 }
 
 static final function bool PsiAmpIsOnlySecondaryForSoldierClass(XComGameState_Unit UnitState)
@@ -72,6 +76,24 @@ static final function bool PsiAmpIsOnlySecondaryForSoldierClass(XComGameState_Un
 		return true;
 	}
 	return false;
+}
+
+static final function XComGameState_HeadquartersXCom GetAndPrepXComHQ(XComGameState NewGameState)
+{
+    local XComGameState_HeadquartersXCom XComHQ;
+
+    foreach NewGameState.IterateByClassType(class'XComGameState_HeadquartersXCom', XComHQ)
+    {
+        break;
+    }
+
+    if (XComHQ == none)
+    {
+        XComHQ = XComGameState_HeadquartersXCom(`XCOMHISTORY.GetSingleGameStateObjectForClass(class'XComGameState_HeadquartersXCom'));
+        XComHQ = XComGameState_HeadquartersXCom(NewGameState.ModifyStateObject(class'XComGameState_HeadquartersXCom', XComHQ.ObjectID));
+    }
+
+    return XComHQ;
 }
 
 defaultproperties

@@ -83,6 +83,14 @@ static event OnPostTemplatesCreated()
 	}
 }
 
+static event OnLoadedSavedGame()
+{
+	local X2StrategyElementTemplateManager StratMgr;
+
+	StratMgr = class'X2StrategyElementTemplateManager'.static.GetStrategyElementTemplateManager();
+	AddProvingGroundsProjectIfItsNotPresent(StratMgr, 'IRI_AuroraShard_Tech');
+}
+
 static private function FillPsiChamberSoldierSlot(XComGameState NewGameState, StateObjectReference SlotRef, StaffUnitInfo UnitInfo, optional bool bTemporary = false)
 {
 	local XComGameState_Unit NewUnitState;
@@ -132,8 +140,16 @@ static private function bool IsUnitValidForPsiChamberSoldierSlot(XComGameState_S
 	if (!`GETMCMVAR(ALLOW_ROOKIES) && Unit.GetRank() == 0)
 		return false;
 
-	if (class'Help'.static.IsPsiOperative(Unit) || class'Help'.static.IsGiftless(Unit))
+	if (class'Help'.static.IsPsiOperative(Unit))
 		return false;
+	
+	if (class'Help'.static.IsGiftless(Unit))
+	{
+		if (`XCOMHQ.GetResourceAmount('IRI_AuroraShard') == 0)
+		{
+			return false;
+		}
+	}
 
 	// Should exclude SPARKs
 	if (Unit.IsRobotic())
@@ -202,6 +218,40 @@ static function bool DisplayQueuedDynamicPopup(DynamicPropertySet PropertySet)
 
 		Pres.ScreenStack.Push(Alert);
 		return true;
+	}
+	return false;
+}
+
+static private function AddProvingGroundsProjectIfItsNotPresent(X2StrategyElementTemplateManager StratMgr, name ProjectName)
+{
+	local XComGameState		NewGameState;
+	local X2TechTemplate	TechTemplate;
+
+	if (!IsResearchInHistory(ProjectName))
+	{
+		NewGameState = class'XComGameStateContext_ChangeContainer'.static.CreateChangeState("Adding Research Templates");
+
+		TechTemplate = X2TechTemplate(StratMgr.FindStrategyElementTemplate(ProjectName));
+		NewGameState.CreateNewStateObject(class'XComGameState_Tech', TechTemplate);
+
+		`XCOMHISTORY.AddGameStateToHistory(NewGameState);
+	}
+}
+
+static private function bool IsResearchInHistory(name ResearchName)
+{
+	// Check if we've already injected the tech templates
+	local XComGameState_Tech	TechState;
+	local XComGameStateHistory	History;
+	
+	History = `XCOMHISTORY;
+
+	foreach History.IterateByClassType(class'XComGameState_Tech', TechState)
+	{
+		if ( TechState.GetMyTemplateName() == ResearchName )
+		{
+			return true;
+		}
 	}
 	return false;
 }

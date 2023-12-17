@@ -43,3 +43,5 @@ LabelEndTooltip = "Thank you for using my mods, I hope you enjoy! Please conside
 
 [UIAlert_PsiTraining_FOXCOM]
 strNoGift = "Not Gifted."
+strShardConsumedText = "One Aurora Shard consumed."
+strShardConsumedTitle = "Psionic infusion complete"
