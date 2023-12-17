@@ -111,7 +111,7 @@ function OnProjectCompleted()
 			ShowTrainingCompletedPopUp(ProjectFocus, '', true);
 
 			// Start Issue #534
-			TriggerPsiProjectCompleted(UnitState, AbilityName);
+			TriggerPsiProjectCompleted(UnitState, '');
 			// End Issue #534
 		}
 		return;

@@ -18,16 +18,18 @@ Psionic abilities can be unlocked via soldier's regular promotions or by spendin
 event listener for localized ability row
 Event listener allows unlocking psi abilities via CPS.
 set ability point costs via listener
-
 optional Gift
-
 increase psi offense for unlocking ability
+
+training promotes soldier
+view soldier button doesn't work the second time
 AP costs don't seem to work
 Add exclusion lists for soldier classes and characters
 automatically exclude soldiers that can use psi amp as a class weapon?
 add psi amp slot only if the soldier class doesn't already have psi amp as their only secondary
 map abilities to the secondary weapon if the soldier class has psi amp as the only secondary weapon
 add psionic infusor item
+add Psi PCS
 
 MCM Support:
 
@@ -35,13 +37,6 @@ MCM Support:
 Remove Psionics Research Cost
 Make Psi Lab Cheaper
 
-# Psi Training
-Allow training rookies as Psi Operatives
-
-
-
-
-Psi PCS is added.
 
 TESTS:
 Test if psionic training can be interrupted safely

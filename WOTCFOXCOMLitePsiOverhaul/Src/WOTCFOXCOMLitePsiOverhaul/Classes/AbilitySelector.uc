@@ -316,3 +316,17 @@ static final function int GetAbilityUnlockCost(const name AbilityName)
 	}
 	return 10;
 }
+
+static final function int GetAbilityStatIncrease(const name AbilityName)
+{
+	local SoldierClassAbilityType_FMPO AbilitySlot;
+
+	foreach default.AbilitySlots(AbilitySlot)
+	{
+		if (AbilitySlot.AbilityName == AbilityName)
+		{
+			return AbilitySlot.PsiBonus;
+		}
+	}
+	return 0;
+}

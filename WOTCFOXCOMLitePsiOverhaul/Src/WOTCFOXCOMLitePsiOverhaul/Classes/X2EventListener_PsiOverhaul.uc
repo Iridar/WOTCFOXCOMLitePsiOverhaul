@@ -26,8 +26,97 @@ static function CHEventListenerTemplate Create_ListenerTemplate()
 	Template.AddCHEvent('CPS_OverrideGetAbilityPointCostProperties', OnOverrideCanPurchaseAbilityProperties, ELD_Immediate, 50);
 
 	Template.AddCHEvent('CPS_OverrideAbilityPointCost', OnOverrideAbilityPointCost, ELD_Immediate, 50);
+	Template.AddCHEvent('CPS_AbilityPurchased', OnAbilityPurchased, ELD_Immediate, 50);
+	Template.AddCHEvent('CPS_OverrideAbilityDescription', OnOverrideAbilityDescription, ELD_Immediate, 50);
+	
 	
 	return Template;
+}
+
+static private function EventListenerReturn OnOverrideAbilityDescription(Object EventData, Object EventSource, XComGameState NewGameState, Name Event, Object CallbackData)
+{
+	local XComLWTuple			Tuple;
+	local XComGameState_Unit	UnitState;
+	local int					Index;
+	local name					AbilityName;
+	local int					StatIncrease;
+	local int					CurrentPsiOffense;
+	local string				StatString;
+
+	UnitState = XComGameState_Unit(EventSource);
+	if (UnitState == none)
+		return ELR_NoInterrupt;
+
+	Index = class'Help'.static.GetPsiOperativeRow(UnitState);
+	if (Index == INDEX_NONE)
+		return ELR_NoInterrupt;
+
+	Tuple = XComLWTuple(EventData);
+	if (Tuple == none)
+		return ELR_NoInterrupt;
+
+	// Squaddie abilities don't provide Psi Offense
+	if (Tuple.Data[0].i == 0)
+		return ELR_NoInterrupt;
+
+	if (Tuple.Data[2].i == Index)
+	{
+		AbilityName = Tuple.Data[0].n;
+		StatIncrease = class'AbilitySelector'.static.GetAbilityStatIncrease(AbilityName);
+		if (StatIncrease == 0)
+			return ELR_NoInterrupt;
+
+		StatString @= class'X2TacticalGameRulesetDataStructures'.default.m_aCharStatLabels[eStat_PsiOffense];
+		StatString $= ": ";
+		if (StatIncrease > 0)
+		{
+			StatString $= "+";
+		}
+		StatString $= string(StatIncrease);
+		StatString = class'UIUtilities_Text'.static.GetColoredText(StatString, eUIState_Warning);
+
+		Tuple.Data[12].s $= StatString;
+	}
+	return ELR_NoInterrupt;
+}
+
+static private function EventListenerReturn OnAbilityPurchased(Object EventData, Object EventSource, XComGameState NewGameState, Name Event, Object CallbackData)
+{
+	local XComLWTuple			Tuple;
+	local XComGameState_Unit	UnitState;
+	local int					Index;
+	local name					AbilityName;
+	local int					StatIncrease;
+	local int					CurrentPsiOffense;
+
+	UnitState = XComGameState_Unit(EventSource);
+	if (UnitState == none)
+		return ELR_NoInterrupt;
+
+	Index = class'Help'.static.GetPsiOperativeRow(UnitState);
+	if (Index == INDEX_NONE)
+		return ELR_NoInterrupt;
+
+	Tuple = XComLWTuple(EventData);
+	if (Tuple == none)
+		return ELR_NoInterrupt;
+
+	if (Tuple.Data[1].i == Index)
+	{
+		UnitState = XComGameState_Unit(NewGameState.GetGameStateForObjectID(UnitState.ObjectID));
+		if (UnitState == none)
+			return ELR_NoInterrupt;
+
+		AbilityName = UnitState.GetAbilityName(Tuple.Data[0].i, Tuple.Data[1].i);
+		StatIncrease = class'AbilitySelector'.static.GetAbilityStatIncrease(AbilityName);
+		`AMLOG(UnitState.GetFullName() @ "unlocked psi ability:" @ AbilityName @ "increasing Psi Offense by:" @ StatIncrease);
+		if (StatIncrease == 0)
+			return ELR_NoInterrupt;
+
+		CurrentPsiOffense = UnitState.GetMaxStat(eStat_PsiOffense);
+		UnitState.SetBaseMaxStat(eStat_PsiOffense, CurrentPsiOffense + StatIncrease);
+	}
+	return ELR_NoInterrupt;
 }
 
 static private function EventListenerReturn OnOverrideLocalizedAbilityTreeTitle(Object EventData, Object EventSource, XComGameState NewGameState, Name Event, Object CallbackData)
