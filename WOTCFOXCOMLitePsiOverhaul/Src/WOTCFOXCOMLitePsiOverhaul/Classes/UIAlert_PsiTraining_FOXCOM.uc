@@ -6,6 +6,7 @@ class UIAlert_PsiTraining_FOXCOM extends UIAlert;
 var localized string strNoGift;
 var localized string strShardConsumedText;
 var localized string strShardConsumedTitle;
+var localized string strNewAbilitiesAdded;
 
 enum UIAlert_PsiTraining_FOXCOM
 {
@@ -194,15 +195,19 @@ simulated function BuildPsiTraining_FOXCOMTrainingCompleteAlert(string TitleLabe
 		AbilityDescription = AbilityTemplate.HasLongDescription() ? AbilityTemplate.GetMyLongDescription(, UnitState) : ("Missing 'LocLongDescription' for ability " $ AbilityTemplate.DataName $ "'");
 		AbilityIcon = AbilityTemplate.IconImage;
 	}
+	else
+	{
+		AbilityName = strNewAbilitiesAdded;
+	}
 
 	ItemTemplate = class'X2ItemTemplateManager'.static.GetItemTemplateManager().FindItemTemplate('PsionicEvaluation');
 	if (ItemTemplate != none)
 	{
-		TitleLabel = ItemTemplate.FriendlyName;
+		TitleLabel = `CAPS(ItemTemplate.FriendlyName);
 	}
 	else
 	{
-		TitleLabel = "Psionic Evaluation";
+		TitleLabel = "PSIONIC EVALUATION";
 	}
 	
 	ClassTemplate = UnitState.GetSoldierClassTemplate();

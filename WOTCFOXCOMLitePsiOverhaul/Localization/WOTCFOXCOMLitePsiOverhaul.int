@@ -45,3 +45,4 @@ LabelEndTooltip = "Thank you for using my mods, I hope you enjoy! Please conside
 strNoGift = "Not Gifted."
 strShardConsumedText = "One Aurora Shard consumed."
 strShardConsumedTitle = "Psionic infusion complete"
+strNewAbilitiesAdded = "New psionic abilities unlocked."

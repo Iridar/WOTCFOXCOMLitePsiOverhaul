@@ -22,12 +22,14 @@ static event OnPostTemplatesCreated()
 	local X2StaffSlotTemplate				StaffSlotTemplate;
 	local X2ItemTemplateManager				ItemMgr;
 	local X2ItemTemplate					ItemTemplate;
+	local X2FacilityUpgradeTemplate			FacilityUpgradeTemplate;
 
 	StratMgr = class'X2StrategyElementTemplateManager'.static.GetStrategyElementTemplateManager();
-	StratMgr.FindDataTemplateAllDifficulties('PsiChamber', DataTemplates);
-
+	
 	if (`GETMCMVAR(CHEAPER_PSI_LAB))
 	{
+		StratMgr.FindDataTemplateAllDifficulties('PsiChamber', DataTemplates);
+
 		foreach DataTemplates(DataTemplate, iDiff)
 		{
 			if (iDiff > 3)
@@ -41,6 +43,20 @@ static event OnPostTemplatesCreated()
 			FacilityTemplate.PointsToComplete = class'X2StrategyElement_DefaultFacilities'.static.GetFacilityBuildDays(default.BuildDays[iDiff]);
 			FacilityTemplate.iPower = default.Power[iDiff];
 			FacilityTemplate.UpkeepCost = default.UpkeepCost[iDiff];
+		}
+
+		StratMgr.FindDataTemplateAllDifficulties('PsiChamber_SecondCell', DataTemplates);
+		foreach DataTemplates(DataTemplate, iDiff)
+		{
+			if (iDiff > 3)
+				break; 
+
+			// Make the second cell cost same as the lab itself
+			FacilityUpgradeTemplate = X2FacilityUpgradeTemplate(DataTemplate);
+
+			FacilityUpgradeTemplate.Cost = default.Cost[iDiff];
+			FacilityUpgradeTemplate.iPower = default.Power[iDiff];
+			FacilityUpgradeTemplate.UpkeepCost = default.UpkeepCost[iDiff];
 		}
 	}
 

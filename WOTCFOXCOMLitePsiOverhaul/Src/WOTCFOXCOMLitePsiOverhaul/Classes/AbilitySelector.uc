@@ -71,8 +71,6 @@ final function BuildPsiAbilities(out SoldierRankAbilities InsertAbilities, const
 {
 	local SoldierClassAbilityType_FMPO	AbilitySlot;
 	local float							AverageTier;
-	local SoldierClassAbilityType_FMPO  InsertAbility;
-	local int							Index;
 
 	AbilityMgr = class'X2AbilityTemplateManager'.static.GetAbilityTemplateManager();
 	GetAbilityTemplates();
@@ -106,25 +104,15 @@ final function BuildPsiAbilities(out SoldierRankAbilities InsertAbilities, const
 		}
 	}
 
+	PrintAbilitySlots("Before sorting by Tier");
+
 	AbilitySlots.Sort(SortByTier);
-	PrintAbilitySlots();
 
-	// TODO: Put abilities that require other abilities next to each other?
+	PrintAbilitySlots("Before ordering");
 
-	if (`GETMCMVAR(RANDOMIZE_FREE_ABILITY))
-	{
-		Index = `SYNC_RAND(AbilitySlots.Length);
-		InsertAbility = AbilitySlots[Index];
+	OrderAbilitySlots();
 
-		// Don't select perks that require other perks
-		if (!DoesAbilityRequireAnotherAbility(InsertAbility) && !IsAbilityRequiredByAnotherAbility(InsertAbility.AbilityName))
-		{
-			AbilitySlots.RemoveItem(InsertAbility);
-			AbilitySlots.InsertItem(0, InsertAbility);
-
-			`AMLOG("Selecting random free ability:" @ InsertAbility.AbilityName);
-		}
-	}
+	PrintAbilitySlots("After ordering");
 
 	foreach AbilitySlots(AbilitySlot)
 	{
@@ -132,11 +120,64 @@ final function BuildPsiAbilities(out SoldierRankAbilities InsertAbilities, const
 	}
 }
 
-private function PrintAbilitySlots()
+private function OrderAbilitySlots()
+{
+	local SoldierClassAbilityType_FMPO			AbilitySlot;
+	local array<SoldierClassAbilityType_FMPO>	SortedAbilitySlots;
+	local array<SoldierClassAbilityType_FMPO>	AbilitiesWithReqs;
+	local name									RequiredAbility;
+	local int MaxIndex;
+	local int Index;
+
+	foreach AbilitySlots(AbilitySlot)
+	{
+		if (DoesAbilityRequireAnotherAbility(AbilitySlot))
+		{
+			AbilitiesWithReqs.AddItem(AbilitySlot);
+		}
+		else
+		{
+			SortedAbilitySlots.AddItem(AbilitySlot);
+		}
+	}
+
+	if (`GETMCMVAR(RANDOMIZE_FREE_ABILITY))
+	{
+		Index = `SYNC_RAND(SortedAbilitySlots.Length);
+		AbilitySlot = SortedAbilitySlots[Index];
+
+		SortedAbilitySlots.RemoveItem(AbilitySlot);
+		SortedAbilitySlots.InsertItem(0, AbilitySlot);
+	}
+
+	foreach AbilitiesWithReqs(AbilitySlot)
+	{
+		MaxIndex = 0;
+		foreach AbilitySlot.Template.PrerequisiteAbilities(RequiredAbility)
+		{
+			if (Left(string(RequiredAbility), 4) == "NOT_")
+				continue;
+
+			for (Index = 0; Index < SortedAbilitySlots.Length; Index++)
+			{
+				if (SortedAbilitySlots[Index].AbilityName == RequiredAbility && MaxIndex < Index)
+				{
+					MaxIndex = Index;
+					break;
+				}
+			}
+			SortedAbilitySlots.InsertItem(MaxIndex + 1, AbilitySlot);
+		}
+	}
+
+	AbilitySlots = SortedAbilitySlots;
+}
+
+private function PrintAbilitySlots(optional string StepMessage)
 {
 	local SoldierClassAbilityType_FMPO AbilitySlot;
 
-	`AMLOG("===== BEGIN PRINT ======");
+	`AMLOG("===== BEGIN PRINT ======" @ StepMessage);
 	foreach AbilitySlots(AbilitySlot)
 	{
 		`AMLOG(AbilitySlot.AbilityName @ AbilitySlot.Tier);
@@ -334,6 +375,7 @@ private function bool DoesAbilityRequireAnotherAbility(const out SoldierClassAbi
 			return true;
 		}
 	}
+	return false;
 }
 private function bool IsAbilityRequiredByAnotherAbility(const name AbilityName)
 {
@@ -350,6 +392,7 @@ private function bool IsAbilityRequiredByAnotherAbility(const name AbilityName)
 			}
 		}
 	}
+	return false;
 }
 
 
