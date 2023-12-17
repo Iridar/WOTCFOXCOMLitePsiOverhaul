@@ -40,7 +40,6 @@ static private function EventListenerReturn OnOverrideAbilityDescription(Object 
 	local int					Index;
 	local name					AbilityName;
 	local int					StatIncrease;
-	local int					CurrentPsiOffense;
 	local string				StatString;
 
 	UnitState = XComGameState_Unit(EventSource);

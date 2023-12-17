@@ -111,6 +111,8 @@ final function BuildPsiAbilities(out SoldierRankAbilities InsertAbilities, const
 		InsertAbilities.Abilities.RemoveItem(InsertAbility);
 		InsertAbilities.Abilities.InsertItem(0, InsertAbility);
 
+		// TODO: Don't select perks that require other perks
+
 		`AMLOG("Selecting random free ability:" @ InsertAbility.AbilityName);
 	}
 }

@@ -9,6 +9,7 @@ enum UIAlert_PsiTraining_FOXCOM
 {
 	eAlert_PsiTraining_FOXCOMTrainingComplete,
 	eAlert_PsiTraining_FOXCOMTrainingFailed,
+	eAlert_PsiTraining_FOXCOMTrainingCompleteNoAbility,
 };
 
 simulated function BuildAlert()
@@ -18,6 +19,7 @@ simulated function BuildAlert()
 	switch ( eAlertName )
 	{
 	case 'eAlert_PsiTraining_FOXCOMTrainingComplete':
+	case 'eAlert_PsiTraining_FOXCOMTrainingCompleteNoAbility':
 		BuildPsiTraining_FOXCOMTrainingCompleteAlert(m_strPsiTrainingCompleteLabel); // TODO: Use Psi Testing
 		break;	
 	case 'eAlert_PsiTraining_FOXCOMTrainingFailed':
@@ -137,16 +139,22 @@ simulated function BuildPsiTraining_FOXCOMTrainingCompleteAlert(string TitleLabe
 	local string AbilityIcon, AbilityName, AbilityDescription, ClassIcon, ClassName, RankName;
 	local X2AbilityTemplate AbilityTemplate;
 	local X2AbilityTemplateManager TemplateManager;
+	local name AbilityTemplateName;
 
-	TemplateManager = class'X2AbilityTemplateManager'.static.GetAbilityTemplateManager();
-
-	AbilityTemplate = TemplateManager.FindAbilityTemplate(
-		class'X2StrategyGameRulesetDataStructures'.static.GetDynamicNameProperty(DisplayPropertySet, 'AbilityTemplate'));
-	
 	if (LibraryPanel == none)
 	{
 		`RedScreen("UI Problem with the alerts! Couldn't find LibraryPanel for current eAlertName: " $ eAlertName);
 		return;
+	}
+
+	AbilityTemplateName = class'X2StrategyGameRulesetDataStructures'.static.GetDynamicNameProperty(DisplayPropertySet, 'AbilityTemplate');
+	if (AbilityTemplateName != '')
+	{
+		TemplateManager = class'X2AbilityTemplateManager'.static.GetAbilityTemplateManager();
+		AbilityTemplate = TemplateManager.FindAbilityTemplate(AbilityTemplateName);
+		AbilityName = AbilityTemplate.LocFriendlyName != "" ? AbilityTemplate.LocFriendlyName : ("Missing 'LocFriendlyName' for ability '" $ AbilityTemplate.DataName $ "'");
+		AbilityDescription = AbilityTemplate.HasLongDescription() ? AbilityTemplate.GetMyLongDescription(, UnitState) : ("Missing 'LocLongDescription' for ability " $ AbilityTemplate.DataName $ "'");
+		AbilityIcon = AbilityTemplate.IconImage;
 	}
 
 	UnitState = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(
@@ -159,13 +167,6 @@ simulated function BuildPsiTraining_FOXCOMTrainingCompleteAlert(string TitleLabe
 	kTag = XGParamTag(`XEXPANDCONTEXT.FindTag("XGParam"));
 	kTag.StrValue0 = "";
 
-	// Ability Name
-	AbilityName = AbilityTemplate.LocFriendlyName != "" ? AbilityTemplate.LocFriendlyName : ("Missing 'LocFriendlyName' for ability '" $ AbilityTemplate.DataName $ "'");
-
-	// Ability Description
-	AbilityDescription = AbilityTemplate.HasLongDescription() ? AbilityTemplate.GetMyLongDescription(, UnitState) : ("Missing 'LocLongDescription' for ability " $ AbilityTemplate.DataName $ "'");
-	AbilityIcon = AbilityTemplate.IconImage;
-
 	// Send over to flash
 	LibraryPanel.MC.BeginFunctionOp("UpdateData");
 	LibraryPanel.MC.QueueString(TitleLabel);
@@ -175,7 +176,15 @@ simulated function BuildPsiTraining_FOXCOMTrainingCompleteAlert(string TitleLabe
 	LibraryPanel.MC.QueueString(UnitState.GetName(eNameType_FullNick));
 	LibraryPanel.MC.QueueString(ClassName);
 	LibraryPanel.MC.QueueString(AbilityIcon);
-	LibraryPanel.MC.QueueString(m_strNewAbilityLabel);
+
+	if (AbilityTemplateName != '')
+	{
+		LibraryPanel.MC.QueueString(m_strNewAbilityLabel);
+	}
+	else
+	{
+		LibraryPanel.MC.QueueString("");
+	}
 	LibraryPanel.MC.QueueString(AbilityName);
 	LibraryPanel.MC.QueueString(AbilityDescription);
 	LibraryPanel.MC.QueueString(m_strViewSoldier);

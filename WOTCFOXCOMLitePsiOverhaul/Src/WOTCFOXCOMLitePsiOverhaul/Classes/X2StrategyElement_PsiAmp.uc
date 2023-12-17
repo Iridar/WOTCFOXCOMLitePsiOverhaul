@@ -45,9 +45,23 @@ static function X2DataTemplate CreateSlotTemplate()
 }
 
 static private function bool HasSlot(CHItemSlot Slot, XComGameState_Unit UnitState, out string LockedReason, optional XComGameState CheckGameState)
-{    
-	return class'Help'.static.IsPsiOperative(UnitState);
+{ 
+	if (class'Help'.static.IsPsiOperative(UnitState))
+	{
+		// Soldier classes that use Psi Amp as a secondary and don't have access to other secondaries
+		// don't get access to Psi Amp slot.
+		if (class'Help'.static.PsiAmpIsOnlySecondaryForSoldierClass(UnitState))
+		{
+			return false;
+		}
+
+		return true;
+	}
+	   
+	return false;
 }
+
+
 
 static private function bool ShowItemInLockerList(CHItemSlot Slot, XComGameState_Unit Unit, XComGameState_Item ItemState, X2ItemTemplate ItemTemplate, XComGameState CheckGameState)
 {

@@ -5,6 +5,9 @@ var config(StrategyTuning) array<int>			BuildDays;
 var config(StrategyTuning) array<int>			Power;
 var config(StrategyTuning) array<int>			UpkeepCost;
 
+var config(PsiOverhaul) array<name>				ExcludeCharacters;
+var config(PsiOverhaul) array<name>				ExcludeClasses;
+
 `include(WOTCFOXCOMLitePsiOverhaul\Src\ModConfigMenuAPI\MCM_API_CfgHelpers.uci)
 
 static event OnPostTemplatesCreated()
@@ -134,6 +137,12 @@ static private function bool IsUnitValidForPsiChamberSoldierSlot(XComGameState_S
 
 	// Should exclude SPARKs
 	if (Unit.IsRobotic())
+		return false;
+
+	if (default.ExcludeCharacters.Find(Unit.GetMyTemplateName()) != INDEX_NONE)
+		return false;
+
+	if (default.ExcludeClasses.Find(Unit.GetSoldierClassTemplateName()) != INDEX_NONE)
 		return false;
 
 	if (Unit.CanBeStaffed()

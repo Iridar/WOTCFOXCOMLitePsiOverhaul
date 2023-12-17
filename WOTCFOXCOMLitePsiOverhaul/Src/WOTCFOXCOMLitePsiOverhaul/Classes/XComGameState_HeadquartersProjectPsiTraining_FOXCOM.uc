@@ -5,6 +5,11 @@ var bool bPsiOperativeTraining;
 
 `include(WOTCFOXCOMLitePsiOverhaul\Src\ModConfigMenuAPI\MCM_API_CfgHelpers.uci)
 
+var config array<name> GiftedCharacters;
+var config array<name> GiftedClasses;
+var config bool ClassUsesShardGauntletsGifted;
+var config bool ClassUsesPsiAmpGifted;
+
 function SetProjectFocus(StateObjectReference FocusRef, optional XComGameState NewGameState, optional StateObjectReference AuxRef)
 {
 	local XComGameStateHistory History;
@@ -156,12 +161,20 @@ function OnProjectCompleted()
 
 	if (bHasGift)
 	{
-		AbilityName = UnitState.GetAbilityName(0, iFinalRow); 
-		ShowTrainingCompletedPopUp(ProjectFocus, AbilityName);
+		if (IsUnitAlwaysGifted(UnitState))
+		{
+			// Show popup here without an ability
+			ShowTrainingCompletedPopUp(ProjectFocus);
+		}
+		else
+		{
+			AbilityName = UnitState.GetAbilityName(0, iFinalRow); 
+			ShowTrainingCompletedPopUp(ProjectFocus, AbilityName);
+		}
 	}
 	else
 	{
-		ShowTrainingCompletedPopUp(ProjectFocus, '', true);
+		ShowTrainingCompletedPopUp(ProjectFocus,, true);
 	}
 
 	// Start Issue #534
@@ -214,28 +227,30 @@ static private function CompletePsiTraining(XComGameState AddToGameState, StateO
 	}
 }
 
-private function ShowTrainingCompletedPopUp(StateObjectReference UnitRef, const name AbilityName, optional bool bGiftless = false)
+private function ShowTrainingCompletedPopUp(StateObjectReference UnitRef, optional name AbilityName = '', optional bool bGiftless = false)
 {
 	local DynamicPropertySet PropertySet;
 	local name AlertName;
 
-	if (AbilityName != '' || bGiftless)
+	if (bGiftless)
 	{
-		if (bGiftless)
-		{
-			AlertName = 'eAlert_PsiTraining_FOXCOMTrainingFailed';
-		}
-		else
-		{
-			AlertName = 'eAlert_PsiTraining_FOXCOMTrainingComplete';
-		}
-		class'X2StrategyGameRulesetDataStructures'.static.BuildDynamicPropertySet(PropertySet, 'UIAlert_PsiTraining_FOXCOM', AlertName, TrainingCompleteCB, true, true, true, false);
-		class'X2StrategyGameRulesetDataStructures'.static.AddDynamicNameProperty(PropertySet, 'EventToTrigger', '');
-		class'X2StrategyGameRulesetDataStructures'.static.AddDynamicStringProperty(PropertySet, 'SoundToPlay', "Geoscape_CrewMemberLevelledUp");
-		class'X2StrategyGameRulesetDataStructures'.static.AddDynamicIntProperty(PropertySet, 'UnitRef', UnitRef.ObjectID);
-		class'X2StrategyGameRulesetDataStructures'.static.AddDynamicNameProperty(PropertySet, 'AbilityTemplate', AbilityName);
-		`HQPRES.QueueDynamicPopup(PropertySet);
+		AlertName = 'eAlert_PsiTraining_FOXCOMTrainingFailed';
 	}
+	else if (AbilityName != '')
+	{
+		AlertName = 'eAlert_PsiTraining_FOXCOMTrainingCompleteNoAbility';
+	}
+	else
+	{
+		AlertName = 'eAlert_PsiTraining_FOXCOMTrainingComplete';
+	}
+	class'X2StrategyGameRulesetDataStructures'.static.BuildDynamicPropertySet(PropertySet, 'UIAlert_PsiTraining_FOXCOM', AlertName, TrainingCompleteCB, true, true, true, false);
+	class'X2StrategyGameRulesetDataStructures'.static.AddDynamicNameProperty(PropertySet, 'EventToTrigger', '');
+	class'X2StrategyGameRulesetDataStructures'.static.AddDynamicStringProperty(PropertySet, 'SoundToPlay', "Geoscape_CrewMemberLevelledUp");
+	class'X2StrategyGameRulesetDataStructures'.static.AddDynamicIntProperty(PropertySet, 'UnitRef', UnitRef.ObjectID);
+	class'X2StrategyGameRulesetDataStructures'.static.AddDynamicNameProperty(PropertySet, 'AbilityTemplate', AbilityName);
+	`HQPRES.QueueDynamicPopup(PropertySet);
+	
 }
 
 
@@ -250,11 +265,12 @@ simulated function TrainingCompleteCB(Name eAction, out DynamicPropertySet Alert
 			if (eAction == 'eUIAction_Accept')
 			{
 				UnitState = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(class'X2StrategyGameRulesetDataStructures'.static.GetDynamicIntProperty(AlertData, 'UnitRef')));
+				if (UnitState == none)
+					return;
 
-				if (UnitState != none)
-				{
-					class'X2StrategyGameRulesetDataStructures'.static.ShowClassMovie('PsiOperative', UnitState.GetReference());
-				}
+				class'X2StrategyGameRulesetDataStructures'.static.ShowClassMovie('PsiOperative', UnitState.GetReference());
+				
+				`HQPRES.ShowPromotionUI(UnitState.GetReference());
 			}
 		}
 	}
@@ -262,8 +278,11 @@ simulated function TrainingCompleteCB(Name eAction, out DynamicPropertySet Alert
 
 private function int InjectPsiPerks(out XComGameState_Unit UnitState, out XComGameState NewGameState)
 {
+	local bool						bAlwaysGifted;
+	local int						iNumPerks;
 	local SoldierRankAbilities		InsertAbilities;
 	local AbilitySelector			Selector;
+	local int						StartingRank;
 	local int iFinalRow;
 	local int iRank;
 	local int i;	
@@ -278,24 +297,40 @@ private function int InjectPsiPerks(out XComGameState_Unit UnitState, out XComGa
 		iFinalRow = Max(iFinalRow, UnitState.AbilityTree[i].Abilities.Length);
 	}
 
-	Selector = new class'AbilitySelector';
-	Selector.BuildPsiAbilities(InsertAbilities, UnitState.GetSoldierClassTemplate().GetMaxConfiguredRank());
+	iNumPerks = UnitState.GetSoldierClassTemplate().GetMaxConfiguredRank();
+	StartingRank = 0;
 
-	for (iRank = 0; iRank < InsertAbilities.Abilities.Length; iRank++)
+	if (IsUnitAlwaysGifted(UnitState))
+	{
+		bAlwaysGifted = true;
+		iNumPerks--; // For balancing reasons, always gifted units, like Templars, don't get a free perk.
+		StartingRank = 1;
+	}
+
+	Selector = new class'AbilitySelector';
+	Selector.BuildPsiAbilities(InsertAbilities, iNumPerks);
+
+	for (iRank = StartingRank; iRank < InsertAbilities.Abilities.Length; iRank++)
 	{
 		UnitState.AbilityTree[iRank].Abilities[iFinalRow] = InsertAbilities.Abilities[iRank];
 	}
 
 	// Instantly learn squaddie ability
-	UnitState.BuySoldierProgressionAbility(NewGameState, 0, iFinalRow);
+	if (!bAlwaysGifted)
+	{
+		UnitState.BuySoldierProgressionAbility(NewGameState, 0, iFinalRow);
+	}
 
 	return iFinalRow;
 }
 
 private function bool RollUnitHasGift(const XComGameState_Unit UnitState)
 {
-	local CharacterPoolManager	CharPool;
-	local XComGameState_Unit	CPUnitState;
+	local CharacterPoolManager		CharPool;
+	local XComGameState_Unit		CPUnitState;
+	
+	if (IsUnitAlwaysGifted(UnitState))
+		return true;
 
 	if (`GETMCMVAR(GIFT_PSIOP_GUARANTEED))
 	{
@@ -312,4 +347,32 @@ private function bool RollUnitHasGift(const XComGameState_Unit UnitState)
 	}
 
 	return `SYNC_RAND(100) < `GETMCMVAR(GIFT_CHANCE);
+}
+
+private function bool IsUnitAlwaysGifted(const XComGameState_Unit UnitState)
+{
+	local X2SoldierClassTemplate	ClassTemplate;
+	local SoldierClassWeaponType	AllowedWeapon;
+
+	if (GiftedCharacters.Find(UnitState.GetMyTemplateName()) != INDEX_NONE)
+		return true;
+
+	ClassTemplate = UnitState.GetSoldierClassTemplate();
+	if (ClassTemplate != none)
+	{
+		if (GiftedClasses.Find(ClassTemplate.DataName) != INDEX_NONE)
+			return true;
+
+		foreach ClassTemplate.AllowedWeapons(AllowedWeapon)
+		{
+			if (AllowedWeapon.WeaponType == 'psiamp' && ClassUsesPsiAmpGifted)
+			{
+				return true;
+			}
+			if (AllowedWeapon.WeaponType == 'gauntlet' && ClassUsesShardGauntletsGifted)
+			{
+				return true;
+			}
+		}
+	}
 }

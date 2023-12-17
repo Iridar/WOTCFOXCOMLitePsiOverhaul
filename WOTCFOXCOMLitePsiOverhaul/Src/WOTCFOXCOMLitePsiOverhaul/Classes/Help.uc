@@ -43,6 +43,37 @@ static final function MarkGiftless(out XComGameState_Unit UnitState)
 	UnitState.SetUnitFloatValue(default.PsiOperativeValue, 1.0f, eCleanup_Never);
 }
 
+static final function bool PsiAmpIsOnlySecondaryForSoldierClass(XComGameState_Unit UnitState)
+{
+	local X2SoldierClassTemplate ClassTemplate;
+	local SoldierClassWeaponType AllowedWeapon;
+	local bool					 bPsiAmpSecondary;
+	local bool					 bOtherSecondary;
+
+	ClassTemplate = UnitState.GetSoldierClassTemplate();
+
+	foreach ClassTemplate.AllowedWeapons(AllowedWeapon)
+	{
+		if (AllowedWeapon.SlotType == eInvSlot_SecondaryWeapon)
+		{
+			if (AllowedWeapon.WeaponType == 'psiamp')
+			{
+				bPsiAmpSecondary = true;
+			}
+			else
+			{
+				bOtherSecondary = true;
+			}
+		}
+	}
+		
+	if (bPsiAmpSecondary && !bOtherSecondary)
+	{
+		return true;
+	}
+	return false;
+}
+
 defaultproperties
 {
 	PsiOperativeValue = "IRI_IsPsiOperative"
