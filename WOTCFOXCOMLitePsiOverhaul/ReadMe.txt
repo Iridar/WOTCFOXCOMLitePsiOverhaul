@@ -31,12 +31,6 @@ map abilities to the secondary weapon if the soldier class has psi amp as the on
 add psionic infusor item
 add Psi PCS
 
-MCM Support:
-
-# Strategy
-Remove Psionics Research Cost
-Make Psi Lab Cheaper
-
 
 TESTS:
 Test if psionic training can be interrupted safely

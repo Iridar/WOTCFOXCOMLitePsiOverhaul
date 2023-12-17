@@ -4,7 +4,6 @@ var config(StrategyTuning) array<StrategyCost>	Cost;
 var config(StrategyTuning) array<int>			BuildDays;
 var config(StrategyTuning) array<int>			Power;
 var config(StrategyTuning) array<int>			UpkeepCost;
-var config(StrategyTuning) bool					bSkipRemovingPsionicsResearchCost;
 
 `include(WOTCFOXCOMLitePsiOverhaul\Src\ModConfigMenuAPI\MCM_API_CfgHelpers.uci)
 
@@ -23,22 +22,26 @@ static event OnPostTemplatesCreated()
 
 	StratMgr = class'X2StrategyElementTemplateManager'.static.GetStrategyElementTemplateManager();
 	StratMgr.FindDataTemplateAllDifficulties('PsiChamber', DataTemplates);
-	foreach DataTemplates(DataTemplate, iDiff)
+
+	if (`GETMCMVAR(CHEAPER_PSI_LAB))
 	{
-		if (iDiff > 3)
-			break; 
+		foreach DataTemplates(DataTemplate, iDiff)
+		{
+			if (iDiff > 3)
+				break; 
 
-		FacilityTemplate = X2FacilityTemplate(DataTemplate);
-		if (FacilityTemplate == none)
-			continue;
+			FacilityTemplate = X2FacilityTemplate(DataTemplate);
+			if (FacilityTemplate == none)
+				continue;
 
-		FacilityTemplate.Cost = default.Cost[iDiff];
-		FacilityTemplate.PointsToComplete = class'X2StrategyElement_DefaultFacilities'.static.GetFacilityBuildDays(default.BuildDays[iDiff]);
-		FacilityTemplate.iPower = default.Power[iDiff];
-		FacilityTemplate.UpkeepCost = default.UpkeepCost[iDiff];
+			FacilityTemplate.Cost = default.Cost[iDiff];
+			FacilityTemplate.PointsToComplete = class'X2StrategyElement_DefaultFacilities'.static.GetFacilityBuildDays(default.BuildDays[iDiff]);
+			FacilityTemplate.iPower = default.Power[iDiff];
+			FacilityTemplate.UpkeepCost = default.UpkeepCost[iDiff];
+		}
 	}
 
-	if (!default.bSkipRemovingPsionicsResearchCost)
+	if (`GETMCMVAR(REMOVE_RESEARCH_COST))
 	{
 		StratMgr.FindDataTemplateAllDifficulties('Psionics', DataTemplates);
 		foreach DataTemplates(DataTemplate)

@@ -10,3 +10,7 @@ var config bool CHANGE_APPEARANCE;
 var config bool GIFT_PSIOP_GUARANTEED;
 var config bool RANDOMIZE_FREE_ABILITY;
 var config bool ALLOW_ROOKIES;
+
+var config bool CHEAPER_PSI_LAB;
+var config bool REMOVE_RESEARCH_COST;
+

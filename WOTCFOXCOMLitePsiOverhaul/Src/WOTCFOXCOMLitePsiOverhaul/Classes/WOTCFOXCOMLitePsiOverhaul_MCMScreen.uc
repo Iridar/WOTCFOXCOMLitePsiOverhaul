@@ -19,6 +19,8 @@ var localized string LabelEndTooltip;
 `MCM_API_AutoSliderVars(HAIR_COLOR);
 `MCM_API_AutoSliderVars(EYE_COLOR);
 `MCM_API_AutoCheckBoxVars(ALLOW_ROOKIES);
+`MCM_API_AutoCheckBoxVars(CHEAPER_PSI_LAB);
+`MCM_API_AutoCheckBoxVars(REMOVE_RESEARCH_COST);
 
 
 `include(WOTCFOXCOMLitePsiOverhaul\Src\ModConfigMenuAPI\MCM_API_CfgHelpers.uci)
@@ -31,6 +33,8 @@ var localized string LabelEndTooltip;
 `MCM_API_AutoCheckBoxFns(CHANGE_APPEARANCE, 1);
 `MCM_API_AutoSliderFns(HAIR_COLOR,, 1);
 `MCM_API_AutoSliderFns(EYE_COLOR,, 1);
+`MCM_API_AutoCheckBoxFns(CHEAPER_PSI_LAB, 1);
+`MCM_API_AutoCheckBoxFns(REMOVE_RESEARCH_COST, 1);
 
 event OnInit(UIScreen Screen)
 {
@@ -52,7 +56,8 @@ simulated function ClientModCallback(MCM_API_Instance ConfigAPI, int GameMode)
 
 	Group = Page.AddGroup('Group', GroupHeaders[0]); // "Strategic Changes"
 
-	
+	`MCM_API_AutoAddCheckBox(Group, CHEAPER_PSI_LAB);
+	`MCM_API_AutoAddCheckBox(Group, REMOVE_RESEARCH_COST);
 
 	Group = Page.AddGroup('Group', GroupHeaders[1]); // "Psionic Abilities"
 	`MCM_API_AutoAddCheckBox(Group, RANDOMIZE_FREE_ABILITY);
@@ -91,6 +96,9 @@ simulated function LoadSavedSettings()
 	ALLOW_ROOKIES = `GETMCMVAR(ALLOW_ROOKIES);
 	HAIR_COLOR = `GETMCMVAR(HAIR_COLOR);
 	EYE_COLOR = `GETMCMVAR(EYE_COLOR);
+
+	CHEAPER_PSI_LAB = `GETMCMVAR(CHEAPER_PSI_LAB);
+	REMOVE_RESEARCH_COST = `GETMCMVAR(REMOVE_RESEARCH_COST);
 }
 
 simulated function ResetButtonClicked(MCM_API_SettingsPage Page)
@@ -103,6 +111,8 @@ simulated function ResetButtonClicked(MCM_API_SettingsPage Page)
 	`MCM_API_AutoReset(RANDOMIZE_FREE_ABILITY);
 	`MCM_API_AutoReset(CHANGE_APPEARANCE);
 	`MCM_API_AutoReset(GIFT_PSIOP_GUARANTEED);
+	`MCM_API_AutoReset(CHEAPER_PSI_LAB);
+	`MCM_API_AutoReset(REMOVE_RESEARCH_COST);
 }
 
 
