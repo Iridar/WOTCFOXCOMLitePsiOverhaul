@@ -71,7 +71,7 @@ final function BuildPsiAbilities(out SoldierRankAbilities InsertAbilities, const
 {
 	local SoldierClassAbilityType_FMPO	AbilitySlot;
 	local float							AverageTier;
-	local SoldierClassAbilityType		InsertAbility;
+	local SoldierClassAbilityType_FMPO  InsertAbility;
 	local int							Index;
 
 	AbilityMgr = class'X2AbilityTemplateManager'.static.GetAbilityTemplateManager();
@@ -85,7 +85,7 @@ final function BuildPsiAbilities(out SoldierRankAbilities InsertAbilities, const
 	ShuffleAbilitySlots();
 	RemoveMutuallyExclusiveAbilities();
 
-	// TODO: Remove abilities already present in soldier's ability tree
+	RemoveAbilitiesPresentInSoldierAbilityTree();
 
 	if (AbilitySlots.Length > NumSlots)
 	{
@@ -111,21 +111,24 @@ final function BuildPsiAbilities(out SoldierRankAbilities InsertAbilities, const
 
 	// TODO: Put abilities that require other abilities next to each other?
 
+	if (`GETMCMVAR(RANDOMIZE_FREE_ABILITY))
+	{
+		Index = `SYNC_RAND(AbilitySlots.Length);
+		InsertAbility = AbilitySlots[Index];
+
+		// Don't select perks that require other perks
+		if (InsertAbility.Template.PrerequisiteAbilities.Length == 0)
+		{
+			AbilitySlots.RemoveItem(InsertAbility);
+			AbilitySlots.InsertItem(0, InsertAbility);
+
+			`AMLOG("Selecting random free ability:" @ InsertAbility.AbilityName);
+		}
+	}
+
 	foreach AbilitySlots(AbilitySlot)
 	{
 		InsertAbilities.Abilities.AddItem(AddAbility(AbilitySlot));
-	}
-
-	if (`GETMCMVAR(RANDOMIZE_FREE_ABILITY))
-	{
-		Index = `SYNC_RAND(InsertAbilities.Abilities.Length);
-		InsertAbility = InsertAbilities.Abilities[Index];
-		InsertAbilities.Abilities.RemoveItem(InsertAbility);
-		InsertAbilities.Abilities.InsertItem(0, InsertAbility);
-
-		// TODO: Don't select perks that require other perks
-
-		`AMLOG("Selecting random free ability:" @ InsertAbility.AbilityName);
 	}
 }
 
@@ -147,11 +150,42 @@ private function ShuffleAbilitySlots()
 	AbilitySlots.RandomizeOrder();
 }
 
+private function RemoveAbilitiesPresentInSoldierAbilityTree()
+{
+	local int i;
+
+	for (i = 0; i < AbilitySlots.Length; i++)
+	{
+		if (IsAbilityPresentInSoldierAbilityTree(AbilitySlots[i].AbilityName))
+		{
+			`AMLOG(AbilitySlots[i].AbilityName @ "- removing ability, because it's already present in soldier's ability tree");
+			AbilitySlots.Remove(i, 1);
+		}
+	}
+}
+
+private function bool IsAbilityPresentInSoldierAbilityTree(const name AbilityName)
+{
+	local SoldierRankAbilities RankAbilities;
+	local SoldierClassAbilityType AbilityType;
+
+	foreach UnitState.AbilityTree(RankAbilities)
+	{
+		foreach RankAbilities.Abilities(AbilityType)
+		{
+			if (AbilityType.AbilityName == AbilityName)
+			{
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
 private function RemoveMutuallyExclusiveAbilities()
 {
-	local SoldierClassAbilityType_FMPO	AbilitySlot;
-	local name							RequiredAbility;
-	local name							MutuallyExclusiveAbilityName;
+	local name RequiredAbility;
+	local name MutuallyExclusiveAbilityName;
 	local int i;
 	local int j;
 
@@ -166,7 +200,7 @@ private function RemoveMutuallyExclusiveAbilities()
 
 			for (j = AbilitySlots.Length - 1; j >= 0; j--)
 			{
-				if (AbilitySlot.AbilityName == MutuallyExclusiveAbilityName)
+				if (AbilitySlots[j].AbilityName == MutuallyExclusiveAbilityName)
 				{
 					AbilitySlots.Remove(i, 1);
 					break;
@@ -314,7 +348,25 @@ static final function ValidatePsiAbilities()
 		}
 	}
 
-	// TODO: Remove duplicates
+	RemoveDuplicateAbilities();
+}
+
+static private function RemoveDuplicateAbilities()
+{
+	local int i;
+	local int j;
+
+	for (i = 0; i < default.AbilitySlots.Length; i++)
+	{
+		for (j = default.AbilitySlots.Length - 1; j >= 0; j--)
+		{
+			if (default.AbilitySlots[i].AbilityName == default.AbilitySlots[j].AbilityName && i != j)
+			{
+				default.AbilitySlots.Remove(i, 1);
+				break;
+			}
+		}
+	}
 }
 
 static final function int GetAbilityUnlockCost(const name AbilityName)

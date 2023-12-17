@@ -75,7 +75,7 @@ function int CalculatePointsToTrain(optional bool bClassTraining = false)
 
 	XComHQ = `XCOMHQ;
 
-	return XComHQ.GetPsiTrainingDays() * XComHQ.XComHeadquarters_DefaultPsiTrainingWorkPerHour * 24 / 10; // TODO: DEBUG ONLY
+	return XComHQ.GetPsiTrainingDays() * XComHQ.XComHeadquarters_DefaultPsiTrainingWorkPerHour * 24;
 }
 
 function OnProjectCompleted()

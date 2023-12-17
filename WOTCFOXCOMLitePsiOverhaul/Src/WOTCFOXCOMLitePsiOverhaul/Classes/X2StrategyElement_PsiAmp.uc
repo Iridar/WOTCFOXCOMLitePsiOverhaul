@@ -61,8 +61,6 @@ static private function bool HasSlot(CHItemSlot Slot, XComGameState_Unit UnitSta
 	return false;
 }
 
-
-
 static private function bool ShowItemInLockerList(CHItemSlot Slot, XComGameState_Unit Unit, XComGameState_Item ItemState, X2ItemTemplate ItemTemplate, XComGameState CheckGameState)
 {
 	return IsTemplateValidForSlot(Slot.InvSlot, ItemTemplate, Unit, CheckGameState);

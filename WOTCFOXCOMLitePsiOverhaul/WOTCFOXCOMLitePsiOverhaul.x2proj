@@ -14,7 +14,6 @@
     <Folder Include="Config\Base\" />
     <Folder Include="Localization\" />
     <Folder Include="Src\" />
-    <Folder Include="Content\" />
     <Folder Include="ContentForCook\" />
     <Folder Include="Src\ModConfigMenuAPI\" />
     <Folder Include="Src\ModConfigMenuAPI\Classes\" />

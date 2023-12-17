@@ -23,7 +23,7 @@ simulated function BuildAlert()
 	{
 	case 'eAlert_PsiTraining_FOXCOMTrainingComplete':
 	case 'eAlert_PsiTraining_FOXCOMTrainingCompleteNoAbility':
-		BuildPsiTraining_FOXCOMTrainingCompleteAlert(m_strPsiTrainingCompleteLabel); // TODO: Use Psi Testing
+		BuildPsiTraining_FOXCOMTrainingCompleteAlert(m_strPsiTrainingCompleteLabel);
 		break;	
 	case 'eAlert_PsiTraining_FOXCOMTrainingFailed':
 		BuildSoldierHasNoGiftAlert();
@@ -174,6 +174,7 @@ simulated function BuildPsiTraining_FOXCOMTrainingCompleteAlert(string TitleLabe
 	local X2AbilityTemplate AbilityTemplate;
 	local X2AbilityTemplateManager TemplateManager;
 	local name AbilityTemplateName;
+	local X2ItemTemplate ItemTemplate;
 
 	if (LibraryPanel == none)
 	{
@@ -192,6 +193,16 @@ simulated function BuildPsiTraining_FOXCOMTrainingCompleteAlert(string TitleLabe
 		AbilityName = AbilityTemplate.LocFriendlyName != "" ? AbilityTemplate.LocFriendlyName : ("Missing 'LocFriendlyName' for ability '" $ AbilityTemplate.DataName $ "'");
 		AbilityDescription = AbilityTemplate.HasLongDescription() ? AbilityTemplate.GetMyLongDescription(, UnitState) : ("Missing 'LocLongDescription' for ability " $ AbilityTemplate.DataName $ "'");
 		AbilityIcon = AbilityTemplate.IconImage;
+	}
+
+	ItemTemplate = class'X2ItemTemplateManager'.static.GetItemTemplateManager().FindItemTemplate('PsionicEvaluation');
+	if (ItemTemplate != none)
+	{
+		TitleLabel = ItemTemplate.FriendlyName;
+	}
+	else
+	{
+		TitleLabel = "Psionic Evaluation";
 	}
 	
 	ClassTemplate = UnitState.GetSoldierClassTemplate();

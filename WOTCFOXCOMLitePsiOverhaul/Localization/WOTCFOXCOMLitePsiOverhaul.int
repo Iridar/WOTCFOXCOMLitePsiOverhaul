@@ -11,8 +11,8 @@ GroupHeaders[4] = "Misc"
 DEBUG_LOGGING_Label = "Enable debug logging"
 DEBUG_LOGGING_Tip = "If enabled, the mod will print debug messages into the log file, located at:\n..\\Documents\\my games\\XCOM2 War of the Chosen\\XComGame\\Logs\\Launch.log"
 
-GIFT_CHANCE_Label = "Gift Chance"
-GIFT_CHANCE_Tip = ""
+GIFT_CHANCE_Label = "The Gift Chance"
+GIFT_CHANCE_Tip = "Standard chance for soldiers without innate psionic ability to have The Gift."
 
 GIFT_PSIOP_GUARANTEED_Label = "Guarantee Gift for Char. Pool Psi Operatives"
 GIFT_PSIOP_GUARANTEED_Tip = "If enabled, and if a soldier has Psi Operative class selected in Character Pool, they will be guaranteed to have The Gift during a campaign, regardless of what their actual soldier class is."
@@ -21,22 +21,22 @@ RANDOMIZE_FREE_ABILITY_Label = "Randomize free ability"
 RANDOMIZE_FREE_ABILITY_Tip = "If enabled, the free psionic ability soldiers receive after completing the psionic training will be selected at random, rather than always getting the lowest tier ability for free."
 
 CHANGE_APPEARANCE_Label = "Change appearance"
-CHANGE_APPEARANCE_Tip = ""
+CHANGE_APPEARANCE_Tip = "Should soldiers have their appearance altered when they complete Psionic Evaluation."
 
 HAIR_COLOR_Label = "Hair Color"
-HAIR_COLOR_Tip = ""
+HAIR_COLOR_Tip = "Number of the hair color on the palette."
 
 EYE_COLOR_Label = "Eye Color"
-EYE_COLOR_Tip = ""
+EYE_COLOR_Tip = "Number of the eye color on the palette."
 
 ALLOW_ROOKIES_Label = "Allow Rookies"
-ALLOW_ROOKIES_Tip = ""
+ALLOW_ROOKIES_Tip = "Allow rookies to undergo Psionic Evaluation to become Psi Operatives."
 
 CHEAPER_PSI_LAB_Label = "Cheaper Psi Lab"
-CHEAPER_PSI_LAB_Tip = ""
+CHEAPER_PSI_LAB_Tip = "Reduce the cost of building and maintaining the Psi Lab."
 
 REMOVE_RESEARCH_COST_Label = "Remove Psionics research cost"
-REMOVE_RESEARCH_COST_Tip = ""
+REMOVE_RESEARCH_COST_Tip = "Remove the Elerium Crystals cost from the Psionics research."
 
 LabelEnd = "Created by Iridar | www.patreon.com/Iridar"
 LabelEndTooltip = "Thank you for using my mods, I hope you enjoy! Please consider supporting me at Patreon so I can afford the time to make more awesome mods <3")

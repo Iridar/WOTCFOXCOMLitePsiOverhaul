@@ -1,8 +1,8 @@
 [IRI_AuroraShard_Tech X2TechTemplate]
 DisplayName="Aurora Shard"
-Summary="Can be used in the Psi Lab to infuse with psionic abilities a soldier without The Gift."
+Summary="Can be used in the Psi Lab to infuse a soldier without The Gift with psionic abilities."
 
 [IRI_AuroraShard X2ItemTemplate]
 FriendlyName = "Aurora Shard"
 FriendlyNamePlural = "Aurora Shards"
-BriefSummary = "Can be used in the Psi Lab to infuse with psionic abilities a soldier without The Gift."
+BriefSummary = "Can be used in the Psi Lab to infuse a soldier without The Gift with psionic abilities."
