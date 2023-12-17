@@ -119,13 +119,14 @@ function OnProjectCompleted()
 
 	// ----------------------------------------------------------------
 
-	OrderInput.OrderType = eHeadquartersOrderType_PsiTrainingCompleted;
-	OrderInput.AcquireObjectReference = self.GetReference();
-
-	class'XComGameStateContext_HeadquartersOrder'.static.IssueHeadquartersOrder(OrderInput);
+	//OrderInput.OrderType = eHeadquartersOrderType_PsiTrainingCompleted;
+	//OrderInput.AcquireObjectReference = self.GetReference();
+	//class'XComGameStateContext_HeadquartersOrder'.static.IssueHeadquartersOrder(OrderInput);
 	
 	NewGameState = class'XComGameStateContext_ChangeContainer'.static.CreateChangeState("Complete psionic Training");
 	UnitState = XComGameState_Unit(NewGameState.ModifyStateObject(UnitState.Class, UnitState.ObjectID));
+
+	CompletePsiTraining(NewGameState, GetReference(), UnitState);
 
 	if (bHasGift)
 	{
@@ -166,6 +167,51 @@ function OnProjectCompleted()
 	// Start Issue #534
 	TriggerPsiProjectCompleted(UnitState, AbilityName);
 	// End Issue #534
+}
+
+static private function CompletePsiTraining(XComGameState AddToGameState, StateObjectReference ProjectRef, XComGameState_Unit UnitState)
+{
+	local XComGameState_HeadquartersProjectPsiTraining ProjectState;
+	local XComGameState_HeadquartersXCom XComHQ;
+	local XComGameState_StaffSlot StaffSlotState;
+	local XComGameStateHistory History;
+
+	History = `XCOMHISTORY;
+	ProjectState = XComGameState_HeadquartersProjectPsiTraining(`XCOMHISTORY.GetGameStateForObjectID(ProjectRef.ObjectID));
+
+	if (ProjectState != none)
+	{
+		XComHQ = XComGameState_HeadquartersXCom(History.GetSingleGameStateObjectForClass(class'XComGameState_HeadquartersXCom'));
+		if (XComHQ != none)
+		{
+			XComHQ = XComGameState_HeadquartersXCom(AddToGameState.ModifyStateObject(class'XComGameState_HeadquartersXCom', XComHQ.ObjectID));
+			XComHQ.Projects.RemoveItem(ProjectState.GetReference());
+			AddToGameState.RemoveStateObject(ProjectState.ObjectID);
+		}
+
+		// Rank up the solder. Will also apply class if they were a Rookie.
+		//UnitState.RankUpSoldier(AddToGameState, 'PsiOperative');
+		//
+		//// Teach the soldier the ability which was associated with the project
+		//UnitState.BuySoldierProgressionAbility(AddToGameState, ProjectState.iAbilityRank, ProjectState.iAbilityBranch);
+
+		//if (UnitState.GetRank() == 1) // They were just promoted to Initiate
+		//{
+		//	UnitState.ApplyBestGearLoadout(AddToGameState); // Make sure the squaddie has the best gear available
+		//}
+
+		UnitState.SetStatus(eStatus_Active);
+
+		// Remove the soldier from the staff slot
+		StaffSlotState = UnitState.GetStaffSlot();
+		if (StaffSlotState != none)
+		{
+			StaffSlotState.EmptySlot(AddToGameState);
+		}
+			
+		`XEVENTMGR.TriggerEvent('PsiTrainingCompleted', UnitState, UnitState, AddToGameState);
+		
+	}
 }
 
 private function ShowTrainingCompletedPopUp(StateObjectReference UnitRef, const name AbilityName, optional bool bGiftless = false)

@@ -55,28 +55,29 @@ static private function EventListenerReturn OnOverrideAbilityDescription(Object 
 	if (Tuple == none)
 		return ELR_NoInterrupt;
 
-	// Squaddie abilities don't provide Psi Offense
-	if (Tuple.Data[0].i == 0)
+	if (Tuple.Data[2].i != Index)
 		return ELR_NoInterrupt;
 
-	if (Tuple.Data[2].i == Index)
+	// Squaddie abilities don't provide Psi Offense
+	//if (Tuple.Data[1].i == 0)
+	//	return ELR_NoInterrupt;
+	
+	AbilityName = Tuple.Data[0].n;
+	StatIncrease = class'AbilitySelector'.static.GetAbilityStatIncrease(AbilityName);
+	if (StatIncrease == 0)
+		return ELR_NoInterrupt;
+
+	StatString @= class'X2TacticalGameRulesetDataStructures'.default.m_aCharStatLabels[eStat_PsiOffense];
+	StatString $= ": ";
+	if (StatIncrease > 0)
 	{
-		AbilityName = Tuple.Data[0].n;
-		StatIncrease = class'AbilitySelector'.static.GetAbilityStatIncrease(AbilityName);
-		if (StatIncrease == 0)
-			return ELR_NoInterrupt;
-
-		StatString @= class'X2TacticalGameRulesetDataStructures'.default.m_aCharStatLabels[eStat_PsiOffense];
-		StatString $= ": ";
-		if (StatIncrease > 0)
-		{
-			StatString $= "+";
-		}
-		StatString $= string(StatIncrease);
-		StatString = class'UIUtilities_Text'.static.GetColoredText(StatString, eUIState_Warning);
-
-		Tuple.Data[12].s $= StatString;
+		StatString $= "+";
 	}
+	StatString $= string(StatIncrease);
+	StatString = class'UIUtilities_Text'.static.GetColoredText(StatString, eUIState_Warning);
+
+	Tuple.Data[12].s $= StatString;
+	
 	return ELR_NoInterrupt;
 }
 

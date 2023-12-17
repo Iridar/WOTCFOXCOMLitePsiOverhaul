@@ -21,7 +21,6 @@ set ability point costs via listener
 optional Gift
 increase psi offense for unlocking ability
 
-training promotes soldier
 view soldier button doesn't work the second time
 AP costs don't seem to work
 Add exclusion lists for soldier classes and characters
