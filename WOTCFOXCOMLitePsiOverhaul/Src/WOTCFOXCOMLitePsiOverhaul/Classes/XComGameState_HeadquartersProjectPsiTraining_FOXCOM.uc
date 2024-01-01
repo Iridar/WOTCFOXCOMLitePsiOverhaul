@@ -68,8 +68,6 @@ function int CalculatePointsToTrain(optional bool bClassTraining = false)
 {
 	local XComGameState_HeadquartersXCom XComHQ;
 
-	return 10;
-
 	if (bPsiOperativeTraining)
 	{
 		return super.CalculatePointsToTrain(bClassTraining);
