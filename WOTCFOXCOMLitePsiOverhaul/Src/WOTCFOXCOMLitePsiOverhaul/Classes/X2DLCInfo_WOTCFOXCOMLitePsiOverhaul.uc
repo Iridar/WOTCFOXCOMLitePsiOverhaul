@@ -198,6 +198,7 @@ static private function bool IsUnitValidForPsiChamberSoldierSlot(XComGameState_S
 		{
 			return bCanTrain;
 		}
+		return true;
 
 		//if (Unit.GetRank() == 0 && !Unit.CanRankUpSoldier()) // All rookies who have not yet ranked up can be trained as Psi Ops
 		//{
@@ -216,7 +217,7 @@ static private function bool IsUnitValidForPsiChamberSoldierSlot(XComGameState_S
 		//}
 	}
 
-	return true;
+	return false;
 }
 
 static function bool DisplayQueuedDynamicPopup(DynamicPropertySet PropertySet)

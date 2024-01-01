@@ -25,6 +25,9 @@ var private X2AbilityTemplateManager					AbilityMgr;
 var XComGameState_Unit	UnitState;
 var private bool		bSecondaryPsiAmp;
 
+var private int NumAbilitiesToSelect;
+var private int OverflowCounter;
+
 `include(WOTCFOXCOMLitePsiOverhaul\Src\ModConfigMenuAPI\MCM_API_CfgHelpers.uci)
 
 private function SoldierClassAbilityType AddAbility(const out SoldierClassAbilityType_FMPO AbilitySlot)
@@ -71,6 +74,8 @@ final function BuildPsiAbilities(out SoldierRankAbilities InsertAbilities, const
 {
 	local SoldierClassAbilityType_FMPO	AbilitySlot;
 	local float							AverageTier;
+
+	NumAbilitiesToSelect = NumSlots;
 
 	AbilityMgr = class'X2AbilityTemplateManager'.static.GetAbilityTemplateManager();
 	GetAbilityTemplates();
@@ -293,6 +298,20 @@ private function RemoveRandomHighTierAbility()
 		AbilitySlot = AbilitySlots[Index];
 		`AMLOG("Removing random ability:" @ AbilitySlot.AbilityName @ AbilitySlot.Tier);
 	}
+
+	// RemoveAbility() will remove the ability and any abilities that require this ability. Usually that would be two abilities.
+	// So when we need to remove only one ability, don't remove the randomly selected ability if happens to be required by
+	// another ability.
+	if (NumAbilitiesToSelect - AbilitySlots.Length == 1 && IsAbilityRequiredByAnotherAbility(AbilitySlot.AbilityName) && OverflowCounter < 100)
+	{
+		`AMLOG("Selected random ability:" @ AbilitySlot.AbilityName @ "but it's required by another ability, not removing it at this time:" @ OverflowCounter);
+		
+		// Use Overflow Counter to guard against an unlikely sitation if all perks in the selection are required by some other perk.
+		// If that were to happen, the main while() loop would get stuck in an endless cycle and crash the game.
+		OverflowCounter++;
+		return;
+	}
+
 	RemoveAbility(AbilitySlot);
 }
 
@@ -322,6 +341,14 @@ private function RemoveRandomLowTierAbility()
 		AbilitySlot = AbilitySlots[Index];
 		`AMLOG("Removing random ability:" @ AbilitySlot.AbilityName @ AbilitySlot.Tier);
 	}
+
+	if (NumAbilitiesToSelect - AbilitySlots.Length == 1 && IsAbilityRequiredByAnotherAbility(AbilitySlot.AbilityName) && OverflowCounter < 100)
+	{
+		`AMLOG("Selected random ability:" @ AbilitySlot.AbilityName @ "but it's required by another ability, not removing it at this time:" @ OverflowCounter);
+		OverflowCounter++;
+		return;
+	}
+
 	RemoveAbility(AbilitySlot);
 }
 
@@ -450,7 +477,7 @@ static private function RemoveDuplicateAbilities()
 		{
 			if (default.AbilitySlots[i].AbilityName == default.AbilitySlots[j].AbilityName && i != j)
 			{
-				default.AbilitySlots.Remove(i, 1);
+				default.AbilitySlots.Remove(j, 1);
 				break;
 			}
 		}

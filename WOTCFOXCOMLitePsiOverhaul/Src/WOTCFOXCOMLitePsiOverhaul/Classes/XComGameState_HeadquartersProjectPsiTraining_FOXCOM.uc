@@ -68,6 +68,8 @@ function int CalculatePointsToTrain(optional bool bClassTraining = false)
 {
 	local XComGameState_HeadquartersXCom XComHQ;
 
+	return 10;
+
 	if (bPsiOperativeTraining)
 	{
 		return super.CalculatePointsToTrain(bClassTraining);
@@ -353,12 +355,17 @@ private function int InjectPsiPerks(out XComGameState_Unit UnitState, out XComGa
 	{
 		bAlwaysGifted = true;
 		iNumPerks--; // For balancing reasons, always gifted units, like Templars, don't get a free perk.
-		StartingRank = 1;
 	}
 
 	Selector = new class'AbilitySelector';
 	Selector.UnitState = UnitState;
 	Selector.BuildPsiAbilities(InsertAbilities, iNumPerks);
+
+	if (bAlwaysGifted)
+	{	
+		StartingRank = 1;
+		InsertAbilities.Abilities.InsertItem(0, InsertAbilities.Abilities[0]); // Add a dummy copy of the first perk in the tree so that array index can work
+	}
 
 	for (iRank = StartingRank; iRank < InsertAbilities.Abilities.Length; iRank++)
 	{

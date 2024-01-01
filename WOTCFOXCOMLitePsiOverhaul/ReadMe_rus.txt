@@ -13,7 +13,7 @@
 
 [h1] МЕХАНИКА ПОЛУЧЕНИЯ ДАРА[/h1]
 [list][*] Обычно у солдат есть 25% шанс получить Дар.
-[*] Если у вас есть солдат без Дара, которого вы действительно хотите сделать псиоником, вы можете создать Осколок Рассвета из элерия в Зоне испытаний, а затем снова отправить солдата в Пси-лабораторию для еще одного пси-тестирования. Осколок будет израсходован, и на этот раз солдат получит Дар гарантированно.
+[*] Если у вас есть солдат без Дара, которого вы действительно хотите сделать псиоником, вы можете создать Осколок Рассвета из ядер элерия в Зоне испытаний, а затем снова отправить солдата в Пси-лабораторию для еще одного пси-тестирования. Осколок будет израсходован, и на этот раз солдат получит Дар гарантированно.
 [*] Вы также можете обеспечить получение Дара для конкретных солдат, присвоив им класс Пси-агента в Группе персонажей (Character Pool).
 [*] Солдаты, использующие пси-усилитель или перчатки Храмовников в качестве классового оружия, всегда обладают Даром, но они не получают бесплатный псионический перк.
 [*] Если пси-усилитель является единственным дополнительным оружием солдата, он не получит доступ к бесплатному слоту пси-усилителя.[/list]
@@ -28,13 +28,17 @@
 [*] [url=https://steamcommunity.com/sharedfiles/filedetails/?id=1281427768][b](WOTC) UI Mod for Defense/Mobility/Psi[/b][/url] крайне рекомендуется, чтобы отражать характеристику Псионика.
 [*] [url=https://steamcommunity.com/sharedfiles/filedetails/?id=667104300][b][WotC] Mod Config Menu[/b][/url] поддерживается, но не является обязательным.[/list]
 
+Этот мод можно добавлять во время кампании.
+
 [h1]СОВМЕСТИМОСТЬ[/h1]
 [list][*] [url=https://steamcommunity.com/sharedfiles/filedetails/?id=2134513735][b]XCOM Psionics Overhaul V3[/b][/url] несовместим с этим модом.
 [*] [url=https://steamcommunity.com/sharedfiles/filedetails/?id=2222545926][b][WOTC] Psionics Ex Machina 3.2[/b][/url] на данный момент несовместим с этим модом, но в будущем возможны изменения.
 [*] [url=https://steamcommunity.com/sharedfiles/filedetails/?id=1280477867][b]Musashi's RPG Overhaul[/b][/url] несовместим с этим модом из-за конфликта с Community Promotion Screen, который необходим для FOXCOM Psionics.
-[*] [url=https://steamcommunity.com/sharedfiles/filedetails/?id=2683996590][b]Long War of the Chosen[/b][/url] не тестировалось; совместимость не известна.
+[*] [url=https://steamcommunity.com/sharedfiles/filedetails/?id=2683996590][b]Long War of the Chosen[/b][/url] можно считать совместимой, но мод не сбалансирован под LWOTC. Рекомендуется использовать [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3122850421][b]Compatibility - Foxcom Psionics and LWOTC[/b][/url].
 [*] [url=https://steamcommunity.com/sharedfiles/filedetails/?id=1467502437][b][WotC] No More PsiAmps[/b][/url] должен быть совместим с этим модом.
-[*] [url=https://steamcommunity.com/sharedfiles/filedetails/?id=1662114279][b][WOTC] More Psi Abilities [/b][/url] - способности из этого мода поддерживаются.[/list]
+[*] [url=https://steamcommunity.com/sharedfiles/filedetails/?id=1662114279][b][WOTC] More Psi Abilities [/b][/url] - способности из этого мода поддерживаются.
+[*] [url=https://steamcommunity.com/sharedfiles/filedetails/?id=1511763111][b][WotC] EU Psi Armor[/b][/url] - скорее всего совместим.
+[/list]
 
 [h1]ИЗВЕСТНЫЕ ПРОБЛЕМЫ[/h1]
 Пси-солдаты из этого мода не будут считаться псионическими юнитами для тех немногих игровых механик, которым есть до этого дело. Будущие обновления Highlander могут решить эту проблему. К слову говоря, в других переработках системы псионики также есть эта проблема.

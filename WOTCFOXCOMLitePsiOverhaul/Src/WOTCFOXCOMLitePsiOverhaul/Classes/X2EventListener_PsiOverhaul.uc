@@ -2,6 +2,8 @@ class X2EventListener_PsiOverhaul extends X2EventListener config(PsiOverhaul);
 
 var config string PsionicTreeName;
 
+var private config int ListenerPriority;
+
 static function array<X2DataTemplate> CreateTemplates()
 {
 	local array<X2DataTemplate> Templates;
@@ -20,16 +22,16 @@ static function CHEventListenerTemplate Create_ListenerTemplate()
 	Template.RegisterInTactical = false;
 	Template.RegisterInStrategy = true;
 
-	Template.AddCHEvent('OverrideLocalizedAbilityTreeTitle', OnOverrideLocalizedAbilityTreeTitle, ELD_Immediate, 50);
+	Template.AddCHEvent('OverrideLocalizedAbilityTreeTitle', OnOverrideLocalizedAbilityTreeTitle, ELD_Immediate, default.ListenerPriority);
 
-	Template.AddCHEvent('CPS_OverrideCanPurchaseAbilityProperties', OnOverrideCanPurchaseAbilityProperties, ELD_Immediate, 50);
-	Template.AddCHEvent('CPS_OverrideGetAbilityPointCostProperties', OnOverrideCanPurchaseAbilityProperties, ELD_Immediate, 50);
+	Template.AddCHEvent('CPS_OverrideCanPurchaseAbilityProperties', OnOverrideCanPurchaseAbilityProperties, ELD_Immediate, default.ListenerPriority);
+	Template.AddCHEvent('CPS_OverrideGetAbilityPointCostProperties', OnOverrideCanPurchaseAbilityProperties, ELD_Immediate, default.ListenerPriority);
 
-	Template.AddCHEvent('CPS_OverrideAbilityPointCost', OnOverrideAbilityPointCost, ELD_Immediate, 50);
-	Template.AddCHEvent('CPS_AbilityPurchased', OnAbilityPurchased, ELD_Immediate, 50);
-	Template.AddCHEvent('CPS_OverrideAbilityDescription', OnOverrideAbilityDescription, ELD_Immediate, 50);
+	Template.AddCHEvent('CPS_OverrideAbilityPointCost', OnOverrideAbilityPointCost, ELD_Immediate, default.ListenerPriority);
+	Template.AddCHEvent('CPS_AbilityPurchased', OnAbilityPurchased, ELD_Immediate, default.ListenerPriority);
+	Template.AddCHEvent('CPS_OverrideAbilityDescription', OnOverrideAbilityDescription, ELD_Immediate, default.ListenerPriority);
 
-	Template.AddCHEvent('UpdateResources', OnUpdateResources, ELD_Immediate, 50);
+	Template.AddCHEvent('UpdateResources', OnUpdateResources, ELD_Immediate, default.ListenerPriority);
 	
 	return Template;
 }
