@@ -6,3 +6,14 @@ Summary="Can be used in the Psi Lab to infuse a soldier without The Gift with ps
 FriendlyName = "Aurora Shard"
 FriendlyNamePlural = "Aurora Shards"
 BriefSummary = "Can be used in the Psi Lab to infuse a soldier without The Gift with psionic abilities."
+
+[XComGame.UIFacility_PsiLabSlot]
+[UIFacility_PsiLabSlot]
+m_strPsiTrainingDialogTitle=PSIONIC TRAINING
+m_strPsiTrainingDialogText=<XGParam:StrValue0/!UnitName/> can undergo specialized training to unlock their Psionic potential, but they will be unavailable for combat during the training process. Do you want to proceed?
+; m_strStopPsiTrainingDialogTitle=STOP PSIONIC TRAINING?
+; m_strStopPsiTrainingDialogText=Do you want to stop %UNITNAME from training as a Psi Operative?\n\nWARNING: All training progress will be lost.
+; m_strPauseAbilityTrainingDialogTitle=PAUSE PSI ABILITY TRAINING?
+; m_strPauseAbilityTrainingDialogText=Do you want to pause %UNITNAME's Psionic ability training?\n\nNOTE: Training progress will be saved.
+m_strNoSoldiersTooltip=There are no soldiers available for Psi Operative training. 
+m_strSoldiersAvailableTooltip=Assign a soldier to undergo psionic training.

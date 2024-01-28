@@ -10,6 +10,8 @@ var config array<name> GiftedClasses;
 var config bool ClassUsesShardGauntletsGifted;
 var config bool ClassUsesPsiAmpGifted;
 
+var config array<int> PsiEvaluationDays;
+
 function SetProjectFocus(StateObjectReference FocusRef, optional XComGameState NewGameState, optional StateObjectReference AuxRef)
 {
 	local XComGameStateHistory History;
@@ -66,16 +68,12 @@ function SetProjectFocus(StateObjectReference FocusRef, optional XComGameState N
 
 function int CalculatePointsToTrain(optional bool bClassTraining = false)
 {
-	local XComGameState_HeadquartersXCom XComHQ;
-
 	if (bPsiOperativeTraining)
 	{
 		return super.CalculatePointsToTrain(bClassTraining);
 	}
-
-	XComHQ = `XCOMHQ;
-
-	return XComHQ.GetPsiTrainingDays() * XComHQ.XComHeadquarters_DefaultPsiTrainingWorkPerHour * 24;
+	
+	return `ScaleStrategyArrayInt(default.PsiEvaluationDays) * `XCOMHQ.XComHeadquarters_DefaultPsiTrainingWorkPerHour * 24;
 }
 
 function OnProjectCompleted()
@@ -114,7 +112,7 @@ function OnProjectCompleted()
 			{
 				NewGameState = class'XComGameStateContext_ChangeContainer'.static.CreateChangeState("Complete psionic Training");
 				XComHQ = class'Help'.static.GetAndPrepXComHQ(NewGameState);
-				XComHQ.AddResource(NewGameState, 'IRI_AuroraShard', -1);
+				ConsumeAuroraShard(XComHQ, NewGameState);
 
 				UnitState = XComGameState_Unit(NewGameState.ModifyStateObject(UnitState.Class, UnitState.ObjectID));
 				class'Help'.static.UnmarkGiftless(UnitState);
@@ -172,7 +170,7 @@ function OnProjectCompleted()
 		if (bAuroraShard)
 		{
 			XComHQ = class'Help'.static.GetAndPrepXComHQ(NewGameState);
-			XComHQ.AddResource(NewGameState, 'IRI_AuroraShard', -1);
+			ConsumeAuroraShard(XComHQ, NewGameState);
 
 			class'Help'.static.UnmarkGiftless(UnitState);
 		}
@@ -210,6 +208,36 @@ function OnProjectCompleted()
 	// Start Issue #534
 	TriggerPsiProjectCompleted(UnitState, AbilityName);
 	// End Issue #534
+}
+
+private function ConsumeAuroraShard(XComGameState_HeadquartersXCom XComHQ, XComGameState NewGameState)
+{
+	local StateObjectReference	ItemRef;
+	local XComGameStateHistory	History;
+	local XComGameState_Item	ItemState;
+
+	History = `XCOMHISTORY;
+
+	foreach XComHQ.Inventory(ItemRef)
+	{
+		ItemState = XComGameState_Item(History.GetGameStateForObjectID(ItemRef.ObjectID));
+		if (ItemState == none)
+			continue;
+
+		if (ItemState.GetMyTemplateName() == 'IRI_AuroraShard')
+		{
+			ItemState.Quantity--;
+
+			if (ItemState.Quantity <= 0)
+			{
+				XComHQ.Inventory.RemoveItem(ItemRef);
+				NewGameState.RemoveStateObject(ItemState.ObjectID);
+			}
+			return;
+		}
+	}
+
+	`AMLOG("ERROR :: Failed to find Aurora Shard item state in HQ inventory!");
 }
 
 private function ShowShardConsumedPopup()
