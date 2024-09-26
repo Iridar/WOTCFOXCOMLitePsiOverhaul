@@ -1,48 +1,69 @@
-class XComGameState_HeadquartersProjectPsiTraining_FOXCOM extends XComGameState_HeadquartersProjectPsiTraining config(PsiOverhaul);
+class XComGameState_HeadquartersProjectPsiTraining_FOXCOM extends XComGameState_HeadquartersProjectPsiTraining config(StrategyTuning);
 
-var private config int	InitialPsiOffenseBonus;
-var bool bPsiOperativeTraining;
+var private bool bPsiInfusion;
+var private bool bPsiOperativeTraining;
+
+var private config(PsiOverhaul) int	InitialPsiOffenseBonus;
+
+var config array<int>	PsiEvaluationDays;
+var config array<int>	PsiInfusionDays;
 
 `include(WOTCFOXCOMLitePsiOverhaul\Src\ModConfigMenuAPI\MCM_API_CfgHelpers.uci)
 
-var config array<name> GiftedCharacters;
-var config array<name> GiftedClasses;
-var config bool ClassUsesShardGauntletsGifted;
-var config bool ClassUsesPsiAmpGifted;
-
-var config array<int> PsiEvaluationDays;
+// ---------------------------------- OVERRIDDEN METHODS ----------------------------------
 
 function SetProjectFocus(StateObjectReference FocusRef, optional XComGameState NewGameState, optional StateObjectReference AuxRef)
 {
-	local XComGameStateHistory History;
-	local XComGameState_Unit UnitState;
-	local XComGameState_GameTime TimeState;
+	local XComGameStateHistory				History;
+	local XComGameState_Unit				UnitState;
+	local XComGameState_GameTime			TimeState;
+	local XComGameState_HeadquartersXCom	XComHQ;
 
-	if (bPsiOperativeTraining)
+	// -------------------------------------------------
+	History = `XCOMHISTORY;
+	UnitState = XComGameState_Unit(NewGameState.GetGameStateForObjectID(FocusRef.ObjectID));
+	if (UnitState == none)
 	{
-		super.SetProjectFocus(FocusRef, NewGameState, AuxRef);
+		UnitState = XComGameState_Unit(History.GetGameStateForObjectID(FocusRef.ObjectID));
+		if (UnitState != none)
+		{
+			UnitState = XComGameState_Unit(NewGameState.ModifyStateObject(UnitState.Class, UnitState.ObjectID));
+		}
+	}
+	if (UnitState == none)
+	{
+		`AMLOG("ERROR :: Failed to acquire Unit State!" @ FocusRef.ObjectID @ History.GetGameStateForObjectID(FocusRef.ObjectID).Class);
 		return;
 	}
 
-	History = `XCOMHISTORY;
-	ProjectFocus = FocusRef; // Unit
-	AuxilaryReference = AuxRef; // Facility
+	// -------------------------------------------------
 
-	UnitState = XComGameState_Unit(NewGameState.GetGameStateForObjectID(ProjectFocus.ObjectID));
-	if (UnitState == none)
+	// Vanilla Psi Operative support
+	if (UnitState.GetSoldierClassTemplateName() == 'PsiOperative')
 	{
-		UnitState = XComGameState_Unit(History.GetGameStateForObjectID(ProjectFocus.ObjectID));
+		bPsiOperativeTraining = true;
+		super.SetProjectFocus(FocusRef, NewGameState, AuxRef);
+		return;
 	}
+	
+	if (class'Help'.static.IsGiftless(UnitState))
+	{
+		bPsiInfusion = true;
 
-	`AMLOG("Starting project for:" @ UnitState.GetFullName());
+		XComHQ = class'Help'.static.GetAndPrepXComHQ(NewGameState);
+		PayInfusionCost(XComHQ, NewGameState);
+	}
+	
+	ProjectFocus = FocusRef;	// Unit
+	AuxilaryReference = AuxRef;	// Facility
+
+	`AMLOG("Starting project for:" @ UnitState.GetFullName() @ "is doing Infusion:" @ bPsiInfusion);
 
 	ProjectPointsRemaining = CalculatePointsToTrain();
-
 	InitialProjectPoints = ProjectPointsRemaining;
-
 	UpdateWorkPerHour(NewGameState); 
 
-	`AMLOG("ProjectPointsRemaining:" @ ProjectPointsRemaining @ GetCurrentWorkPerHour());
+	`AMLOG(`ShowVar(ProjectPointsRemaining) @ `ShowVar(InitialProjectPoints) @ "Work Per Hour:" @ GetCurrentWorkPerHour());
 
 	TimeState = XComGameState_GameTime(History.GetSingleGameStateObjectForClass(class'XComGameState_GameTime'));
 	StartDateTime = TimeState.CurrentTime;
@@ -55,7 +76,7 @@ function SetProjectFocus(StateObjectReference FocusRef, optional XComGameState N
 		}
 	}
 
-	if(MakingProgress())
+	if (MakingProgress())
 	{
 		SetProjectedCompletionDateTime(StartDateTime);
 	}
@@ -72,7 +93,12 @@ function int CalculatePointsToTrain(optional bool bClassTraining = false)
 	{
 		return super.CalculatePointsToTrain(bClassTraining);
 	}
+	if (bPsiInfusion)
+	{
+		return `ScaleStrategyArrayInt(default.PsiInfusionDays) * `XCOMHQ.XComHeadquarters_DefaultPsiTrainingWorkPerHour * 24;
+	}
 	
+	`AMLOG("Days:" @ `ScaleStrategyArrayInt(default.PsiEvaluationDays) @ "Work Per Hour:" @ `XCOMHQ.XComHeadquarters_DefaultPsiTrainingWorkPerHour);
 	return `ScaleStrategyArrayInt(default.PsiEvaluationDays) * `XCOMHQ.XComHeadquarters_DefaultPsiTrainingWorkPerHour * 24;
 }
 
@@ -85,71 +111,65 @@ function OnProjectCompleted()
 	local int								CurrentPsiOffense;
 	local int								iFinalRow;
 	local bool								bHasGift;
-	local bool								bAuroraShard;
-	local XComGameState_HeadquartersXCom	XComHQ;
+	local bool								bAlwaysGifted;
+	local bool								bOneFewerPsiAbility;
+
+	if (bPsiOperativeTraining)
+	{
+		super.OnProjectCompleted();
+		return;
+	}
 
 	UnitState = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(ProjectFocus.ObjectID));
 	if (UnitState == none)
 		return;
 
-	if (class'Help'.static.IsGiftless(UnitState))
-	{	
-		bAuroraShard = true;
-		bHasGift = true;
-	}
-	else
+	bAlwaysGifted = class'Help'.static.IsUnitAlwaysGifted(UnitState);
+
+	// Roll for The Gift, if needed.
+	if (!bPsiInfusion && !bAlwaysGifted)
 	{
 		bHasGift = RollUnitHasGift(UnitState);
-	}
-
-	if (bPsiOperativeTraining)
-	{
-		if (bHasGift)
+		if (!bHasGift)
 		{
-			super.OnProjectCompleted();
-
-			if (bAuroraShard)
-			{
-				NewGameState = class'XComGameStateContext_ChangeContainer'.static.CreateChangeState("Complete psionic Training");
-				XComHQ = class'Help'.static.GetAndPrepXComHQ(NewGameState);
-				ConsumeAuroraShard(XComHQ, NewGameState);
-
-				UnitState = XComGameState_Unit(NewGameState.ModifyStateObject(UnitState.Class, UnitState.ObjectID));
-				class'Help'.static.UnmarkGiftless(UnitState);
-
-				`GAMERULES.SubmitGameState(NewGameState);
-
-				ShowShardConsumedPopup();
-			}
-		}
-		else
-		{
-			NewGameState = class'XComGameStateContext_ChangeContainer'.static.CreateChangeState("Complete psionic Training");
+			NewGameState = class'XComGameStateContext_ChangeContainer'.static.CreateChangeState("Complete FOXCOM Psi Training");
 			UnitState = XComGameState_Unit(NewGameState.ModifyStateObject(UnitState.Class, UnitState.ObjectID));
 			class'Help'.static.MarkGiftless(UnitState);
-
-			CompletePsiTraining(NewGameState, GetReference(), UnitState);
-
+			CompleteProject(NewGameState, GetReference(), UnitState);
 			`GAMERULES.SubmitGameState(NewGameState);
 
-			ShowTrainingCompletedPopUp(ProjectFocus, '', true);
+			ShowTrainingCompletedPopUp(ProjectFocus, 'eAlert_IRIFMPSI_Evaluation_Giftless');
 
-			// Start Issue #534
-			TriggerPsiProjectCompleted(UnitState, '');
-			// End Issue #534
+			return;
 		}
+	}
+
+	// If it's a gifted rookie, make them a Psi Operative.
+	if (UnitState.GetRank() == 0 && bHasGift)
+	{
+		super.OnProjectCompleted();
 		return;
 	}
 
-	// ----------------------------------------------------------------
-
-	NewGameState = class'XComGameStateContext_ChangeContainer'.static.CreateChangeState("Complete psionic Training");
+	NewGameState = class'XComGameStateContext_ChangeContainer'.static.CreateChangeState("Complete FOXCOM Psi Training");
 	UnitState = XComGameState_Unit(NewGameState.ModifyStateObject(UnitState.Class, UnitState.ObjectID));
+	CompleteProject(NewGameState, GetReference(), UnitState);
 
-	CompletePsiTraining(NewGameState, GetReference(), UnitState);
-
-	if (bHasGift)
+	// Give psi perks.
+	if (bPsiInfusion || bHasGift || bAlwaysGifted)
 	{
+		// Always Gifted units don't get a free Psi Perk.
+		bOneFewerPsiAbility = bAlwaysGifted;
+
+		iFinalRow = InjectPsiPerks(UnitState, NewGameState, bOneFewerPsiAbility); 
+		
+		// Mark soldier so they can't undergo psionic training again. Unit value will store the index of the row where psionic abilities start.
+		class'Help'.static.MarkGifted(UnitState, iFinalRow);
+
+		// This will equip a Psi Amp into the freshly unlocked slot
+		UnitState.ValidateLoadout(NewGameState);
+
+		// Boost Psi Offense
 		CurrentPsiOffense = UnitState.GetMaxStat(eStat_PsiOffense);
 		UnitState.SetBaseMaxStat(eStat_PsiOffense, CurrentPsiOffense + InitialPsiOffenseBonus);
 
@@ -158,101 +178,30 @@ function OnProjectCompleted()
 			UnitState.kAppearance.iHairColor = `GETMCMVAR(HAIR_COLOR);
 			UnitState.kAppearance.iEyeColor = `GETMCMVAR(EYE_COLOR);
 		}
-	
-		iFinalRow = InjectPsiPerks(UnitState, NewGameState);	
 
-		// Mark soldier so they can't undergo psionic training again. Unit value will store the index of the row where psionic abilities start.
-		class'Help'.static.MarkPsiOperative(UnitState, iFinalRow);
-
-		// This will equip a Psi Amp into the freshly unlocked slot
-		UnitState.ValidateLoadout(NewGameState);
-
-		if (bAuroraShard)
+		// Pop Up Msg
+		if (bAlwaysGifted)
 		{
-			XComHQ = class'Help'.static.GetAndPrepXComHQ(NewGameState);
-			ConsumeAuroraShard(XComHQ, NewGameState);
-
-			class'Help'.static.UnmarkGiftless(UnitState);
+			ShowTrainingCompletedPopUp(ProjectFocus, 'eAlert_IRIFMPSI_Evaluation_Gifted');
 		}
-	}
-	else
-	{
-		class'Help'.static.MarkGiftless(UnitState);
-	}
-
-	`GAMERULES.SubmitGameState(NewGameState);
-
-	if (bHasGift)
-	{
-		if (IsUnitAlwaysGifted(UnitState))
-		{
-			// Show popup here without an ability
-			ShowTrainingCompletedPopUp(ProjectFocus);
-		}
-		else
+		else if (bPsiInfusion)
 		{
 			AbilityName = UnitState.GetAbilityName(0, iFinalRow); 
-			ShowTrainingCompletedPopUp(ProjectFocus, AbilityName);
+			ShowTrainingCompletedPopUp(ProjectFocus, 'eAlert_IRIFMPSI_Infusion_Finished', AbilityName);
 		}
-	}
-	else
-	{
-		ShowTrainingCompletedPopUp(ProjectFocus,, true);
-	}
-
-	if (bAuroraShard)
-	{
-		ShowShardConsumedPopup();
-	}
-
-	// Start Issue #534
-	TriggerPsiProjectCompleted(UnitState, AbilityName);
-	// End Issue #534
-}
-
-private function ConsumeAuroraShard(XComGameState_HeadquartersXCom XComHQ, XComGameState NewGameState)
-{
-	local StateObjectReference	ItemRef;
-	local XComGameStateHistory	History;
-	local XComGameState_Item	ItemState;
-
-	History = `XCOMHISTORY;
-
-	foreach XComHQ.Inventory(ItemRef)
-	{
-		ItemState = XComGameState_Item(History.GetGameStateForObjectID(ItemRef.ObjectID));
-		if (ItemState == none)
-			continue;
-
-		if (ItemState.GetMyTemplateName() == 'IRI_AuroraShard')
+		else if (bHasGift)
 		{
-			ItemState.Quantity--;
-
-			if (ItemState.Quantity <= 0)
-			{
-				XComHQ.Inventory.RemoveItem(ItemRef);
-				NewGameState.RemoveStateObject(ItemState.ObjectID);
-			}
-			return;
+			AbilityName = UnitState.GetAbilityName(0, iFinalRow); 
+			ShowTrainingCompletedPopUp(ProjectFocus, 'eAlert_IRIFMPSI_Evaluation_Gifted', AbilityName);
 		}
 	}
-
-	`AMLOG("ERROR :: Failed to find Aurora Shard item state in HQ inventory!");
+		
+	`GAMERULES.SubmitGameState(NewGameState);
 }
 
-private function ShowShardConsumedPopup()
-{
-	local DynamicPropertySet PropertySet;
+// ---------------------------------- NEW INTERNAL METHODS ----------------------------------
 
-	class'X2StrategyGameRulesetDataStructures'.static.BuildDynamicPropertySet(PropertySet, 'UIAlert_PsiTraining_FOXCOM', 'eAlert_PsiTraining_ShardConsumed', none, true, true, true, false);
-	class'X2StrategyGameRulesetDataStructures'.static.AddDynamicNameProperty(PropertySet, 'EventToTrigger', '');
-	class'X2StrategyGameRulesetDataStructures'.static.AddDynamicStringProperty(PropertySet, 'SoundToPlay', "Geoscape_CrewMemberLevelledUp");
-	class'X2StrategyGameRulesetDataStructures'.static.AddDynamicIntProperty(PropertySet, 'UnitRef', 0);
-	class'X2StrategyGameRulesetDataStructures'.static.AddDynamicNameProperty(PropertySet, 'AbilityTemplate', '');
-	`HQPRES.QueueDynamicPopup(PropertySet);
-}
-
-static private function CompletePsiTraining(XComGameState AddToGameState, StateObjectReference ProjectRef, XComGameState_Unit UnitState)
+private function CompleteProject(XComGameState AddToGameState, StateObjectReference ProjectRef, XComGameState_Unit UnitState)
 {
 	local XComGameState_HeadquartersProjectPsiTraining ProjectState;
 	local XComGameState_HeadquartersXCom XComHQ;
@@ -272,17 +221,6 @@ static private function CompletePsiTraining(XComGameState AddToGameState, StateO
 			AddToGameState.RemoveStateObject(ProjectState.ObjectID);
 		}
 
-		// Rank up the solder. Will also apply class if they were a Rookie.
-		//UnitState.RankUpSoldier(AddToGameState, 'PsiOperative');
-		//
-		//// Teach the soldier the ability which was associated with the project
-		//UnitState.BuySoldierProgressionAbility(AddToGameState, ProjectState.iAbilityRank, ProjectState.iAbilityBranch);
-
-		//if (UnitState.GetRank() == 1) // They were just promoted to Initiate
-		//{
-		//	UnitState.ApplyBestGearLoadout(AddToGameState); // Make sure the squaddie has the best gear available
-		//}
-
 		UnitState.SetStatus(eStatus_Active);
 
 		// Remove the soldier from the staff slot
@@ -297,24 +235,11 @@ static private function CompletePsiTraining(XComGameState AddToGameState, StateO
 	}
 }
 
-private function ShowTrainingCompletedPopUp(StateObjectReference UnitRef, optional name AbilityName = '', optional bool bGiftless = false)
+private function ShowTrainingCompletedPopUp(StateObjectReference UnitRef, const name AlertName, optional name AbilityName = '')
 {
 	local DynamicPropertySet PropertySet;
-	local name AlertName;
 
-	if (bGiftless)
-	{
-		AlertName = 'eAlert_PsiTraining_FOXCOMTrainingFailed';
-	}
-	else if (AbilityName != '')
-	{
-		AlertName = 'eAlert_PsiTraining_FOXCOMTrainingCompleteNoAbility';
-	}
-	else
-	{
-		AlertName = 'eAlert_PsiTraining_FOXCOMTrainingComplete';
-	}
-	if (bGiftless)
+	if (AlertName == 'eAlert_IRIFMPSI_Evaluation_Giftless')
 	{
 		class'X2StrategyGameRulesetDataStructures'.static.BuildDynamicPropertySet(PropertySet, 'UIAlert_PsiTraining_FOXCOM', AlertName, none, true, true, true, false);
 	}
@@ -324,12 +249,11 @@ private function ShowTrainingCompletedPopUp(StateObjectReference UnitRef, option
 	}
 	
 	class'X2StrategyGameRulesetDataStructures'.static.AddDynamicNameProperty(PropertySet, 'EventToTrigger', '');
-	class'X2StrategyGameRulesetDataStructures'.static.AddDynamicStringProperty(PropertySet, 'SoundToPlay', "Geoscape_CrewMemberLevelledUp");
+	class'X2StrategyGameRulesetDataStructures'.static.AddDynamicStringProperty(PropertySet, 'SoundToPlay', "Geoscape_CrewMemberLevelledUp"); // TODO: Might want to use a different sound for giftless
 	class'X2StrategyGameRulesetDataStructures'.static.AddDynamicIntProperty(PropertySet, 'UnitRef', UnitRef.ObjectID);
 	class'X2StrategyGameRulesetDataStructures'.static.AddDynamicNameProperty(PropertySet, 'AbilityTemplate', AbilityName);
 	`HQPRES.QueueDynamicPopup(PropertySet);
 }
-
 
 simulated function TrainingCompleteCB(Name eAction, out DynamicPropertySet AlertData, optional bool LocbInstant = false)
 {
@@ -353,9 +277,8 @@ simulated function TrainingCompleteCB(Name eAction, out DynamicPropertySet Alert
 	}
 }
 
-private function int InjectPsiPerks(out XComGameState_Unit UnitState, out XComGameState NewGameState)
+private function int InjectPsiPerks(out XComGameState_Unit UnitState, out XComGameState NewGameState, bool bOneFewerPsiAbility)
 {
-	local bool						bAlwaysGifted;
 	local int						iNumPerks;
 	local SoldierRankAbilities		InsertAbilities;
 	local AbilitySelector			Selector;
@@ -375,21 +298,24 @@ private function int InjectPsiPerks(out XComGameState_Unit UnitState, out XComGa
 	}
 
 	iNumPerks = UnitState.GetSoldierClassTemplate().GetMaxConfiguredRank();
-	StartingRank = 0;
 
-	if (IsUnitAlwaysGifted(UnitState))
+	if (bOneFewerPsiAbility)
 	{
-		bAlwaysGifted = true;
+		StartingRank = 1;
+
 		iNumPerks--; // For balancing reasons, always gifted units, like Templars, don't get a free perk.
+	}
+	else
+	{
+		StartingRank = 0;
 	}
 
 	Selector = new class'AbilitySelector';
 	Selector.UnitState = UnitState;
 	Selector.BuildPsiAbilities(InsertAbilities, iNumPerks);
 
-	if (bAlwaysGifted)
+	if (bOneFewerPsiAbility)
 	{	
-		StartingRank = 1;
 		InsertAbilities.Abilities.InsertItem(0, InsertAbilities.Abilities[0]); // Add a dummy copy of the first perk in the tree so that array index can work
 	}
 
@@ -399,7 +325,7 @@ private function int InjectPsiPerks(out XComGameState_Unit UnitState, out XComGa
 	}
 
 	// Instantly learn squaddie ability
-	if (!bAlwaysGifted)
+	if (!bOneFewerPsiAbility)
 	{
 		UnitState.BuySoldierProgressionAbility(NewGameState, 0, iFinalRow);
 	}
@@ -412,8 +338,8 @@ private function bool RollUnitHasGift(const XComGameState_Unit UnitState)
 	local CharacterPoolManager		CharPool;
 	local XComGameState_Unit		CPUnitState;
 	
-	if (IsUnitAlwaysGifted(UnitState))
-		return true;
+	//if (IsUnitAlwaysGifted(UnitState))
+	//	return true;
 
 	if (`GETMCMVAR(GIFT_PSIOP_GUARANTEED))
 	{
@@ -432,30 +358,13 @@ private function bool RollUnitHasGift(const XComGameState_Unit UnitState)
 	return `SYNC_RAND(100) < `GETMCMVAR(GIFT_CHANCE);
 }
 
-private function bool IsUnitAlwaysGifted(const XComGameState_Unit UnitState)
+private function PayInfusionCost(XComGameState_HeadquartersXCom XComHQ, XComGameState NewGameState)
 {
-	local X2SoldierClassTemplate	ClassTemplate;
-	local SoldierClassWeaponType	AllowedWeapon;
+	local StrategyCost				InfusionCost;
+	local array<StrategyCostScalar> CostScalars;
 
-	if (GiftedCharacters.Find(UnitState.GetMyTemplateName()) != INDEX_NONE)
-		return true;
+	InfusionCost = class'X2DLCInfo_WOTCFOXCOMLitePsiOverhaul'.static.GetInfusionCost();
 
-	ClassTemplate = UnitState.GetSoldierClassTemplate();
-	if (ClassTemplate != none)
-	{
-		if (GiftedClasses.Find(ClassTemplate.DataName) != INDEX_NONE)
-			return true;
-
-		foreach ClassTemplate.AllowedWeapons(AllowedWeapon)
-		{
-			if (AllowedWeapon.WeaponType == 'psiamp' && ClassUsesPsiAmpGifted)
-			{
-				return true;
-			}
-			if (AllowedWeapon.WeaponType == 'gauntlet' && ClassUsesShardGauntletsGifted)
-			{
-				return true;
-			}
-		}
-	}
+	CostScalars.Length = 0; // Settle down, compiler
+	XComHQ.PayStrategyCost(NewGameState, InfusionCost, CostScalars);
 }

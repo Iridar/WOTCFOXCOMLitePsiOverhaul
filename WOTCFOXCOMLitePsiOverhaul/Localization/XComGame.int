@@ -1,19 +1,36 @@
-[IRI_AuroraShard_Tech X2TechTemplate]
-DisplayName="Aurora Shard"
-Summary="Can be used in the Psi Lab to infuse a soldier without The Gift with psionic abilities."
+[PsiChamber_SecondCell X2FacilityUpgradeTemplate]
+DisplayName="Psionic Infusion Chamber"
+FacilityName="Psi Lab"
+Summary="Add a Psionic Infusion Chamber to the Psi Lab, allowing soldiers without psionic gift to undergo psionic infusion and gain psionic abilities anyway."
 
-[IRI_AuroraShard X2ItemTemplate]
-FriendlyName = "Aurora Shard"
-FriendlyNamePlural = "Aurora Shards"
-BriefSummary = "Can be used in the Psi Lab to infuse a soldier without The Gift with psionic abilities."
+[IRI_PsiEvaluationStaffSlot X2StaffSlotTemplate]
+BonusDefaultText="PSI EVALUATION"
+BonusEmptyText="Exposes psionic potential."
+FilledText="%UNITNAME is undergoing deep mediatation to find out if they have innate psionic potential."
 
-[XComGame.UIFacility_PsiLabSlot]
-[UIFacility_PsiLabSlot]
-m_strPsiTrainingDialogTitle=PSIONIC TRAINING
-m_strPsiTrainingDialogText=<XGParam:StrValue0/!UnitName/> can undergo specialized training to unlock their Psionic potential, but they will be unavailable for combat during the training process. Do you want to proceed?
-; m_strStopPsiTrainingDialogTitle=STOP PSIONIC TRAINING?
-; m_strStopPsiTrainingDialogText=Do you want to stop %UNITNAME from training as a Psi Operative?\n\nWARNING: All training progress will be lost.
-; m_strPauseAbilityTrainingDialogTitle=PAUSE PSI ABILITY TRAINING?
-; m_strPauseAbilityTrainingDialogText=Do you want to pause %UNITNAME's Psionic ability training?\n\nNOTE: Training progress will be saved.
-m_strNoSoldiersTooltip=There are no soldiers available for Psi Operative training. 
-m_strSoldiersAvailableTooltip=Assign a soldier to undergo psionic training.
+[IRI_PsiInfusionStaffSlot X2StaffSlotTemplate]
+BonusDefaultText="PSI INFUSION"
+BonusEmptyText="Grants psionic potential."
+FilledText="%UNITNAME is undergoing Psionic infusion process to gain access to Psionic abilities despite having no innate psionic potential."
+
+[XComGame.UIAlert]
+[UIAlert]
+m_strIntroToPsiLab = "PSIONIC EVALUATION"
+m_strIntroToPsiLabBody = "Any non-rookie soldier can undergo Psionic Evaluation in the Psi Lab to determine if they have the Psionic Gift or not. If the soldier has The Gift, they will gain access to a new psionic ability right away, and will be able to unlock more abilities as they progress through ranks. Staffing an engineer in the Psi Lab will decrease the time of all Psi Lab projects."
+
+[IRI_NoPsionicGift X2AbilityTemplate]
+LocFriendlyName="No Psionic Gift"
+LocLongDescription="This soldier has no Psionic Gift."
+LocHelpText="This soldier has no Psionic Gift."
+
+; TODO: This?
+; [PsiChamberScientistStaffSlot X2StaffSlotTemplate]
+; BonusText="TRAINING TIME -%AVENGERBONUS%"
+
+; I'd love to use different lines for Psi Infusion and Psi Evaluation, but I also want to extend XComGameState_HeadquartersProjectPsiTraining
+; and having both seems to be impossible. Having slightly worse loc is gonna have to be it.
+[XComGame.XComGameState_HeadquartersXCom]
+[XComGameState_HeadquartersXCom]
+PsiTrainingEventLabel="PSI PROJECT:"
+
+; PsiTrainingEventLabel="PSI TRAINING:"

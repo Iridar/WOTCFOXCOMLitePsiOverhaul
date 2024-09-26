@@ -3,17 +3,17 @@ class UIAlert_PsiTraining_FOXCOM extends UIAlert;
 // This class is bloody ugly cargo culted mess, no idea how much of this is actually required,
 // but it works, so w/e.
 
-var localized string strNoGift;
-var localized string strShardConsumedText;
-var localized string strShardConsumedTitle;
 var localized string strNewAbilitiesAdded;
 
-enum UIAlert_PsiTraining_FOXCOM
+var private localized string strTitleInfusionFinished;
+var private localized string strTitleEvaluationGifted;
+var private localized string strTitleEvaluationNotGifted;
+
+enum eAlert_IRIFMPSI
 {
-	eAlert_PsiTraining_FOXCOMTrainingComplete,
-	eAlert_PsiTraining_FOXCOMTrainingFailed,
-	eAlert_PsiTraining_FOXCOMTrainingCompleteNoAbility,
-	eAlert_PsiTraining_ShardConsumed,
+	eAlert_IRIFMPSI_Infusion_Finished,
+	eAlert_IRIFMPSI_Evaluation_Gifted,
+	eAlert_IRIFMPSI_Evaluation_Giftless
 };
 
 simulated function BuildAlert()
@@ -22,18 +22,19 @@ simulated function BuildAlert()
 
 	switch ( eAlertName )
 	{
-	case 'eAlert_PsiTraining_FOXCOMTrainingComplete':
-	case 'eAlert_PsiTraining_FOXCOMTrainingCompleteNoAbility':
-		BuildPsiTraining_FOXCOMTrainingCompleteAlert(m_strPsiTrainingCompleteLabel);
+	case 'eAlert_IRIFMPSI_Infusion_Finished':
+		BuildAlert_Infusion();
+		break;
+
+	case 'eAlert_IRIFMPSI_Evaluation_Gifted':
+		BuildAlert_Evaluation_Gifted();
 		break;	
-	case 'eAlert_PsiTraining_FOXCOMTrainingFailed':
-		BuildSoldierHasNoGiftAlert();
+
+	case 'eAlert_IRIFMPSI_Evaluation_Giftless':
+		BuildAlert_Evaluation_NotGifted();
 		break;
-	case 'eAlert_PsiTraining_ShardConsumed':
-		BuildShardConsumedAlert();
-		break;
+
 	default:
-		AddBG(MakeRect(0, 0, 1000, 500), eUIState_Normal).SetAlpha(0.75f);
 		break;
 	}
 
@@ -46,44 +47,19 @@ simulated function Name GetLibraryID()
 	//This gets the Flash library name to load in a panel. No name means no library asset yet. 
 	switch ( eAlertName )
 	{
-	case 'eAlert_PsiTraining_FOXCOMTrainingComplete':
-	case 'eAlert_PsiTraining_FOXCOMTrainingCompleteNoAbility':
+	case 'eAlert_IRIFMPSI_Infusion_Finished':
+	case 'eAlert_IRIFMPSI_Evaluation_Gifted':
 		return 'Alert_TrainingComplete';
 
-	case 'eAlert_PsiTraining_FOXCOMTrainingFailed':
+	case 'eAlert_IRIFMPSI_Evaluation_Giftless':
 		return 'Alert_NegativeSoldierEvent';
 
-	case 'eAlert_PsiTraining_ShardConsumed':
-		return 'Alert_ItemAvailable';
 	default:
 		return '';
 	}
 }
 
-simulated function BuildShardConsumedAlert()
-{
-	local TAlertAvailableInfo kInfo;
-	local X2ItemTemplate ItemTemplate;
-	local X2ItemTemplateManager TemplateManager;
-
-	TemplateManager = class'X2ItemTemplateManager'.static.GetItemTemplateManager();
-
-	ItemTemplate = TemplateManager.FindItemTemplate('IRI_AuroraShard');
-
-	kInfo.strTitle = `CAPS(strShardConsumedTitle);
-	kInfo.strName = ItemTemplate.GetItemFriendlyName(, false);
-	kInfo.strBody = strShardConsumedText;
-	kInfo.strConfirm = m_strAccept;
-	kInfo.strImage = ItemTemplate.strImage;
-	kInfo.eColor = eUIState_Good;
-	kInfo.clrAlert = MakeLinearColor(0.0, 0.75, 0.0, 1);
-
-	kInfo = FillInTyganAlertAvailable(kInfo);
-
-	BuildAvailableAlert(kInfo);
-}
-
-simulated function BuildSoldierHasNoGiftAlert()
+private function BuildAlert_Evaluation_NotGifted()
 {
 	local XComGameState_Unit UnitState;
 	local XGBaseCrewMgr CrewMgr;
@@ -92,8 +68,7 @@ simulated function BuildSoldierHasNoGiftAlert()
 	local Rotator ForceRotation;
 	local XComUnitPawn UnitPawn;
 	local string ClassIcon, ClassName, RankName;
-	local X2ItemTemplate ItemTemplate;
-	local string strTitle;
+	local X2AbilityTemplate AbilityTemplate;
 	
 	if (LibraryPanel == none)
 	{
@@ -101,8 +76,7 @@ simulated function BuildSoldierHasNoGiftAlert()
 		return;
 	}
 
-	UnitState = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(
-		class'X2StrategyGameRulesetDataStructures'.static.GetDynamicIntProperty(DisplayPropertySet, 'UnitRef')));
+	UnitState = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(class'X2StrategyGameRulesetDataStructures'.static.GetDynamicIntProperty(DisplayPropertySet, 'UnitRef')));
 	
 	if (UnitState.GetRank() > 0)
 	{
@@ -134,31 +108,24 @@ simulated function BuildSoldierHasNoGiftAlert()
 		`HQPRES.CAMLookAtRoom(RoomState, `HQINTERPTIME, ForceLocation, ForceRotation);
 	}
 
-	ItemTemplate = class'X2ItemTemplateManager'.static.GetItemTemplateManager().FindItemTemplate('PsionicEvaluation');
-	if (ItemTemplate != none)
-	{
-		strTitle = ItemTemplate.FriendlyName;
-	}
-	else
-	{
-		strTitle = "Psionic Evaluation";
-	}
+	AbilityTemplate = class'X2AbilityTemplateManager'.static.GetAbilityTemplateManager().FindAbilityTemplate('IRI_NoPsionicGift');
 
 	// Send over to flash
 	LibraryPanel.MC.BeginFunctionOp("UpdateData");
-	LibraryPanel.MC.QueueString(`CAPS(strTitle));
+	LibraryPanel.MC.QueueString(strTitleEvaluationNotGifted);
 	LibraryPanel.MC.QueueString("");
 	LibraryPanel.MC.QueueString(ClassIcon);
 	LibraryPanel.MC.QueueString(RankName);
 	LibraryPanel.MC.QueueString(UnitState.GetName(eNameType_FullNick));
 	LibraryPanel.MC.QueueString(ClassName);
-	LibraryPanel.MC.QueueString("img:///UILibrary_XPACK_Common.PerkIcons.weakx_fearofpsionics"); // Ability Icon
-	LibraryPanel.MC.QueueString(class'XGTacticalScreenMgr'.default.m_arrCategoryNames[eCat_MissionResult] /*NegativeTrait.TraitFriendlyName*/); // Ability Label
-	LibraryPanel.MC.QueueString(strNoGift /*NegativeTrait.TraitScientificName*/); // Ability Name
-	LibraryPanel.MC.QueueString("" /*TraitDesc*/); // Ability Description
+	LibraryPanel.MC.QueueString(AbilityTemplate.IconImage); 
+	LibraryPanel.MC.QueueString(`CAPS(class'XGTacticalScreenMgr'.default.m_arrCategoryNames[eCat_MissionResult])); // "Result"
+	LibraryPanel.MC.QueueString(AbilityTemplate.LocFriendlyName);	// "Not Gifted"
+	LibraryPanel.MC.QueueString(AbilityTemplate.LocHelpText);		// "This soldier has no Psionic Gift"
 	LibraryPanel.MC.QueueString("");
 	LibraryPanel.MC.QueueString(m_strOk);
 	LibraryPanel.MC.EndOp();
+
 	GetOrStartWaitingForStaffImage();
 	// Always hide the "Continue" button, since this is just an informational popup
 	Button2.SetGamepadIcon(class'UIUtilities_Input'.static.GetAdvanceButtonIcon()); //bsg-hlee (05.09.17): Changing the icon to A.
@@ -166,7 +133,7 @@ simulated function BuildSoldierHasNoGiftAlert()
 	Button1.DisableNavigation();
 }
 
-simulated function BuildPsiTraining_FOXCOMTrainingCompleteAlert(string TitleLabel)
+simulated function BuildAlert_Evaluation_Gifted()
 {
 	local XComGameState_Unit UnitState;
 	local X2SoldierClassTemplate ClassTemplate;
@@ -175,7 +142,6 @@ simulated function BuildPsiTraining_FOXCOMTrainingCompleteAlert(string TitleLabe
 	local X2AbilityTemplate AbilityTemplate;
 	local X2AbilityTemplateManager TemplateManager;
 	local name AbilityTemplateName;
-	local X2ItemTemplate ItemTemplate;
 
 	if (LibraryPanel == none)
 	{
@@ -199,15 +165,74 @@ simulated function BuildPsiTraining_FOXCOMTrainingCompleteAlert(string TitleLabe
 	{
 		AbilityName = strNewAbilitiesAdded;
 	}
+	
+	ClassTemplate = UnitState.GetSoldierClassTemplate();
+	ClassName = Caps(ClassTemplate.DisplayName);
+	ClassIcon = ClassTemplate.IconImage;
+	RankName = Caps(class'X2ExperienceConfig'.static.GetRankName(UnitState.GetRank(), ClassTemplate.DataName));
 
-	ItemTemplate = class'X2ItemTemplateManager'.static.GetItemTemplateManager().FindItemTemplate('PsionicEvaluation');
-	if (ItemTemplate != none)
+	kTag = XGParamTag(`XEXPANDCONTEXT.FindTag("XGParam"));
+	kTag.StrValue0 = "";
+
+	// Send over to flash
+	LibraryPanel.MC.BeginFunctionOp("UpdateData");
+	LibraryPanel.MC.QueueString(strTitleEvaluationGifted);
+	LibraryPanel.MC.QueueString("");
+	LibraryPanel.MC.QueueString(ClassIcon);
+	LibraryPanel.MC.QueueString(RankName);
+	LibraryPanel.MC.QueueString(UnitState.GetName(eNameType_FullNick));
+	LibraryPanel.MC.QueueString(ClassName);
+	LibraryPanel.MC.QueueString(AbilityIcon);
+
+	if (AbilityTemplateName != '')
 	{
-		TitleLabel = `CAPS(ItemTemplate.FriendlyName);
+		LibraryPanel.MC.QueueString(m_strNewAbilityLabel);
 	}
 	else
 	{
-		TitleLabel = "PSIONIC EVALUATION";
+		LibraryPanel.MC.QueueString("");
+	}
+	LibraryPanel.MC.QueueString(AbilityName);
+	LibraryPanel.MC.QueueString(AbilityDescription);
+	LibraryPanel.MC.QueueString(m_strViewSoldier);
+	LibraryPanel.MC.QueueString(m_strCarryOn);
+	LibraryPanel.MC.EndOp();
+	GetOrStartWaitingForStaffImage();
+
+	Button2.SetGamepadIcon(class'UIUtilities_Input'.static.GetAdvanceButtonIcon());
+}
+
+simulated function BuildAlert_Infusion()
+{
+	local XComGameState_Unit UnitState;
+	local X2SoldierClassTemplate ClassTemplate;
+	local XGParamTag kTag;
+	local string AbilityIcon, AbilityName, AbilityDescription, ClassIcon, ClassName, RankName;
+	local X2AbilityTemplate AbilityTemplate;
+	local X2AbilityTemplateManager TemplateManager;
+	local name AbilityTemplateName;
+
+	if (LibraryPanel == none)
+	{
+		`RedScreen("UI Problem with the alerts! Couldn't find LibraryPanel for current eAlertName: " $ eAlertName);
+		return;
+	}
+
+	UnitState = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(
+		class'X2StrategyGameRulesetDataStructures'.static.GetDynamicIntProperty(DisplayPropertySet, 'UnitRef')));
+
+	AbilityTemplateName = class'X2StrategyGameRulesetDataStructures'.static.GetDynamicNameProperty(DisplayPropertySet, 'AbilityTemplate');
+	if (AbilityTemplateName != '')
+	{
+		TemplateManager = class'X2AbilityTemplateManager'.static.GetAbilityTemplateManager();
+		AbilityTemplate = TemplateManager.FindAbilityTemplate(AbilityTemplateName);
+		AbilityName = AbilityTemplate.LocFriendlyName != "" ? AbilityTemplate.LocFriendlyName : ("Missing 'LocFriendlyName' for ability '" $ AbilityTemplate.DataName $ "'");
+		AbilityDescription = AbilityTemplate.HasLongDescription() ? AbilityTemplate.GetMyLongDescription(, UnitState) : ("Missing 'LocLongDescription' for ability " $ AbilityTemplate.DataName $ "'");
+		AbilityIcon = AbilityTemplate.IconImage;
+	}
+	else
+	{
+		AbilityName = strNewAbilitiesAdded;
 	}
 	
 	ClassTemplate = UnitState.GetSoldierClassTemplate();
@@ -220,7 +245,7 @@ simulated function BuildPsiTraining_FOXCOMTrainingCompleteAlert(string TitleLabe
 
 	// Send over to flash
 	LibraryPanel.MC.BeginFunctionOp("UpdateData");
-	LibraryPanel.MC.QueueString(TitleLabel);
+	LibraryPanel.MC.QueueString(strTitleInfusionFinished);
 	LibraryPanel.MC.QueueString("");
 	LibraryPanel.MC.QueueString(ClassIcon);
 	LibraryPanel.MC.QueueString(RankName);

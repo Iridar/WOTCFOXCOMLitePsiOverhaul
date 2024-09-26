@@ -12,13 +12,13 @@ DEBUG_LOGGING_Label = "Enable debug logging"
 DEBUG_LOGGING_Tip = "If enabled, the mod will print debug messages into the log file, located at:\n..\\Documents\\my games\\XCOM2 War of the Chosen\\XComGame\\Logs\\Launch.log"
 
 GIFT_CHANCE_Label = "The Gift Chance"
-GIFT_CHANCE_Tip = "Standard chance for soldiers without innate psionic ability to have The Gift."
+GIFT_CHANCE_Tip = "Chance of soldiers having The Gift. Soldier classes that use a Psi Amp or Shard Gauntlets as their class weapon are guaranteed to have The Gift."
 
 GIFT_PSIOP_GUARANTEED_Label = "Guarantee Gift for Char. Pool Psi Operatives"
-GIFT_PSIOP_GUARANTEED_Tip = "If enabled, and if a soldier has Psi Operative class selected in Character Pool, they will be guaranteed to have The Gift during a campaign, regardless of what their actual soldier class is."
+GIFT_PSIOP_GUARANTEED_Tip = "If enabled, and if a soldier has Psi Operative class selected in Character Pool, they will be guaranteed to have The Gift during a campaign, regardless of what their actual soldier class is. This option exists for role-playing purposes."
 
 RANDOMIZE_FREE_ABILITY_Label = "Randomize free ability"
-RANDOMIZE_FREE_ABILITY_Tip = "If enabled, the free psionic ability soldiers receive after completing the psionic training will be selected at random, rather than always getting the lowest tier ability for free."
+RANDOMIZE_FREE_ABILITY_Tip = "If enabled, the free psionic ability received by soldiers with The Gift will be selected at random, rather than always getting the lowest tier ability."
 
 CHANGE_APPEARANCE_Label = "Change appearance"
 CHANGE_APPEARANCE_Tip = "Should soldiers have their appearance altered when they complete Psionic Evaluation."
@@ -30,7 +30,7 @@ EYE_COLOR_Label = "Eye Color"
 EYE_COLOR_Tip = "Number of the eye color on the palette."
 
 ALLOW_ROOKIES_Label = "Allow Rookies"
-ALLOW_ROOKIES_Tip = "Allow rookies to undergo Psionic Evaluation to become Psi Operatives."
+ALLOW_ROOKIES_Tip = "Allow rookies to undergo Psionic Evaluation to become vanilla Psi Operatives."
 
 CHEAPER_PSI_LAB_Label = "Cheaper Psi Lab"
 CHEAPER_PSI_LAB_Tip = "Reduce the cost of building and maintaining the Psi Lab."
@@ -42,7 +42,49 @@ LabelEnd = "Created by Iridar | www.patreon.com/Iridar"
 LabelEndTooltip = "Thank you for using my mods, I hope you enjoy! Please consider supporting me at Patreon so I can afford the time to make more awesome mods <3")
 
 [UIAlert_PsiTraining_FOXCOM]
-strNoGift = "Not Gifted."
-strShardConsumedText = "One Aurora Shard consumed."
-strShardConsumedTitle = "Psionic infusion complete"
+strPsionicInfusionTitle = "PSIONIC INFUSION COMPLETE"
 strNewAbilitiesAdded = "New psionic abilities unlocked."
+
+strTitleInfusionFinished = "PSIONIC INFUSION COMPLETE"
+strTitleEvaluationGifted = "PSIONIC EVALUATION: GIFTED"
+strTitleEvaluationNotGifted = "PSIONIC EVALUATION: NOT GIFTED"
+
+[PsionicInfusionCostConfirmer]
+strConfirmInfusionCostTitle = "CONFIRM PSIONIC INFUSION"
+strConfirmInfusionCostText = "Psionic infusion will require spending the following resources:\n\n%ResourceCost%"
+
+
+; TODO: "AVAILABLE next line PSI OPERATIVE TRAINING, should be Psionic Evaluation / Psionic Infusion for non-Psi Ops"
+
+; on geoscape it still says: PSI TRAINING: Unit Name
+
+; PSIONIC EVALUATION: GIFTED / NOT GIFTED
+; Insanity could use updating loc
+
+
+
+[UIFacility_PsiLabSlot_Evaluation]
+m_strPsiTrainingDialogTitle = "PSI EVALUATION"
+m_strPsiTrainingDialogText = "<XGParam:StrValue0/!UnitName/> can undergo Psionic Evaluation to determine if they have any innate psionic potential, and if they do - draw it out and unlock their psionic abilities. The soldier will be unavailable for combat for <XGParam:IntValue0/!DaysToTrain/> days during the evaluation process.\n\nDo you want to proceed?
+m_strStopPsiTrainingDialogTitle = "STOP PSI EVALUATION?"
+m_strStopPsiTrainingDialogText = "Do you want to stop Psionic Evaluation for %UNITNAME?\n\nWARNING: All progress will be lost, but the evaluation can be restarted later."
+m_strPauseAbilityTrainingDialogTitle = "PAUSE PSI ABILITY TRAINING?"
+m_strPauseAbilityTrainingDialogText = "Do you want to pause %UNITNAME's Psionic ability training?\n\nNOTE: Training progress will be saved."
+m_strNoSoldiersTooltip = "There are no soldiers available for Psionic Evaluation"
+m_strSoldiersAvailableTooltip = "Assign a soldier to undergo Psionic Evaluation."
+
+[UIFacility_PsiLabSlot_Infusion]
+m_strPsiTrainingDialogTitle = "PSI INFUSION"
+m_strPsiTrainingDialogText = "<XGParam:StrValue0/!UnitName/> can undergo Psionic Infusion to gain psionic abilities despite having no innate psionic potential. The soldier will be unavailable for combat for <XGParam:IntValue0/!DaysToTrain/> days during the infusion process. Additionally, psionic infusion will require the following resources:\n\n%ResourceCost%\n\nDo you want to proceed?"
+m_strPsiTrainingDialogTextCannotAfford = "Missing resources required for Psionic infusion:\n\n%ResourceCost%"
+
+m_strStopPsiTrainingDialogTitle = "STOP PSI INFUSION?"
+m_strStopPsiTrainingDialogText = "Do you want to stop Psionic Infusion for %UNITNAME?\n\nWARNING: All progress will be lost, and the spent resources will not be refunded, but the infusion can be restarted later."
+m_strPauseAbilityTrainingDialogTitle = "PAUSE PSI INFUSION?"
+m_strNoSoldiersTooltip = "Psionic Infusion is available only to already evaluated soldiers without Psionic Gift. There are no soldiers like that currently available."
+m_strSoldiersAvailableTooltip = "Assign a soldier without Psionic Gift to undergo Psionic Infusion and gain psionic abilities."
+
+; Not going to be used by this mod.
+m_strPauseAbilityTrainingDialogText = "Do you want to pause %UNITNAME's Psionic ability training?\n\nNOTE: Training progress will be saved."
+
+

@@ -3,18 +3,24 @@
 //  PURPOSE: Helper class for static functions and script snippet repository.     
 //---------------------------------------------------------------------------------------
 
-class Help extends Object abstract;
+class Help extends Object config(PsiOverhaul) abstract;
 
 var private name PsiOperativeValue;
 var private name GiftlessValue;
 
-static final function bool IsPsiOperative(const XComGameState_Unit UnitState)
+var config array<name> GiftedCharacters;
+var config array<name> GiftedClasses;
+var config array<name> WeaponUsedByClassGuaranteesGift;
+
+// Checks if the soldier was granted psi abilities by this mod, not if they are literal Psi Operative class.
+static final function bool IsGifted(const XComGameState_Unit UnitState)
 {
 	local UnitValue UV;
 
 	return UnitState.GetUnitValue(default.PsiOperativeValue, UV);
 }
 
+// Checks if the soldier has undergone Psionic Evaluation and was found to be not gifted.
 static final function bool IsGiftless(const XComGameState_Unit UnitState)
 {
 	local UnitValue UV;
@@ -34,7 +40,33 @@ static final function int GetPsiOperativeRow(const XComGameState_Unit UnitState)
 	return INDEX_NONE;
 }
 
-static final function MarkPsiOperative(out XComGameState_Unit UnitState, const int iFinalRow)
+static final function bool IsUnitAlwaysGifted(const XComGameState_Unit UnitState)
+{
+	local X2SoldierClassTemplate	ClassTemplate;
+	local SoldierClassWeaponType	AllowedWeapon;
+
+	if (default.GiftedCharacters.Find(UnitState.GetMyTemplateName()) != INDEX_NONE)
+		return true;
+
+	ClassTemplate = UnitState.GetSoldierClassTemplate();
+	if (ClassTemplate != none)
+	{
+		if (default.GiftedClasses.Find(ClassTemplate.DataName) != INDEX_NONE)
+			return true;
+
+		foreach ClassTemplate.AllowedWeapons(AllowedWeapon)
+		{
+			if (default.WeaponUsedByClassGuaranteesGift.Find(AllowedWeapon.WeaponType) != INDEX_NONE)
+			{
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
+
+static final function MarkGifted(out XComGameState_Unit UnitState, const int iFinalRow)
 {
 	UnitState.SetUnitFloatValue(default.PsiOperativeValue, iFinalRow, eCleanup_Never);
 }
@@ -42,11 +74,12 @@ static final function MarkGiftless(out XComGameState_Unit UnitState)
 {
 	UnitState.SetUnitFloatValue(default.GiftlessValue, 1.0f, eCleanup_Never);
 }
+/*
 static final function UnmarkGiftless(out XComGameState_Unit UnitState)
 {
 	UnitState.ClearUnitValue(default.GiftlessValue);
 }
-
+*/
 static final function bool PsiAmpIsOnlySecondaryForSoldierClass(XComGameState_Unit UnitState)
 {
 	local X2SoldierClassTemplate ClassTemplate;

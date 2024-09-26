@@ -30,30 +30,8 @@ static function CHEventListenerTemplate Create_ListenerTemplate()
 	Template.AddCHEvent('CPS_OverrideAbilityPointCost', OnOverrideAbilityPointCost, ELD_Immediate, default.ListenerPriority);
 	Template.AddCHEvent('CPS_AbilityPurchased', OnAbilityPurchased, ELD_Immediate, default.ListenerPriority);
 	Template.AddCHEvent('CPS_OverrideAbilityDescription', OnOverrideAbilityDescription, ELD_Immediate, default.ListenerPriority);
-
-	Template.AddCHEvent('UpdateResources', OnUpdateResources, ELD_Immediate, default.ListenerPriority);
 	
 	return Template;
-}
-
-
-static private function EventListenerReturn OnUpdateResources(Object EventData, Object EventSource, XComGameState GameState, Name Event, Object CallbackData)
-{
-	local X2ItemTemplate	ItemTemplate;
-	local UIAvengerHUD		HUD;
-
-	if (UIFacility_PsiLab(`SCREENSTACK.GetCurrentScreen()) == none)
-		return ELR_NoInterrupt;
-
-	ItemTemplate = class'X2ItemTemplateManager'.static.GetItemTemplateManager().FindItemTemplate('IRI_AuroraShard');
-	if (ItemTemplate == none)
-		return ELR_NoInterrupt;
-
-	HUD = `HQPRES.m_kAvengerHUD;
-	HUD.AddResource(`CAPS(ItemTemplate.FriendlyNamePlural), string(`XCOMHQ.GetResourceAmount('IRI_AuroraShard')));
-	HUD.ShowResources();
-
-	return ELR_NoInterrupt;
 }
 
 static private function EventListenerReturn OnOverrideAbilityDescription(Object EventData, Object EventSource, XComGameState NewGameState, Name Event, Object CallbackData)

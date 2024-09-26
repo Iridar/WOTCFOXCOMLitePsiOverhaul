@@ -45,8 +45,6 @@
     <Content Include="Config\Base\XComEditor.ini" />
     <Content Include="Config\Base\XComEngine.ini" />
     <Content Include="Config\Base\XComGame.ini" />
-    <Content Include="Config\XComTemplateCreator.ini" />
-    <Content Include="Config\XComTemplateEditor.ini" />
     <Content Include="Localization\XComGame.int" />
     <Content Include="Localization\WOTCFOXCOMLitePsiOverhaul.int" />
     <Content Include="ReadMe_rus.txt">
@@ -98,7 +96,16 @@
     <Content Include="Src\WOTCFOXCOMLitePsiOverhaul\Classes\AbilitySelector.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\WOTCFOXCOMLitePsiOverhaul\Classes\PsionicInfusionCostConfirmer.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\WOTCFOXCOMLitePsiOverhaul\Classes\UIAlert_PsiTraining_FOXCOM.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\WOTCFOXCOMLitePsiOverhaul\Classes\UIFacility_PsiLabSlot_Evaluation.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\WOTCFOXCOMLitePsiOverhaul\Classes\UIFacility_PsiLabSlot_Infusion.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\WOTCFOXCOMLitePsiOverhaul\Classes\WOTCFOXCOMLitePsiOverhaul_Defaults.uc">
@@ -110,12 +117,18 @@
     <Content Include="Src\WOTCFOXCOMLitePsiOverhaul\Classes\WOTCFOXCOMLitePsiOverhaul_MCMScreenListener.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\WOTCFOXCOMLitePsiOverhaul\Classes\X2Ability_NotGifted.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\WOTCFOXCOMLitePsiOverhaul\Classes\X2DLCInfo_WOTCFOXCOMLitePsiOverhaul.uc" />
     <Content Include="Src\WOTCFOXCOMLitePsiOverhaul\Classes\Help.uc" />
     <Content Include="Src\WOTCFOXCOMLitePsiOverhaul\Classes\X2EventListener_PsiOverhaul.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\WOTCFOXCOMLitePsiOverhaul\Classes\X2StrategyElement_PsiAmp.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\WOTCFOXCOMLitePsiOverhaul\Classes\X2StrategyElement_PsiStaffSlots.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\WOTCFOXCOMLitePsiOverhaul\Classes\XComGameState_HeadquartersProjectPsiTraining_FOXCOM.uc">

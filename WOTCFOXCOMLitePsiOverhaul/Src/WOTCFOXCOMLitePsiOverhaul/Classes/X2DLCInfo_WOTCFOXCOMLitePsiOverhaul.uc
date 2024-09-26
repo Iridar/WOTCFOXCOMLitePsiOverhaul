@@ -1,12 +1,15 @@
 class X2DLCInfo_WOTCFOXCOMLitePsiOverhaul extends X2DownloadableContentInfo;
 
-var config(StrategyTuning) array<StrategyCost>	Cost;
-var config(StrategyTuning) array<int>			BuildDays;
-var config(StrategyTuning) array<int>			Power;
-var config(StrategyTuning) array<int>			UpkeepCost;
+var config(StrategyTuning) array<StrategyCost>	PsiLabCost;
+var config(StrategyTuning) array<int>			PsiLabBuildDays;
+var config(StrategyTuning) array<int>			PsiLabPower;
+var config(StrategyTuning) array<int>			PsiLabUpkeepCost;
 
-var config(PsiOverhaul) array<name>				ExcludeCharacters;
-var config(PsiOverhaul) array<name>				ExcludeClasses;
+var config(StrategyTuning) array<StrategyCost>	InfusionChamberCost;
+var config(StrategyTuning) array<int>			InfusionChamberPower;
+var config(StrategyTuning) array<int>			InfusionChamberUpkeepCost;
+
+var config(StrategyTuning) array<StrategyCost>	InfusionCost;
 
 `include(WOTCFOXCOMLitePsiOverhaul\Src\ModConfigMenuAPI\MCM_API_CfgHelpers.uci)
 
@@ -19,45 +22,65 @@ static event OnPostTemplatesCreated()
 	local int								iDiff;
 	local X2TechTemplate					TechTemplate;
 	local StrategyCost						EmptyCost;
-	local X2StaffSlotTemplate				StaffSlotTemplate;
 	local X2ItemTemplateManager				ItemMgr;
 	local X2ItemTemplate					ItemTemplate;
 	local X2FacilityUpgradeTemplate			FacilityUpgradeTemplate;
+	local StaffSlotDefinition				StaffSlotDef;
+	local X2StaffSlotTemplate				StaffSlotTemplateA;
+	local X2StaffSlotTemplate				StaffSlotTemplateB;
+	local int i;
 
 	StratMgr = class'X2StrategyElementTemplateManager'.static.GetStrategyElementTemplateManager();
-	
-	if (`GETMCMVAR(CHEAPER_PSI_LAB))
+	StratMgr.FindDataTemplateAllDifficulties('PsiChamber', DataTemplates);
+
+	foreach DataTemplates(DataTemplate, iDiff)
 	{
-		StratMgr.FindDataTemplateAllDifficulties('PsiChamber', DataTemplates);
+		if (iDiff > 3)
+			break; 
 
-		foreach DataTemplates(DataTemplate, iDiff)
+		FacilityTemplate = X2FacilityTemplate(DataTemplate);
+		if (FacilityTemplate == none)
+			continue;
+
+		if (`GETMCMVAR(CHEAPER_PSI_LAB))
 		{
-			if (iDiff > 3)
-				break; 
-
-			FacilityTemplate = X2FacilityTemplate(DataTemplate);
-			if (FacilityTemplate == none)
-				continue;
-
-			FacilityTemplate.Cost = default.Cost[iDiff];
-			FacilityTemplate.PointsToComplete = class'X2StrategyElement_DefaultFacilities'.static.GetFacilityBuildDays(default.BuildDays[iDiff]);
-			FacilityTemplate.iPower = default.Power[iDiff];
-			FacilityTemplate.UpkeepCost = default.UpkeepCost[iDiff];
+			FacilityTemplate.Cost = default.PsiLabCost[iDiff];
+			FacilityTemplate.PointsToComplete = class'X2StrategyElement_DefaultFacilities'.static.GetFacilityBuildDays(default.PsiLabBuildDays[iDiff]);
+			FacilityTemplate.iPower = default.PsiLabPower[iDiff];
+			FacilityTemplate.UpkeepCost = default.PsiLabUpkeepCost[iDiff];
 		}
 
-		StratMgr.FindDataTemplateAllDifficulties('PsiChamber_SecondCell', DataTemplates);
-		foreach DataTemplates(DataTemplate, iDiff)
+		// Remove vanila staff slots
+		for (i = FacilityTemplate.StaffSlotDefs.Length; i >= 0; i--)
 		{
-			if (iDiff > 3)
-				break; 
-
-			// Make the second cell cost same as the lab itself
-			FacilityUpgradeTemplate = X2FacilityUpgradeTemplate(DataTemplate);
-
-			FacilityUpgradeTemplate.Cost = default.Cost[iDiff];
-			FacilityUpgradeTemplate.iPower = default.Power[iDiff];
-			FacilityUpgradeTemplate.UpkeepCost = default.UpkeepCost[iDiff];
+			if (FacilityTemplate.StaffSlotDefs[i].StaffSlotTemplateName == 'PsiChamberSoldierStaffSlot')
+			{
+				FacilityTemplate.StaffSlotDefs.Remove(i, 1);
+			}
 		}
+
+		// Add new staff slots
+		StaffSlotDef.StaffSlotTemplateName = 'IRI_PsiEvaluationStaffSlot';
+		StaffSlotDef.bStartsLocked = false; // Have to explicitly set to revert =true from the previous foreach() cycle
+		FacilityTemplate.StaffSlotDefs.AddItem(StaffSlotDef);
+
+		StaffSlotDef.StaffSlotTemplateName = 'IRI_PsiInfusionStaffSlot';
+		StaffSlotDef.bStartsLocked = true;
+		FacilityTemplate.StaffSlotDefs.AddItem(StaffSlotDef);
+	}
+	
+	StratMgr.FindDataTemplateAllDifficulties('PsiChamber_SecondCell', DataTemplates);
+	foreach DataTemplates(DataTemplate, iDiff)
+	{
+		if (iDiff > 3)
+			break; 
+
+		// Make the second cell cost same as the lab itself
+		FacilityUpgradeTemplate = X2FacilityUpgradeTemplate(DataTemplate);
+
+		FacilityUpgradeTemplate.Cost = default.InfusionChamberCost[iDiff];
+		FacilityUpgradeTemplate.iPower = default.InfusionChamberPower[iDiff];
+		FacilityUpgradeTemplate.UpkeepCost = default.InfusionChamberUpkeepCost[iDiff];
 	}
 
 	if (`GETMCMVAR(REMOVE_RESEARCH_COST))
@@ -73,16 +96,9 @@ static event OnPostTemplatesCreated()
 		}
 	}
 
-	StaffSlotTemplate = X2StaffSlotTemplate(StratMgr.FindStrategyElementTemplate('PsiChamberSoldierStaffSlot'));
-	if (StaffSlotTemplate != none)
-	{
-		`AMLOG("Patching psi lab staff slot");
-		StaffSlotTemplate.AssociatedProjectClass = class'XComGameState_HeadquartersProjectPsiTraining_FOXCOM';
-		StaffSlotTemplate.FillFn = FillPsiChamberSoldierSlot;
-		StaffSlotTemplate.IsUnitValidForSlotFn = IsUnitValidForPsiChamberSoldierSlot;
-	}
-
 	class'AbilitySelector'.static.ValidatePsiAbilities();
+
+	// Some localization helpers to copy existing game localization so we don't have to provide our own.
 
 	ItemMgr = class'X2ItemTemplateManager'.static.GetItemTemplateManager();
 	ItemTemplate = ItemMgr.FindItemTemplate('PsiAmp_CV');
@@ -97,129 +113,188 @@ static event OnPostTemplatesCreated()
 	{
 		class'X2EventListener_PsiOverhaul'.default.PsionicTreeName = `CAPS(TechTemplate.DisplayName);
 	}
-}
 
-static event OnLoadedSavedGame()
-{
-	local X2StrategyElementTemplateManager StratMgr;
-
-	StratMgr = class'X2StrategyElementTemplateManager'.static.GetStrategyElementTemplateManager();
-	AddProvingGroundsProjectIfItsNotPresent(StratMgr, 'IRI_AuroraShard_Tech');
-}
-
-static private function FillPsiChamberSoldierSlot(XComGameState NewGameState, StateObjectReference SlotRef, StaffUnitInfo UnitInfo, optional bool bTemporary = false)
-{
-	local XComGameState_Unit NewUnitState;
-	local XComGameState_StaffSlot NewSlotState;
-	local XComGameState_HeadquartersXCom NewXComHQ;
-	local XComGameState_HeadquartersProjectPsiTraining_FOXCOM ProjectState;
-	local StateObjectReference EmptyRef;
-	local int SquadIndex;
-
-	class'X2StrategyElement_DefaultStaffSlots'.static.FillSlot(NewGameState, SlotRef, UnitInfo, NewSlotState, NewUnitState);
-	
-	NewUnitState.SetStatus(eStatus_PsiTesting);
-
-	if (NewUnitState.GetRank() > 0 && NewUnitState.GetSoldierClassTemplateName() == 'PsiOperative')
-		return;
-
-	NewXComHQ = class'X2StrategyElement_DefaultStaffSlots'.static.GetNewXComHQState(NewGameState);
-
-	ProjectState = XComGameState_HeadquartersProjectPsiTraining_FOXCOM(NewGameState.CreateNewStateObject(class'XComGameState_HeadquartersProjectPsiTraining_FOXCOM'));
-	ProjectState.SetProjectFocus(UnitInfo.UnitRef, NewGameState, NewSlotState.Facility);
-	ProjectState.bPsiOperativeTraining = NewUnitState.GetRank() == 0 || NewUnitState.GetSoldierClassTemplateName() == 'PsiOperative';
-
-	NewXComHQ.Projects.AddItem(ProjectState.GetReference());
-
-	// Remove their gear
-	NewUnitState.MakeItemsAvailable(NewGameState, false);
-
-	// If the unit undergoing training is in the squad, remove them
-	SquadIndex = NewXComHQ.Squad.Find('ObjectID', UnitInfo.UnitRef.ObjectID);
-	if (SquadIndex != INDEX_NONE)
+	StaffSlotTemplateA = X2StaffSlotTemplate(StratMgr.FindStrategyElementTemplate('PsiChamberSoldierStaffSlot'));
+	if (StaffSlotTemplateA != none)
 	{
-		// Remove them from the squad
-		NewXComHQ.Squad[SquadIndex] = EmptyRef;
-	}
-}
-
-static private function bool IsUnitValidForPsiChamberSoldierSlot(XComGameState_StaffSlot SlotState, StaffUnitInfo UnitInfo)
-{
-	local XComGameState_Unit Unit; 
-	local bool bOverridePsiTrain, bCanTrain; //issue #159 - booleans for mod override
-	local XComLWTuple Tuple; //issue #159 - tuple for event
-
-	Unit = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(UnitInfo.UnitRef.ObjectID));
-	if (Unit == none || !Unit.IsSoldier())
-		return false;
-
-	if (!`GETMCMVAR(ALLOW_ROOKIES) && Unit.GetRank() == 0)
-		return false;
-
-	if (class'Help'.static.IsPsiOperative(Unit))
-		return false;
-	
-	if (class'Help'.static.IsGiftless(Unit))
-	{
-		if (`XCOMHQ.GetResourceAmount('IRI_AuroraShard') == 0)
+		StaffSlotTemplateB = X2StaffSlotTemplate(StratMgr.FindStrategyElementTemplate('IRI_PsiEvaluationStaffSlot'));
+		if (StaffSlotTemplateB != none)
 		{
-			return false;
+			StaffSlotTemplateB.EmptyText = StaffSlotTemplateA.EmptyText;
+			StaffSlotTemplateB.LockedText = StaffSlotTemplateA.LockedText;
+		}
+		StaffSlotTemplateB = X2StaffSlotTemplate(StratMgr.FindStrategyElementTemplate('IRI_PsiInfusionStaffSlot'));
+		if (StaffSlotTemplateB != none)
+		{
+			StaffSlotTemplateB.EmptyText = StaffSlotTemplateA.EmptyText;
+			StaffSlotTemplateB.LockedText = StaffSlotTemplateA.LockedText;
 		}
 	}
+}
+
+/*
+static private function bool IsUnitValidForPsiChamberSoldierSlot(XComGameState_StaffSlot SlotState, StaffUnitInfo UnitInfo)
+{
+	local XComGameState_Unit	Unit; 
+	local int					SlotIndex;
+
+	// #1. Initial Validation
+
+	Unit = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(UnitInfo.UnitRef.ObjectID));
+	if (Unit == none)
+		return false;
+
+	if (!Unit.IsSoldier())
+		return TriggerOverridePsiOpTraining(Unit, false);
 
 	// Should exclude SPARKs
 	if (Unit.IsRobotic())
+		return TriggerOverridePsiOpTraining(Unit, false);
+
+	if (!Unit.CanBeStaffed())
 		return false;
+
+	if (!Unit.IsActive())
+		return false;
+
+	if (SlotState.GetMyTemplate().ExcludeClasses.Find(Unit.GetSoldierClassTemplateName()) != INDEX_NONE)
+		return TriggerOverridePsiOpTraining(Unit, false);
 
 	if (default.ExcludeCharacters.Find(Unit.GetMyTemplateName()) != INDEX_NONE)
-		return false;
+		return TriggerOverridePsiOpTraining(Unit, false);
 
 	if (default.ExcludeClasses.Find(Unit.GetSoldierClassTemplateName()) != INDEX_NONE)
+		return TriggerOverridePsiOpTraining(Unit, false);
+
+	if (!`GETMCMVAR(ALLOW_ROOKIES) && Unit.GetRank() == 0)
+		return TriggerOverridePsiOpTraining(Unit, false);
+
+	// Unit has undergone already Psionic Evaluation or Infusion and was given psi abilities.
+	if (class'Help'.static.IsGifted(Unit))
 		return false;
 
-	if (Unit.CanBeStaffed()
-		&& Unit.IsActive()
-		&& SlotState.GetMyTemplate().ExcludeClasses.Find(Unit.GetSoldierClassTemplateName()) == INDEX_NONE)
+	// #2. Different conditions depending on which staff slot we're in.
+	SlotIndex = GetStaffSlotIndex(SlotState.GetReference(), SlotState);
+	switch (SlotIndex)
 	{
-		Tuple = new class'XComLWTuple';
-		Tuple.Id = 'OverridePsiOpTraining';
-		Tuple.Data.Add(2);
-		Tuple.Data[0].kind = XComLWTVBool;
-		Tuple.Data[0].b = false; //bOverridePsiTrain;
-		Tuple.Data[1].kind = XComLWTVBool;
-		Tuple.Data[1].b = false; //bCanTrain;
-		
-		`XEVENTMGR.TriggerEvent('OverridePsiOpTraining', Tuple, Unit);
+	case 1: // This is Psionic Evaluation Chamber. Any unit who hasn't been tested yet is valid.
 
-		bOverridePsiTrain = Tuple.Data[0].b;
-		bCanTrain = Tuple.Data[1].b;
+		if (class'Help'.static.IsGiftless(Unit))
+			return false;
+			
+		return TriggerOverridePsiOpTraining(Unit, true);
 
-		if (bOverridePsiTrain)
-		{
-			return bCanTrain;
-		}
-		return true;
+	case 2: // This is Psionic Infusion Chamber. Only Giftless units are valid, and player must be able to pay the cost.
 
-		//if (Unit.GetRank() == 0 && !Unit.CanRankUpSoldier()) // All rookies who have not yet ranked up can be trained as Psi Ops
-		//{
-		//	return true;
-		//}
-		//else if (Unit.GetSoldierClassTemplateName() == 'PsiOperative') // But Psi Ops can only train until they learn all abilities
-		//{
-		//	foreach Unit.PsiAbilities(ProgressAbility)
-		//	{
-		//		AbilityName = Unit.GetAbilityName(ProgressAbility.iRank, ProgressAbility.iBranch);
-		//		if (AbilityName != '' && !Unit.HasSoldierAbility(AbilityName))
-		//		{
-		//			return true; // If we find an ability that the soldier hasn't learned yet, they are valid
-		//		}
-		//	}
-		//}
+		// Not Giftless = not evaluated yet.
+		if (!class'Help'.static.IsGiftless(Unit))
+			return false;
+
+		// Always Gifted units don't need to be Infused, just Evaluating them is enough.
+		if (class'XComGameState_HeadquartersProjectPsiTraining_FOXCOM'.static.IsUnitAlwaysGifted(Unit))
+			return TriggerOverridePsiOpTraining(Unit, false);
+
+		return TriggerOverridePsiOpTraining(Unit, true);
+
+	default:
+		`AMLOG("ERROR :: Unexpected Staff Slot index in the Psi Lab facility!" @ `ShowVar(SlotIndex) @ SlotState.GetMyTemplateName());
+		return false;
 	}
 
-	return false;
-}
+	`AMLOG("WARNING :: Unexpected EOC!" @ Unit.GetMyTemplateName() @ Unit.GetFullName() @ SlotState.GetMyTemplateName() @ SlotIndex);
+	return TriggerOverridePsiOpTraining(Unit, false);
+}*/
 
+static final function StrategyCost GetInfusionCost()
+{
+	local StrategyCost	InfusionCostDiff;
+	local int			Diff;
+
+	Diff = class'XComGameState_CampaignSettings'.static.GetCampaignDifficultyFromSettings();
+	if (Diff < default.InfusionCost.Length)
+	{
+		InfusionCostDiff = default.InfusionCost[Diff];
+		return InfusionCostDiff;
+	}
+
+	`AMLOG("WARNING :: Unexpected EOC!" @ Diff @ default.InfusionCost.Length);
+	return InfusionCostDiff;
+}
+/*
+static private function int GetStaffSlotIndex(StateObjectReference SlotRef, optional XComGameState_StaffSlot ArgSlotState)
+{
+	local XComGameState_StaffSlot		SlotState;
+	local XComGameState_FacilityXCom	PsiLab;
+	local int							SlotIndex;
+
+	if (ArgSlotState != none)
+	{
+		SlotState = ArgSlotState;
+	}
+	else
+	{
+		SlotState = XComGameState_StaffSlot(`XCOMHISTORY.GetGameStateForObjectID(SlotRef.ObjectID));
+	}
+	if (SlotState == none)
+	{
+		`AMLOG("WARNING :: Failed to acquire Slot State!" @ SlotRef.ObjectID);
+		return INDEX_NONE;
+	}
+
+	PsiLab = SlotState.GetFacility();
+	if (PsiLab == none)
+	{
+		`AMLOG("ERROR :: Failed to acquire Psi Lab state object from the staff slot:" @ SlotState.GetMyTemplateName());
+		return INDEX_NONE;
+	}
+	for (SlotIndex = 0; SlotIndex < PsiLab.StaffSlots.Length; SlotIndex++)
+	{
+		if (PsiLab.StaffSlots[SlotIndex].ObjectID == SlotRef.ObjectID)
+		{
+			switch (SlotIndex)
+			{
+				case 1:
+				case 2:
+					return SlotIndex;
+				default:
+					`AMLOG("WARNING :: Unexpected staff slot index:" @ SlotIndex @ SlotState.GetMyTemplateName());
+					return INDEX_NONE;
+			}
+			break;
+		}
+	}
+
+	`AMLOG("WARNING :: Unexpected reach EOC, facility has no Staff Slots:" @ PsiLab.StaffSlots.Length == 0);
+	return INDEX_NONE;
+}
+*/
+/*
+static private function bool TriggerOverridePsiOpTraining(XComGameState_Unit Unit, bool bCanTrainArg)
+{
+	local bool			bOverridePsiTrain; //issue #159 - booleans for mod override
+	local bool			bCanTrain;
+	local XComLWTuple	Tuple; //issue #159 - tuple for event
+
+	Tuple = new class'XComLWTuple';
+	Tuple.Id = 'OverridePsiOpTraining';
+	Tuple.Data.Add(2);
+	Tuple.Data[0].kind = XComLWTVBool;
+	Tuple.Data[0].b = false; //bOverridePsiTrain;
+	Tuple.Data[1].kind = XComLWTVBool;
+	Tuple.Data[1].b = false; //bCanTrain;
+		
+	`XEVENTMGR.TriggerEvent('OverridePsiOpTraining', Tuple, Unit);
+
+	bOverridePsiTrain = Tuple.Data[0].b;
+	bCanTrain = Tuple.Data[1].b;
+
+	if (bOverridePsiTrain)
+	{
+		return bCanTrain;
+	}
+	return bCanTrainArg;
+}
+*/
 static function bool DisplayQueuedDynamicPopup(DynamicPropertySet PropertySet)
 {
 	local XComHQPresentationLayer Pres;
@@ -239,36 +314,19 @@ static function bool DisplayQueuedDynamicPopup(DynamicPropertySet PropertySet)
 	return false;
 }
 
-static private function AddProvingGroundsProjectIfItsNotPresent(X2StrategyElementTemplateManager StratMgr, name ProjectName)
+static function ModifyEarnedSoldierAbilities(out array<SoldierClassAbilityType> EarnedAbilities, XComGameState_Unit UnitState)
 {
-	local XComGameState		NewGameState;
-	local X2TechTemplate	TechTemplate;
+	local SoldierClassAbilityType NewAbility;
 
-	if (!IsResearchInHistory(ProjectName))
+	if (!class'Help'.static.IsGifted(UnitState) && class'Help'.static.IsGiftless(UnitState))
 	{
-		NewGameState = class'XComGameStateContext_ChangeContainer'.static.CreateChangeState("Adding Research Templates");
-
-		TechTemplate = X2TechTemplate(StratMgr.FindStrategyElementTemplate(ProjectName));
-		NewGameState.CreateNewStateObject(class'XComGameState_Tech', TechTemplate);
-
-		`XCOMHISTORY.AddGameStateToHistory(NewGameState);
+		NewAbility.AbilityName = 'IRI_NoPsionicGift';
+		EarnedAbilities.AddItem(NewAbility);
 	}
 }
 
-static private function bool IsResearchInHistory(name ResearchName)
+/*
+static function bool GetDLCEventInfo(out array<HQEvent> arrEvents)
 {
-	// Check if we've already injected the tech templates
-	local XComGameState_Tech	TechState;
-	local XComGameStateHistory	History;
-	
-	History = `XCOMHISTORY;
-
-	foreach History.IterateByClassType(class'XComGameState_Tech', TechState)
-	{
-		if ( TechState.GetMyTemplateName() == ResearchName )
-		{
-			return true;
-		}
-	}
-	return false;
-}
+	return false; //returning true will tell the game to add the events have been added to the above array
+}*/

@@ -46,7 +46,7 @@ static function X2DataTemplate CreateSlotTemplate()
 
 static private function bool HasSlot(CHItemSlot Slot, XComGameState_Unit UnitState, out string LockedReason, optional XComGameState CheckGameState)
 { 
-	if (class'Help'.static.IsPsiOperative(UnitState))
+	if (class'Help'.static.IsGifted(UnitState))
 	{
 		// Soldier classes that use Psi Amp as a secondary and don't have access to other secondaries
 		// don't get access to Psi Amp slot.

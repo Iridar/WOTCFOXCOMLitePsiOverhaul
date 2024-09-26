@@ -23,52 +23,15 @@ var private config float								fAverageTierPerRank;
 var private X2AbilityTemplateManager					AbilityMgr;
 
 var XComGameState_Unit	UnitState;
-var private bool		bSecondaryPsiAmp;
+var private bool		bSecondaryPsiAmp;	// In case the soldier class under the Psionic Evaluation already uses Psi Amp as their secondary weapon.
+											// Then the Psi Abilities will be assigned to eInvSlot_SecondaryWeapon instead of eInvSlot_PsiAmp.
 
 var private int NumAbilitiesToSelect;
 var private int OverflowCounter;
 
 `include(WOTCFOXCOMLitePsiOverhaul\Src\ModConfigMenuAPI\MCM_API_CfgHelpers.uci)
 
-private function SoldierClassAbilityType AddAbility(const out SoldierClassAbilityType_FMPO AbilitySlot)
-{	
-	local SoldierClassAbilityType ReturnAbility;
-
-	ReturnAbility.AbilityName = AbilitySlot.AbilityName;
-	if (bSecondaryPsiAmp)
-	{
-		ReturnAbility.ApplyToWeaponSlot = eInvSlot_SecondaryWeapon;
-	}
-	else
-	{
-		ReturnAbility.ApplyToWeaponSlot = AbilitySlot.ApplyToWeaponSlot;
-	}
-	ReturnAbility.UtilityCat = AbilitySlot.UtilityCat;
-
-	return ReturnAbility;
-}
-
-private function GetAbilityTemplates()
-{
-	local XComGameState_HeadquartersXCom	XComHQ;
-	local X2AbilityTemplate					AbilityTemplate;
-	local int i;
-
-	XComHQ = `XCOMHQ;
-
-	for (i = AbilitySlots.Length - 1; i >= 0; i--)
-	{
-		AbilityTemplate = AbilityMgr.FindAbilityTemplate(AbilitySlots[i].AbilityName);
-		if (AbilityTemplate == none || !XComHQ.MeetsAllStrategyRequirements(AbilityTemplate.Requirements))
-		{
-			AbilitySlots.Remove(i, 1);
-		}
-		else
-		{
-			AbilitySlots[i].Template = AbilityTemplate;
-		}
-	}
-}
+// Main function to interface with the class.
 
 final function BuildPsiAbilities(out SoldierRankAbilities InsertAbilities, const int NumSlots)
 {
@@ -76,12 +39,10 @@ final function BuildPsiAbilities(out SoldierRankAbilities InsertAbilities, const
 	local float							AverageTier;
 
 	NumAbilitiesToSelect = NumSlots;
-
-	AbilityMgr = class'X2AbilityTemplateManager'.static.GetAbilityTemplateManager();
-	GetAbilityTemplates();
-
 	bSecondaryPsiAmp = class'Help'.static.PsiAmpIsOnlySecondaryForSoldierClass(UnitState);
 
+	GetAbilityTemplates();
+	
 	`AMLOG("Going to select:" @ NumSlots @ "abilities out of:" @ AbilitySlots.Length);
 	PrintAbilitySlots();
 
@@ -124,6 +85,49 @@ final function BuildPsiAbilities(out SoldierRankAbilities InsertAbilities, const
 		InsertAbilities.Abilities.AddItem(AddAbility(AbilitySlot));
 	}
 }
+
+private function SoldierClassAbilityType AddAbility(const out SoldierClassAbilityType_FMPO AbilitySlot)
+{	
+	local SoldierClassAbilityType ReturnAbility;
+
+	ReturnAbility.AbilityName = AbilitySlot.AbilityName;
+	if (bSecondaryPsiAmp)
+	{
+		ReturnAbility.ApplyToWeaponSlot = eInvSlot_SecondaryWeapon;
+	}
+	else
+	{
+		ReturnAbility.ApplyToWeaponSlot = AbilitySlot.ApplyToWeaponSlot;
+	}
+	ReturnAbility.UtilityCat = AbilitySlot.UtilityCat;
+
+	return ReturnAbility;
+}
+
+private function GetAbilityTemplates()
+{
+	local XComGameState_HeadquartersXCom	XComHQ;
+	local X2AbilityTemplate					AbilityTemplate;
+	local int i;
+
+	XComHQ = `XCOMHQ;
+	AbilityMgr = class'X2AbilityTemplateManager'.static.GetAbilityTemplateManager();
+
+	for (i = AbilitySlots.Length - 1; i >= 0; i--)
+	{
+		AbilityTemplate = AbilityMgr.FindAbilityTemplate(AbilitySlots[i].AbilityName);
+		if (AbilityTemplate == none || !XComHQ.MeetsAllStrategyRequirements(AbilityTemplate.Requirements))
+		{
+			AbilitySlots.Remove(i, 1);
+		}
+		else
+		{
+			AbilitySlots[i].Template = AbilityTemplate;
+		}
+	}
+}
+
+
 
 private function OrderAbilitySlots()
 {
