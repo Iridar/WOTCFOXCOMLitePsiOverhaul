@@ -23,14 +23,20 @@ LocFriendlyName="No Psionic Gift"
 LocLongDescription="This soldier has no Psionic Gift."
 LocHelpText="This soldier has no Psionic Gift."
 
-; TODO: This?
-; [PsiChamberScientistStaffSlot X2StaffSlotTemplate]
+[PsiChamberScientistStaffSlot X2StaffSlotTemplate]
 ; BonusText="TRAINING TIME -%AVENGERBONUS%"
+; BonusEmptyText="Decreases Training Time."
+; EmptyText="OPEN: ENGINEER REQUIRED"
+; Sidenote: so cheesy
+; FilledText="%UNITNAME's Psionic engineering program is increasing the rate soldiers train as Psi Operatives!"
+
+BonusEmptyText="Decreases Project Time."
+BonusText="PROJECT TIME -%AVENGERBONUS%"
+FilledText="%UNITNAME's Psionic engineering program is reducing the time needed to complete psi projects."
 
 ; I'd love to use different lines for Psi Infusion and Psi Evaluation, but I also want to extend XComGameState_HeadquartersProjectPsiTraining
 ; and having both seems to be impossible. Having slightly worse loc is gonna have to be it.
 [XComGame.XComGameState_HeadquartersXCom]
 [XComGameState_HeadquartersXCom]
 PsiTrainingEventLabel="PSI PROJECT:"
-
 ; PsiTrainingEventLabel="PSI TRAINING:"

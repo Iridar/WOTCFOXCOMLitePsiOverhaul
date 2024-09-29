@@ -127,8 +127,6 @@ private function GetAbilityTemplates()
 	}
 }
 
-
-
 private function OrderAbilitySlots()
 {
 	local SoldierClassAbilityType_FMPO			AbilitySlot;

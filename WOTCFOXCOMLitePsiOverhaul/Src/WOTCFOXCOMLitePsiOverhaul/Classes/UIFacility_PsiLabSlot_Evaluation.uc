@@ -1,10 +1,36 @@
 class UIFacility_PsiLabSlot_Evaluation extends UIFacility_PsiLabSlot;
 
-// Don't need to make any changes, just need this class for localization.
+`include(WOTCFOXCOMLitePsiOverhaul\Src\ModConfigMenuAPI\MCM_API_CfgHelpers.uci)
 
-// TODO: Disable Confirm Dialogue for Psi Evaluation MCM options
+simulated function OnPersonnelSelected(StaffUnitInfo UnitInfo)
+{
+	local UICallbackData_StateObjectReference CallbackData;
+	local XComGameState_Unit Unit;
+	
+	Unit = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(UnitInfo.UnitRef.ObjectID));
+	if (Unit == none)
+		return;
+	
+	if (Unit.GetSoldierClassTemplateName() == 'PsiOperative')
+	{
+		`HQPRES.UIChoosePsiAbility(UnitInfo.UnitRef, StaffSlotRef);
+	}
+	else
+	{
+		if (`GETMCMVAR(DISABLE_CONFIRM_EVALUATION_POPUP))
+		{
+			CallbackData = new class'UICallbackData_StateObjectReference';
+			CallbackData.ObjectRef = Unit.GetReference();
+			PsiPromoteDialogCallback('eUIAction_Accept', CallbackData);
+		}
+		else
+		{
+			ConfirmPsiEvaluationDialog(Unit);
+		}
+	}
+}
 
-simulated function PsiPromoteDialog(XComGameState_Unit Unit)
+private function ConfirmPsiEvaluationDialog(XComGameState_Unit Unit)
 {
 	local XGParamTag LocTag;
 	local TDialogueBoxData DialogData;

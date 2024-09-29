@@ -149,8 +149,7 @@ simulated function BuildAlert_Evaluation_Gifted()
 		return;
 	}
 
-	UnitState = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(
-		class'X2StrategyGameRulesetDataStructures'.static.GetDynamicIntProperty(DisplayPropertySet, 'UnitRef')));
+	UnitState = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(class'X2StrategyGameRulesetDataStructures'.static.GetDynamicIntProperty(DisplayPropertySet, 'UnitRef')));
 
 	AbilityTemplateName = class'X2StrategyGameRulesetDataStructures'.static.GetDynamicNameProperty(DisplayPropertySet, 'AbilityTemplate');
 	if (AbilityTemplateName != '')
@@ -160,10 +159,6 @@ simulated function BuildAlert_Evaluation_Gifted()
 		AbilityName = AbilityTemplate.LocFriendlyName != "" ? AbilityTemplate.LocFriendlyName : ("Missing 'LocFriendlyName' for ability '" $ AbilityTemplate.DataName $ "'");
 		AbilityDescription = AbilityTemplate.HasLongDescription() ? AbilityTemplate.GetMyLongDescription(, UnitState) : ("Missing 'LocLongDescription' for ability " $ AbilityTemplate.DataName $ "'");
 		AbilityIcon = AbilityTemplate.IconImage;
-	}
-	else
-	{
-		AbilityName = strNewAbilitiesAdded;
 	}
 	
 	ClassTemplate = UnitState.GetSoldierClassTemplate();
@@ -183,15 +178,7 @@ simulated function BuildAlert_Evaluation_Gifted()
 	LibraryPanel.MC.QueueString(UnitState.GetName(eNameType_FullNick));
 	LibraryPanel.MC.QueueString(ClassName);
 	LibraryPanel.MC.QueueString(AbilityIcon);
-
-	if (AbilityTemplateName != '')
-	{
-		LibraryPanel.MC.QueueString(m_strNewAbilityLabel);
-	}
-	else
-	{
-		LibraryPanel.MC.QueueString("");
-	}
+	LibraryPanel.MC.QueueString(m_strNewAbilityLabel);
 	LibraryPanel.MC.QueueString(AbilityName);
 	LibraryPanel.MC.QueueString(AbilityDescription);
 	LibraryPanel.MC.QueueString(m_strViewSoldier);

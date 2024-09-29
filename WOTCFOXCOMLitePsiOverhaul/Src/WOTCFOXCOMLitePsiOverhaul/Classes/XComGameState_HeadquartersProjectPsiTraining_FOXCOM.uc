@@ -179,6 +179,11 @@ function OnProjectCompleted()
 			UnitState.kAppearance.iEyeColor = `GETMCMVAR(EYE_COLOR);
 		}
 
+		`GAMERULES.SubmitGameState(NewGameState);
+
+		// NOTE: Important to show pop-ups AFTER the game state was submitted,
+		// because showing a pop-up will toggle Avenger scanning, which in itself requires a game state submission
+
 		// Pop Up Msg
 		if (bAlwaysGifted)
 		{
@@ -195,8 +200,6 @@ function OnProjectCompleted()
 			ShowTrainingCompletedPopUp(ProjectFocus, 'eAlert_IRIFMPSI_Evaluation_Gifted', AbilityName);
 		}
 	}
-		
-	`GAMERULES.SubmitGameState(NewGameState);
 }
 
 // ---------------------------------- NEW INTERNAL METHODS ----------------------------------
@@ -249,7 +252,7 @@ private function ShowTrainingCompletedPopUp(StateObjectReference UnitRef, const 
 	}
 	
 	class'X2StrategyGameRulesetDataStructures'.static.AddDynamicNameProperty(PropertySet, 'EventToTrigger', '');
-	class'X2StrategyGameRulesetDataStructures'.static.AddDynamicStringProperty(PropertySet, 'SoundToPlay', "Geoscape_CrewMemberLevelledUp"); // TODO: Might want to use a different sound for giftless
+	class'X2StrategyGameRulesetDataStructures'.static.AddDynamicStringProperty(PropertySet, 'SoundToPlay', "Geoscape_CrewMemberLevelledUp");
 	class'X2StrategyGameRulesetDataStructures'.static.AddDynamicIntProperty(PropertySet, 'UnitRef', UnitRef.ObjectID);
 	class'X2StrategyGameRulesetDataStructures'.static.AddDynamicNameProperty(PropertySet, 'AbilityTemplate', AbilityName);
 	`HQPRES.QueueDynamicPopup(PropertySet);

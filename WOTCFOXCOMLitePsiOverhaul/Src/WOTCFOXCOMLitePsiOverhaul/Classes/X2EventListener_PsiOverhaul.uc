@@ -58,9 +58,9 @@ static private function EventListenerReturn OnOverrideAbilityDescription(Object 
 	if (Tuple.Data[2].i != Index)
 		return ELR_NoInterrupt;
 
-	// Squaddie abilities don't provide Psi Offense
-	//if (Tuple.Data[1].i == 0)
-	//	return ELR_NoInterrupt;
+	// Don't show Psi Offense for abilities from ranks that weren't achieved yet, or we end up showing Psi Offense bonus for abilities that might not be visible to player.
+	if (Tuple.Data[1].i >= UnitState.GetRank())
+		return ELR_NoInterrupt;
 	
 	AbilityName = Tuple.Data[0].n;
 	StatIncrease = class'AbilitySelector'.static.GetAbilityStatIncrease(AbilityName);

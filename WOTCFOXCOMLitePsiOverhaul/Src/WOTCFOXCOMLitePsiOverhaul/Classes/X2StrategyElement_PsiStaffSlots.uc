@@ -3,6 +3,8 @@ class X2StrategyElement_PsiStaffSlots extends X2StrategyElement_DefaultStaffSlot
 var config array<name>				ExcludeCharacters;
 var config array<name>				ExcludeClasses;
 
+// TODO: Make "always gifted" units use Psi Infusion instead.
+
 `include(WOTCFOXCOMLitePsiOverhaul\Src\ModConfigMenuAPI\MCM_API_CfgHelpers.uci)
 
 static function array<X2DataTemplate> CreateTemplates()
@@ -222,13 +224,18 @@ static private function FillPsiLabStaffSlot(XComGameState NewGameState, StateObj
 	}
 }
 
+// This if for a small dynamic piece of text under the slot itself at the top of the facility
+// And also for each soldier in the list during soldier selection, then bPreview = true
+// For some reason the slot doesn't count as empty during that, though
+
+// Return "Exposes psionic potential." when the slot is empty for the slot at the top, 
+// and "PSI EVALUATION" for the soldier list and when the slot is filled.
 static private function string GetPsiLabStaffSlotBonusDisplayString(XComGameState_StaffSlot SlotState, optional bool bPreview)
 {
 	local X2StaffSlotTemplate	StaffSlotTemplate;
 	local XComGameState_Unit	Unit;
 
-	if (Unit.GetSoldierClassTemplateName() == 'PsiOperative')
-		return GetPsiChamberSoldierBonusDisplayString(SlotState, bPreview); // Vanilla function for vanilla Psi Operatives. Skulls for the Skull Throne etc
+	`AMLOG(`ShowVar(bPreview));
 
 	StaffSlotTemplate = SlotState.GetMyTemplate();
 	if (StaffSlotTemplate == none)
@@ -241,5 +248,46 @@ static private function string GetPsiLabStaffSlotBonusDisplayString(XComGameStat
 	if (Unit == none)
 		return StaffSlotTemplate.BonusEmptyText;
 
+	if (Unit.GetSoldierClassTemplateName() == 'PsiOperative')
+		return GetPsiOperativeSkillTrainingString(Unit, bPreview); // Vanilla Psi Operatives.
+
 	return StaffSlotTemplate.BonusDefaultText;
+}
+
+// Returns either "PSI OPERATIVE TRAINING" or "SKILLNAME TRAINING" for vanilla Psi Ops.
+static private function string GetPsiOperativeSkillTrainingString(XComGameState_Unit Unit, optional bool bPreview)
+{
+	local X2StrategyElementTemplateManager				StratMgr;
+	local X2StaffSlotTemplate							StaffSlotTemplate;
+	local XComGameState_HeadquartersProjectPsiTraining	TrainProject;
+	local X2AbilityTemplate								AbilityTemplate;
+	local name											AbilityName;
+
+	`AMLOG("Running");
+
+	StratMgr = class'X2StrategyElementTemplateManager'.static.GetStrategyElementTemplateManager();
+	StaffSlotTemplate = X2StaffSlotTemplate(StratMgr.FindStrategyElementTemplate('PsiChamberSoldierStaffSlot'));
+	if (StaffSlotTemplate == none)
+		return "";
+
+	if (bPreview)
+	{
+		// Amounts to "PSI OPERATIVE TRAINING"
+		return Repl(StaffSlotTemplate.BonusText, "%SKILL", StaffSlotTemplate.BonusDefaultText);
+	}
+
+	TrainProject = `XCOMHQ.GetPsiTrainingProject(Unit.GetReference());
+	if (TrainProject == none)
+		return ""; // All of this shouldn't be possible, so no error handling
+
+	`AMLOG("Unit" @ Unit.GetFullName());
+
+	AbilityName = Unit.GetAbilityName(TrainProject.iAbilityRank, TrainProject.iAbilityBranch);
+	AbilityTemplate = class'X2AbilityTemplateManager'.static.GetAbilityTemplateManager().FindAbilityTemplate(AbilityName);
+	if (AbilityTemplate == none)
+		return "";
+
+	`AMLOG(`ShowVar(AbilityName) @ AbilityTemplate != none);
+
+	return Repl(StaffSlotTemplate.BonusText, "%SKILL", Caps(AbilityTemplate.LocFriendlyName));
 }

@@ -12,6 +12,7 @@ var localized string LabelEndTooltip;
 `include(WOTCFOXCOMLitePsiOverhaul\Src\ModConfigMenuAPI\MCM_API_Includes.uci)
 
 `MCM_API_AutoSliderVars(GIFT_CHANCE);
+`MCM_API_AutoCheckBoxVars(DISABLE_CONFIRM_EVALUATION_POPUP);
 `MCM_API_AutoCheckBoxVars(GIFT_PSIOP_GUARANTEED);
 `MCM_API_AutoCheckBoxVars(RANDOMIZE_FREE_ABILITY);
 `MCM_API_AutoCheckBoxVars(DEBUG_LOGGING);
@@ -26,6 +27,7 @@ var localized string LabelEndTooltip;
 `include(WOTCFOXCOMLitePsiOverhaul\Src\ModConfigMenuAPI\MCM_API_CfgHelpers.uci)
 
 `MCM_API_AutoSliderFns(GIFT_CHANCE,, 1);
+`MCM_API_AutoCheckBoxFns(DISABLE_CONFIRM_EVALUATION_POPUP, 2);
 `MCM_API_AutoCheckBoxFns(GIFT_PSIOP_GUARANTEED, 1);
 `MCM_API_AutoCheckBoxFns(RANDOMIZE_FREE_ABILITY, 1);
 `MCM_API_AutoCheckBoxFns(DEBUG_LOGGING, 1)
@@ -64,6 +66,7 @@ simulated function ClientModCallback(MCM_API_Instance ConfigAPI, int GameMode)
 	
 	Group = Page.AddGroup('Group', GroupHeaders[2]); // "Psionic Training"
 
+	`MCM_API_AutoAddCheckBox(Group, DISABLE_CONFIRM_EVALUATION_POPUP);
 	`MCM_API_AutoAddCheckBox(Group, ALLOW_ROOKIES);
 	`MCM_API_AutoAddCheckBox(Group, CHANGE_APPEARANCE);
 
@@ -96,6 +99,7 @@ simulated function LoadSavedSettings()
 	ALLOW_ROOKIES = `GETMCMVAR(ALLOW_ROOKIES);
 	HAIR_COLOR = `GETMCMVAR(HAIR_COLOR);
 	EYE_COLOR = `GETMCMVAR(EYE_COLOR);
+	DISABLE_CONFIRM_EVALUATION_POPUP = `GETMCMVAR(DISABLE_CONFIRM_EVALUATION_POPUP);
 
 	CHEAPER_PSI_LAB = `GETMCMVAR(CHEAPER_PSI_LAB);
 	REMOVE_RESEARCH_COST = `GETMCMVAR(REMOVE_RESEARCH_COST);
@@ -113,6 +117,8 @@ simulated function ResetButtonClicked(MCM_API_SettingsPage Page)
 	`MCM_API_AutoReset(GIFT_PSIOP_GUARANTEED);
 	`MCM_API_AutoReset(CHEAPER_PSI_LAB);
 	`MCM_API_AutoReset(REMOVE_RESEARCH_COST);
+	`MCM_API_AutoReset(DISABLE_CONFIRM_EVALUATION_POPUP);
+	
 }
 
 

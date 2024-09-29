@@ -38,6 +38,9 @@ CHEAPER_PSI_LAB_Tip = "Reduce the cost of building and maintaining the Psi Lab."
 REMOVE_RESEARCH_COST_Label = "Remove Psionics research cost"
 REMOVE_RESEARCH_COST_Tip = "Remove the Elerium Crystals cost from the Psionics research."
 
+DISABLE_CONFIRM_EVALUATION_POPUP_Label = "Disable \"Confirm Evaluation\" Popup"
+DISABLE_CONFIRM_EVALUATION_POPUP_Tip = "This option allows to disable pointless \"do you really want to send a soldier on Psionic Evaluation" confirmation popup."
+
 LabelEnd = "Created by Iridar | www.patreon.com/Iridar"
 LabelEndTooltip = "Thank you for using my mods, I hope you enjoy! Please consider supporting me at Patreon so I can afford the time to make more awesome mods <3")
 
@@ -56,9 +59,6 @@ strConfirmInfusionCostText = "Psionic infusion will require spending the followi
 
 ; TODO: "AVAILABLE next line PSI OPERATIVE TRAINING, should be Psionic Evaluation / Psionic Infusion for non-Psi Ops"
 
-; on geoscape it still says: PSI TRAINING: Unit Name
-
-; PSIONIC EVALUATION: GIFTED / NOT GIFTED
 ; Insanity could use updating loc
 
 

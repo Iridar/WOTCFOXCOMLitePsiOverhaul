@@ -13,4 +13,6 @@ var config bool ALLOW_ROOKIES;
 
 var config bool CHEAPER_PSI_LAB;
 var config bool REMOVE_RESEARCH_COST;
+var config bool DISABLE_CONFIRM_EVALUATION_POPUP;
+
 
