@@ -200,11 +200,7 @@ static private function EventListenerReturn OnOverrideAbilityPointCost(Object Ev
 
 	if (Tuple.Data[2].i == Index)
 	{
-		if (Tuple.Data[7].b) // bUnitHasPurchasedClassPerkAtRank
-		{
-			Tuple.Data[12].i = class'AbilitySelector'.static.GetAbilityUnlockCost(Tuple.Data[0].n);
-		}
-		// else it will be zero.
+		Tuple.Data[12].i = class'AbilitySelector'.static.GetAbilityUnlockCost(Tuple.Data[0].n);
 	}
 	return ELR_NoInterrupt;
 }

@@ -8,6 +8,7 @@ var localized string strNewAbilitiesAdded;
 var private localized string strTitleInfusionFinished;
 var private localized string strTitleEvaluationGifted;
 var private localized string strTitleEvaluationNotGifted;
+var private localized string strGoToPsiLab;
 
 enum eAlert_IRIFMPSI
 {
@@ -52,7 +53,8 @@ simulated function Name GetLibraryID()
 		return 'Alert_TrainingComplete';
 
 	case 'eAlert_IRIFMPSI_Evaluation_Giftless':
-		return 'Alert_NegativeSoldierEvent';
+		//return 'Alert_NegativeSoldierEvent';
+		return 'Alert_TrainingComplete';
 
 	default:
 		return '';
@@ -62,11 +64,11 @@ simulated function Name GetLibraryID()
 private function BuildAlert_Evaluation_NotGifted()
 {
 	local XComGameState_Unit UnitState;
-	local XGBaseCrewMgr CrewMgr;
-	local XComGameState_HeadquartersRoom RoomState;
-	local Vector ForceLocation;
-	local Rotator ForceRotation;
-	local XComUnitPawn UnitPawn;
+	//local XGBaseCrewMgr CrewMgr;
+	//local XComGameState_HeadquartersRoom RoomState;
+	//local Vector ForceLocation;
+	//local Rotator ForceRotation;
+	//local XComUnitPawn UnitPawn;
 	local string ClassIcon, ClassName, RankName;
 	local X2AbilityTemplate AbilityTemplate;
 	
@@ -94,19 +96,19 @@ private function BuildAlert_Evaluation_NotGifted()
 	// End Issue #106
 	RankName = Caps(UnitState.GetSoldierRankName()); // Issue #408
 
-	// Move the camera
-	CrewMgr = `GAME.GetGeoscape().m_kBase.m_kCrewMgr;
-	RoomState = CrewMgr.GetRoomFromUnit(UnitState.GetReference());
-	UnitPawn = CrewMgr.GetPawnForUnit(UnitState.GetReference());
-
-	if(RoomState != none && UnitPawn != none)
-	{
-		ForceLocation = UnitPawn.GetHeadLocation();
-		ForceLocation.X += 50;
-		ForceLocation.Y -= 300;
-		ForceRotation.Yaw = 16384;
-		`HQPRES.CAMLookAtRoom(RoomState, `HQINTERPTIME, ForceLocation, ForceRotation);
-	}
+	// Move the camera - how about no
+	// CrewMgr = `GAME.GetGeoscape().m_kBase.m_kCrewMgr;
+	// RoomState = CrewMgr.GetRoomFromUnit(UnitState.GetReference());
+	// UnitPawn = CrewMgr.GetPawnForUnit(UnitState.GetReference());
+	// 
+	// if (RoomState != none && UnitPawn != none)
+	// {
+	// 	ForceLocation = UnitPawn.GetHeadLocation();
+	// 	ForceLocation.X += 50;
+	// 	ForceLocation.Y -= 300;
+	// 	ForceRotation.Yaw = 16384;
+	// 	`HQPRES.CAMLookAtRoom(RoomState, `HQINTERPTIME, ForceLocation, ForceRotation);
+	// }
 
 	AbilityTemplate = class'X2AbilityTemplateManager'.static.GetAbilityTemplateManager().FindAbilityTemplate('IRI_NoPsionicGift');
 
@@ -122,15 +124,46 @@ private function BuildAlert_Evaluation_NotGifted()
 	LibraryPanel.MC.QueueString(`CAPS(class'XGTacticalScreenMgr'.default.m_arrCategoryNames[eCat_MissionResult])); // "Result"
 	LibraryPanel.MC.QueueString(AbilityTemplate.LocFriendlyName);	// "Not Gifted"
 	LibraryPanel.MC.QueueString(AbilityTemplate.LocHelpText);		// "This soldier has no Psionic Gift"
-	LibraryPanel.MC.QueueString("");
-	LibraryPanel.MC.QueueString(m_strOk);
+	LibraryPanel.MC.QueueString(strGoToPsiLab);
+	LibraryPanel.MC.QueueString(m_strCarryOn);
 	LibraryPanel.MC.EndOp();
 
 	GetOrStartWaitingForStaffImage();
 	// Always hide the "Continue" button, since this is just an informational popup
 	Button2.SetGamepadIcon(class'UIUtilities_Input'.static.GetAdvanceButtonIcon()); //bsg-hlee (05.09.17): Changing the icon to A.
-	Button1.Hide(); 
-	Button1.DisableNavigation();
+
+	//Button1.OnSizeRealized = OnButton1SizeRealized;
+	
+	// Don't hide the left button, we'll make it a "Go to psi lab".
+	// Button1.Hide(); 
+	// Button1.DisableNavigation();
+
+	
+}
+/*
+simulated function OnButton1SizeRealized()
+{
+	`AMLOG("Running");
+	SetTimer(4.0, false, nameof(MoveButton1));
+}
+
+private function MoveButton1()
+{
+	`AMLOG("Realigning button");
+	Button1.SetY(Button2.Y);
+}*/
+
+simulated function OnConfirmClicked(UIButton button)
+{
+	local StateObjectReference UnitRef;
+
+	if (eAlertName == 'eAlert_IRIFMPSI_Evaluation_Giftless')
+	{
+		UnitRef.ObjectID = class'X2StrategyGameRulesetDataStructures'.static.GetDynamicIntProperty(DisplayPropertySet, 'UnitRef');
+		`HQPRES.GoToPsiChamber(UnitRef, true);
+	}
+
+	super.OnConfirmClicked(Button);
 }
 
 simulated function BuildAlert_Evaluation_Gifted()

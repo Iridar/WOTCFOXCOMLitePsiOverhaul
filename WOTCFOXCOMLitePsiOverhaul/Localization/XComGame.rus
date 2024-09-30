@@ -1,8 +1,0 @@
-[IRI_AuroraShard_Tech X2TechTemplate]
-DisplayName="Осколок Рассвета"
-Summary="Можно использовать в Пси-лаборатории для передачи псионической силы солдату без Дара."
-
-[IRI_AuroraShard X2ItemTemplate]
-FriendlyName = "Осколок Рассвета"
-FriendlyNamePlural = "Осколки Рассвета"
-BriefSummary = "Можно использовать в Пси-лаборатории для передачи псионической силы солдату без Дара."

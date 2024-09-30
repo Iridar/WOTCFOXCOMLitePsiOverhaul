@@ -55,8 +55,7 @@ strTitleInfusionFinished = "PSIONIC INFUSION COMPLETE"
 strTitleEvaluationGifted = "PSIONIC EVALUATION: GIFTED"
 strTitleEvaluationNotGifted = "PSIONIC EVALUATION: NOT GIFTED"
 strNewAbilitiesAdded = "New psionic abilities unlocked."
-
-; TODO: Update loc for Psi Abilities
+strGoToPsiLab = "GO TO PSI LAB"
 
 [UIFacility_PsiLabSlot_Evaluation]
 m_strPsiTrainingDialogTitle = "PSI EVALUATION"

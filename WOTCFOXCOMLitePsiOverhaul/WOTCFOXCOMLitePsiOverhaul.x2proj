@@ -33,12 +33,6 @@
     <Content Include="ContentForCook\IRIFMPsiOverhaul.upk">
       <SubType>Content</SubType>
     </Content>
-    <Content Include="Localization\WOTCFOXCOMLitePsiOverhaul.rus">
-      <SubType>Content</SubType>
-    </Content>
-    <Content Include="Localization\XComGame.rus">
-      <SubType>Content</SubType>
-    </Content>
     <Content Include="ReadMe.txt" />
     <Content Include="ModPreview.jpg" />
     <Content Include="ContentOptions.json" />

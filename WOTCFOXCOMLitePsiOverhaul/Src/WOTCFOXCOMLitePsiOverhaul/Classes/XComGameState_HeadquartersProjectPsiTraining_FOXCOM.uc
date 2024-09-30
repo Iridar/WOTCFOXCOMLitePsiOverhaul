@@ -3,6 +3,7 @@ class XComGameState_HeadquartersProjectPsiTraining_FOXCOM extends XComGameState_
 var private bool bPsiInfusion;
 var private bool bPsiOperativeTraining;
 var private bool bAlwaysGifted;
+var private bool bHasGift;
 
 var private config(PsiOverhaul) int	InitialPsiOffenseBonus;
 
@@ -115,7 +116,6 @@ function OnProjectCompleted()
 	local XComGameState						NewGameState;
 	local int								CurrentPsiOffense;
 	local int								iFinalRow;
-	local bool								bHasGift;
 	local bool								bOneFewerPsiAbility;
 
 	if (bPsiOperativeTraining)
@@ -280,7 +280,8 @@ simulated function TrainingCompleteCB(Name eAction, out DynamicPropertySet Alert
 				// This was super annoying to debug, but it actually works fine, it just doesn't trigger on any Debug start, including non-cheat,
 				// cuz that records for some reason that has already played.
 				// ... or maybe MeetAllFactions does...
-				class'X2StrategyGameRulesetDataStructures'.static.ShowClassMovie('PsiOperative', UnitState.GetReference(), true);
+
+				class'X2StrategyGameRulesetDataStructures'.static.ShowClassMovie('PsiOperative', UnitState.GetReference(), false);
 				
 				`HQPRES.ShowPromotionUI(UnitState.GetReference());
 			}
