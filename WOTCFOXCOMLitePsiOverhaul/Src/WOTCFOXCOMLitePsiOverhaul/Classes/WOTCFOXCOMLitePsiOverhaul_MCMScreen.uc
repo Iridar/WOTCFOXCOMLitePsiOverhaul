@@ -22,6 +22,8 @@ var localized string LabelEndTooltip;
 `MCM_API_AutoCheckBoxVars(ALLOW_ROOKIES);
 `MCM_API_AutoCheckBoxVars(CHEAPER_PSI_LAB);
 `MCM_API_AutoCheckBoxVars(REMOVE_RESEARCH_COST);
+`MCM_API_AutoCheckBoxVars(PS_LAB_STAFF_SCIENTIST);
+`MCM_API_AutoCheckBoxVars(DISABLE_STAFF_SLOT_FILLED_POPUP);
 
 
 `include(WOTCFOXCOMLitePsiOverhaul\Src\ModConfigMenuAPI\MCM_API_CfgHelpers.uci)
@@ -37,6 +39,8 @@ var localized string LabelEndTooltip;
 `MCM_API_AutoSliderFns(EYE_COLOR,, 1);
 `MCM_API_AutoCheckBoxFns(CHEAPER_PSI_LAB, 1);
 `MCM_API_AutoCheckBoxFns(REMOVE_RESEARCH_COST, 1);
+`MCM_API_AutoCheckBoxFns(PS_LAB_STAFF_SCIENTIST, 2);
+`MCM_API_AutoCheckBoxFns(DISABLE_STAFF_SLOT_FILLED_POPUP, 2);
 
 event OnInit(UIScreen Screen)
 {
@@ -60,7 +64,9 @@ simulated function ClientModCallback(MCM_API_Instance ConfigAPI, int GameMode)
 
 	`MCM_API_AutoAddCheckBox(Group, CHEAPER_PSI_LAB);
 	`MCM_API_AutoAddCheckBox(Group, REMOVE_RESEARCH_COST);
-
+	`MCM_API_AutoAddCheckBox(Group, PS_LAB_STAFF_SCIENTIST);
+	`MCM_API_AutoAddCheckBox(Group, DISABLE_STAFF_SLOT_FILLED_POPUP);
+	
 	Group = Page.AddGroup('Group', GroupHeaders[1]); // "Psionic Abilities"
 	`MCM_API_AutoAddCheckBox(Group, RANDOMIZE_FREE_ABILITY);
 	
@@ -100,9 +106,10 @@ simulated function LoadSavedSettings()
 	HAIR_COLOR = `GETMCMVAR(HAIR_COLOR);
 	EYE_COLOR = `GETMCMVAR(EYE_COLOR);
 	DISABLE_CONFIRM_EVALUATION_POPUP = `GETMCMVAR(DISABLE_CONFIRM_EVALUATION_POPUP);
-
+	PS_LAB_STAFF_SCIENTIST = `GETMCMVAR(PS_LAB_STAFF_SCIENTIST);
 	CHEAPER_PSI_LAB = `GETMCMVAR(CHEAPER_PSI_LAB);
 	REMOVE_RESEARCH_COST = `GETMCMVAR(REMOVE_RESEARCH_COST);
+	DISABLE_STAFF_SLOT_FILLED_POPUP = `GETMCMVAR(DISABLE_STAFF_SLOT_FILLED_POPUP);
 }
 
 simulated function ResetButtonClicked(MCM_API_SettingsPage Page)
@@ -118,7 +125,8 @@ simulated function ResetButtonClicked(MCM_API_SettingsPage Page)
 	`MCM_API_AutoReset(CHEAPER_PSI_LAB);
 	`MCM_API_AutoReset(REMOVE_RESEARCH_COST);
 	`MCM_API_AutoReset(DISABLE_CONFIRM_EVALUATION_POPUP);
-	
+	`MCM_API_AutoReset(PS_LAB_STAFF_SCIENTIST);
+	`MCM_API_AutoReset(DISABLE_STAFF_SLOT_FILLED_POPUP);
 }
 
 

@@ -1,6 +1,7 @@
 class UIFacility_PsiLabSlot_Infusion extends UIFacility_PsiLabSlot;
 
 var private localized string m_strPsiTrainingDialogTextCannotAfford;
+var private localized string m_strPsiTrainingDialogTextAlwaysGifted;
 
 simulated function OnPersonnelSelected(StaffUnitInfo UnitInfo)
 {
@@ -44,7 +45,14 @@ private function RaiseConfirmInfusionDialog(XComGameState_Unit Unit, optional bo
 	}
 	else
 	{
-		strText = m_strPsiTrainingDialogText;
+		if (class'Help'.static.IsUnitAlwaysGifted(Unit))
+		{
+			strText = m_strPsiTrainingDialogTextAlwaysGifted;
+		}
+		else
+		{
+			strText = m_strPsiTrainingDialogText;
+		}		
 		DialogData.eType = eDialog_Normal;
 	}
 

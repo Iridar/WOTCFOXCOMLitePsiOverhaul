@@ -30,7 +30,7 @@ EYE_COLOR_Label = "Eye Color"
 EYE_COLOR_Tip = "Number of the eye color on the palette."
 
 ALLOW_ROOKIES_Label = "Allow Rookies"
-ALLOW_ROOKIES_Tip = "Allow rookies to undergo Psionic Evaluation to become vanilla Psi Operatives."
+ALLOW_ROOKIES_Tip = "Allow rookies to undergo Psionic Evaluation to become vanilla Psi Operatives. They still need to roll the chance for The Gift."
 
 CHEAPER_PSI_LAB_Label = "Cheaper Psi Lab"
 CHEAPER_PSI_LAB_Tip = "Reduce the cost of building and maintaining the Psi Lab."
@@ -41,50 +41,52 @@ REMOVE_RESEARCH_COST_Tip = "Remove the Elerium Crystals cost from the Psionics r
 DISABLE_CONFIRM_EVALUATION_POPUP_Label = "Disable \"Confirm Evaluation\" Popup"
 DISABLE_CONFIRM_EVALUATION_POPUP_Tip = "This option allows to disable pointless \"do you really want to send a soldier on Psionic Evaluation" confirmation popup."
 
+PS_LAB_STAFF_SCIENTIST_Label = "Psi Lab Staffs a Scientist"
+PS_LAB_STAFF_SCIENTIST_Tip = "If enabled, the Psi Lab staff slot will allow staffing a Scientist instead of an Engineer, who is typically more valuable."
+
+DISABLE_STAFF_SLOT_FILLED_POPUP_Label = "Disable Staff Slot Filled Popup"
+DISABLE_STAFF_SLOT_FILLED_POPUP_Tip = "If enabled, the mod will disable the \"staff slot filled\" pop-up for the Scientist / Engineer slot in the Psi Lab that just tells you the Psi Project time will be reduced."
+
 LabelEnd = "Created by Iridar | www.patreon.com/Iridar"
 LabelEndTooltip = "Thank you for using my mods, I hope you enjoy! Please consider supporting me at Patreon so I can afford the time to make more awesome mods <3")
 
 [UIAlert_PsiTraining_FOXCOM]
-strPsionicInfusionTitle = "PSIONIC INFUSION COMPLETE"
-strNewAbilitiesAdded = "New psionic abilities unlocked."
-
 strTitleInfusionFinished = "PSIONIC INFUSION COMPLETE"
 strTitleEvaluationGifted = "PSIONIC EVALUATION: GIFTED"
 strTitleEvaluationNotGifted = "PSIONIC EVALUATION: NOT GIFTED"
+strNewAbilitiesAdded = "New psionic abilities unlocked."
 
-[PsionicInfusionCostConfirmer]
-strConfirmInfusionCostTitle = "CONFIRM PSIONIC INFUSION"
-strConfirmInfusionCostText = "Psionic infusion will require spending the following resources:\n\n%ResourceCost%"
-
-
-; TODO: "AVAILABLE next line PSI OPERATIVE TRAINING, should be Psionic Evaluation / Psionic Infusion for non-Psi Ops"
-
-; Insanity could use updating loc
-
-
+; TODO: Update loc for Psi Abilities
 
 [UIFacility_PsiLabSlot_Evaluation]
 m_strPsiTrainingDialogTitle = "PSI EVALUATION"
 m_strPsiTrainingDialogText = "<XGParam:StrValue0/!UnitName/> can undergo Psionic Evaluation to determine if they have any innate psionic potential, and if they do - draw it out and unlock their psionic abilities. The soldier will be unavailable for combat for <XGParam:IntValue0/!DaysToTrain/> days during the evaluation process.\n\nDo you want to proceed?
 m_strStopPsiTrainingDialogTitle = "STOP PSI EVALUATION?"
 m_strStopPsiTrainingDialogText = "Do you want to stop Psionic Evaluation for %UNITNAME?\n\nWARNING: All progress will be lost, but the evaluation can be restarted later."
+
+; For vanilla Psi Ops
 m_strPauseAbilityTrainingDialogTitle = "PAUSE PSI ABILITY TRAINING?"
 m_strPauseAbilityTrainingDialogText = "Do you want to pause %UNITNAME's Psionic ability training?\n\nNOTE: Training progress will be saved."
+
 m_strNoSoldiersTooltip = "There are no soldiers available for Psionic Evaluation"
 m_strSoldiersAvailableTooltip = "Assign a soldier to undergo Psionic Evaluation."
 
 [UIFacility_PsiLabSlot_Infusion]
 m_strPsiTrainingDialogTitle = "PSI INFUSION"
 m_strPsiTrainingDialogText = "<XGParam:StrValue0/!UnitName/> can undergo Psionic Infusion to gain psionic abilities despite having no innate psionic potential. The soldier will be unavailable for combat for <XGParam:IntValue0/!DaysToTrain/> days during the infusion process. Additionally, psionic infusion will require the following resources:\n\n%ResourceCost%\n\nDo you want to proceed?"
+
+m_strPsiTrainingDialogTextAlwaysGifted = "<XGParam:StrValue0/!UnitName/> can undergo Psionic Infusion to gain additional psionic abilities. The soldier will be unavailable for combat for <XGParam:IntValue0/!DaysToTrain/> days during the infusion process. Additionally, psionic infusion will require the following resources:\n\n%ResourceCost%\n\nDo you want to proceed?"
+
 m_strPsiTrainingDialogTextCannotAfford = "Missing resources required for Psionic infusion:\n\n%ResourceCost%"
 
 m_strStopPsiTrainingDialogTitle = "STOP PSI INFUSION?"
 m_strStopPsiTrainingDialogText = "Do you want to stop Psionic Infusion for %UNITNAME?\n\nWARNING: All progress will be lost, and the spent resources will not be refunded, but the infusion can be restarted later."
-m_strPauseAbilityTrainingDialogTitle = "PAUSE PSI INFUSION?"
-m_strNoSoldiersTooltip = "Psionic Infusion is available only to already evaluated soldiers without Psionic Gift. There are no soldiers like that currently available."
-m_strSoldiersAvailableTooltip = "Assign a soldier without Psionic Gift to undergo Psionic Infusion and gain psionic abilities."
+
+m_strNoSoldiersTooltip = "Psionic Infusion is available only to already evaluated soldiers without Psionic Gift, and to soldier classes already trained in use of psionic equipment. There are no soldiers like that currently available."
+m_strSoldiersAvailableTooltip = "Assign a soldier to undergo Psionic Infusion."
 
 ; Not going to be used by this mod.
+m_strPauseAbilityTrainingDialogTitle = "PAUSE PSI INFUSION?"
 m_strPauseAbilityTrainingDialogText = "Do you want to pause %UNITNAME's Psionic ability training?\n\nNOTE: Training progress will be saved."
 
 

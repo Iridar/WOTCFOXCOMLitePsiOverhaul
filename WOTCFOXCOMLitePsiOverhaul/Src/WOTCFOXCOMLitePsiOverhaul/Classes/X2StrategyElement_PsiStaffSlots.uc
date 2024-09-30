@@ -3,8 +3,6 @@ class X2StrategyElement_PsiStaffSlots extends X2StrategyElement_DefaultStaffSlot
 var config array<name>				ExcludeCharacters;
 var config array<name>				ExcludeClasses;
 
-// TODO: Make "always gifted" units use Psi Infusion instead.
-
 `include(WOTCFOXCOMLitePsiOverhaul\Src\ModConfigMenuAPI\MCM_API_CfgHelpers.uci)
 
 static function array<X2DataTemplate> CreateTemplates()
@@ -69,6 +67,10 @@ static private function bool IsUnitValidForPsiEvaluationStaffSlot(XComGameState_
 		//`AMLOG("-- Unit is giftless.");
 		return false;
 	}
+
+	// Always Gifted units can't be Evaluated, only Infused
+	if (class'Help'.static.IsUnitAlwaysGifted(Unit))
+		return false;
 
 	return true;
 }
@@ -142,12 +144,8 @@ static private function bool IsUnitValidForPsiInfusionStaffSlot(XComGameState_St
 	if (!IsUnitValidForStaffSlot(Unit, SlotState))
 		return false;
 
-	// Always Gifted units don't need to be Infused, just Evaluating them is enough.
-	if (class'Help'.static.IsUnitAlwaysGifted(Unit))
-		return false;
-
-	// Only giftless soldiers are allowed to undergo psionic infusion
-	return class'Help'.static.IsGiftless(Unit);
+	// Only giftless and always-gifted soldiers are allowed to undergo psionic infusion
+	return class'Help'.static.IsGiftless(Unit) || class'Help'.static.IsUnitAlwaysGifted(Unit);
 }
 
 // ============================== COMMON =============================

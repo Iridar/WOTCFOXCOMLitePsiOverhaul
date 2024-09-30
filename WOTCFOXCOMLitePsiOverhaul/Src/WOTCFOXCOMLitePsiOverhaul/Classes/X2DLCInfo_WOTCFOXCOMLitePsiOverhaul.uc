@@ -98,6 +98,23 @@ static event OnPostTemplatesCreated()
 
 	class'AbilitySelector'.static.ValidatePsiAbilities();
 
+	if (`GETMCMVAR(PS_LAB_STAFF_SCIENTIST))
+	{
+		StaffSlotTemplateA = X2StaffSlotTemplate(StratMgr.FindStrategyElementTemplate('PsiChamberScientistStaffSlot'));
+		StaffSlotTemplateB = X2StaffSlotTemplate(StratMgr.FindStrategyElementTemplate('LaboratoryStaffSlot'));
+
+		if (StaffSlotTemplateA != none && StaffSlotTemplateB != none)
+		{
+			StaffSlotTemplateA.bScientistSlot = true;
+			StaffSlotTemplateA.bEngineerSlot = false;
+			StaffSlotTemplateA.EmptyText = StaffSlotTemplateB.EmptyText; // Change "open: engineer required" into "open: scientist required"
+
+			if (`GETMCMVAR(DISABLE_STAFF_SLOT_FILLED_POPUP))
+			{
+				StaffSlotTemplateA.bPreventFilledPopup = true;
+			}
+		}
+	}
 	// Some localization helpers to copy existing game localization so we don't have to provide our own.
 
 	ItemMgr = class'X2ItemTemplateManager'.static.GetItemTemplateManager();

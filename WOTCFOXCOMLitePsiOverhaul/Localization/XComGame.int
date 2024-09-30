@@ -1,22 +1,27 @@
 [PsiChamber_SecondCell X2FacilityUpgradeTemplate]
 DisplayName="Psionic Infusion Chamber"
 FacilityName="Psi Lab"
-Summary="Add a Psionic Infusion Chamber to the Psi Lab, allowing soldiers without psionic gift to undergo psionic infusion and gain psionic abilities anyway."
+Summary="Add a Psionic Infusion Chamber to the Psi Lab, allowing soldiers without psionic gift to undergo psionic infusion and gain psionic abilities anyway. Psionic Infusion can also be performed on soldier classes who are already trained in use of psionic equipment to gain access to additional psionic abilities."
 
 [IRI_PsiEvaluationStaffSlot X2StaffSlotTemplate]
 BonusDefaultText="PSI EVALUATION"
 BonusEmptyText="Exposes psionic potential."
+
+; I don't think this is used.
 FilledText="%UNITNAME is undergoing deep mediatation to find out if they have innate psionic potential."
 
 [IRI_PsiInfusionStaffSlot X2StaffSlotTemplate]
 BonusDefaultText="PSI INFUSION"
 BonusEmptyText="Grants psionic potential."
+
+; I don't think is actually used for my Psi Slots.
 FilledText="%UNITNAME is undergoing Psionic infusion process to gain access to Psionic abilities despite having no innate psionic potential."
 
+; Pop-up message shown when entering the Psi Lab for the first time.
 [XComGame.UIAlert]
 [UIAlert]
 m_strIntroToPsiLab = "PSIONIC EVALUATION"
-m_strIntroToPsiLabBody = "Any non-rookie soldier can undergo Psionic Evaluation in the Psi Lab to determine if they have the Psionic Gift or not. If the soldier has The Gift, they will gain access to a new psionic ability right away, and will be able to unlock more abilities as they progress through ranks. Staffing an engineer in the Psi Lab will decrease the time of all Psi Lab projects."
+m_strIntroToPsiLabBody = "Any non-rookie soldier can undergo Psionic Evaluation in the Psi Lab to determine if they have the Psionic Gift or not. If the soldier has The Gift, they will gain access to a new psionic ability right away, and will be able to unlock more abilities as they progress through ranks. Staffing a scientist in the Psi Lab will decrease the time of all Psi Lab projects."
 
 [IRI_NoPsionicGift X2AbilityTemplate]
 LocFriendlyName="No Psionic Gift"
@@ -32,11 +37,21 @@ LocHelpText="This soldier has no Psionic Gift."
 
 BonusEmptyText="Decreases Project Time."
 BonusText="PROJECT TIME -%AVENGERBONUS%"
-FilledText="%UNITNAME's Psionic engineering program is reducing the time needed to complete psi projects."
+FilledText="%UNITNAME's expertise in psionics is reducing the time needed to complete psi projects."
 
 ; I'd love to use different lines for Psi Infusion and Psi Evaluation, but I also want to extend XComGameState_HeadquartersProjectPsiTraining
 ; and having both seems to be impossible. Having slightly worse loc is gonna have to be it.
 [XComGame.XComGameState_HeadquartersXCom]
 [XComGameState_HeadquartersXCom]
-PsiTrainingEventLabel="PSI PROJECT:"
 ; PsiTrainingEventLabel="PSI TRAINING:"
+PsiTrainingEventLabel="PSI PROJECT:"
+
+
+[PsiChamber X2FacilityTemplate]
+CompletedSummary="The Psi Lab can start evaluating our soldiers to see if they have The Gift of psionics.\nNew Staff Slot Available - Psi Evaluation for Soldiers\nNew Staff Slot Available - Decreases Psi Project Time"
+Summary="The Psi Lab will allow non-rookie soldiers to undergo Psionic Evaluation to find out if they have any latent Psionic talents, and unlock them if they do."
+
+[PsiLab X2EncyclopediaTemplate]
+; ListTitle="Psi Lab"
+; DescriptionTitle="Psi Lab"
+DescriptionEntry="Provides access to Psionic Evaluation for XCOM operatives. Any non-rookie soldier can undergo Psionic Evaluation to find out if they have The Gift of innate psionic abilities. If they do, they unlock a new psionic ability right away, and can learn new abilities as they progress through ranks, though usually it will be at the cost to their regular soldier class training."

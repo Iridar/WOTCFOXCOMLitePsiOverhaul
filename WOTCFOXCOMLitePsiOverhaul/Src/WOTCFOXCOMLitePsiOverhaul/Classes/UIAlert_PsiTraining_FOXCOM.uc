@@ -257,3 +257,23 @@ simulated function BuildAlert_Infusion()
 
 	Button2.SetGamepadIcon(class'UIUtilities_Input'.static.GetAdvanceButtonIcon());
 }
+
+/*
+simulated function OnConfirmClicked(UIButton button)
+{
+	local delegate<X2StrategyGameRulesetDataStructures.AlertCallback> LocalCallbackFunction;
+
+	`AMLOG("Running" @ string(DisplayPropertySet.CallbackFunction));
+	// This just runs XComGameState_HeadquartersProjectPsiTraining_FOXCOM_12.TrainingCompleteCB
+
+	if( DisplayPropertySet.CallbackFunction != none )
+	{
+		LocalCallbackFunction = DisplayPropertySet.CallbackFunction;
+		LocalCallbackFunction('eUIAction_Accept', DisplayPropertySet, false);
+	}
+	
+	// The callbacks could potentially remove this screen, so make sure we haven't been removed already
+	if( !bIsRemoved )
+		CloseScreen();
+}
+*/

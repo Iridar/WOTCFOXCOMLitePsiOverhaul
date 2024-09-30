@@ -2,11 +2,14 @@ class XComGameState_HeadquartersProjectPsiTraining_FOXCOM extends XComGameState_
 
 var private bool bPsiInfusion;
 var private bool bPsiOperativeTraining;
+var private bool bAlwaysGifted;
 
 var private config(PsiOverhaul) int	InitialPsiOffenseBonus;
 
-var config array<int>	PsiEvaluationDays;
-var config array<int>	PsiInfusionDays;
+var config array<int> PsiEvaluationDays;
+var config array<int> PsiInfusionDays;
+
+var private config(PsiOverhaul) bool bEnablePsiAbilityTaxForAlwaysGiftedUnits;
 
 `include(WOTCFOXCOMLitePsiOverhaul\Src\ModConfigMenuAPI\MCM_API_CfgHelpers.uci)
 
@@ -45,8 +48,10 @@ function SetProjectFocus(StateObjectReference FocusRef, optional XComGameState N
 		super.SetProjectFocus(FocusRef, NewGameState, AuxRef);
 		return;
 	}
+
+	bAlwaysGifted = class'Help'.static.IsUnitAlwaysGifted(UnitState);
 	
-	if (class'Help'.static.IsGiftless(UnitState))
+	if (class'Help'.static.IsGiftless(UnitState) || bAlwaysGifted)
 	{
 		bPsiInfusion = true;
 
@@ -111,7 +116,6 @@ function OnProjectCompleted()
 	local int								CurrentPsiOffense;
 	local int								iFinalRow;
 	local bool								bHasGift;
-	local bool								bAlwaysGifted;
 	local bool								bOneFewerPsiAbility;
 
 	if (bPsiOperativeTraining)
@@ -123,8 +127,6 @@ function OnProjectCompleted()
 	UnitState = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(ProjectFocus.ObjectID));
 	if (UnitState == none)
 		return;
-
-	bAlwaysGifted = class'Help'.static.IsUnitAlwaysGifted(UnitState);
 
 	// Roll for The Gift, if needed.
 	if (!bPsiInfusion && !bAlwaysGifted)
@@ -159,8 +161,10 @@ function OnProjectCompleted()
 	if (bPsiInfusion || bHasGift || bAlwaysGifted)
 	{
 		// Always Gifted units don't get a free Psi Perk.
-		bOneFewerPsiAbility = bAlwaysGifted;
-
+		if (default.bEnablePsiAbilityTaxForAlwaysGiftedUnits)
+		{
+			bOneFewerPsiAbility = bAlwaysGifted;
+		}
 		iFinalRow = InjectPsiPerks(UnitState, NewGameState, bOneFewerPsiAbility); 
 		
 		// Mark soldier so they can't undergo psionic training again. Unit value will store the index of the row where psionic abilities start.
@@ -185,11 +189,12 @@ function OnProjectCompleted()
 		// because showing a pop-up will toggle Avenger scanning, which in itself requires a game state submission
 
 		// Pop Up Msg
-		if (bAlwaysGifted)
-		{
-			ShowTrainingCompletedPopUp(ProjectFocus, 'eAlert_IRIFMPSI_Evaluation_Gifted');
-		}
-		else if (bPsiInfusion)
+		//if (bAlwaysGifted)
+		//{
+		//	ShowTrainingCompletedPopUp(ProjectFocus, 'eAlert_IRIFMPSI_Evaluation_Gifted');
+		//}
+		//else 
+		if (bPsiInfusion)
 		{
 			AbilityName = UnitState.GetAbilityName(0, iFinalRow); 
 			ShowTrainingCompletedPopUp(ProjectFocus, 'eAlert_IRIFMPSI_Infusion_Finished', AbilityName);
@@ -261,7 +266,7 @@ private function ShowTrainingCompletedPopUp(StateObjectReference UnitRef, const 
 simulated function TrainingCompleteCB(Name eAction, out DynamicPropertySet AlertData, optional bool LocbInstant = false)
 {
 	local XComGameState_Unit UnitState;
-	
+
 	if (eAction == 'eUIAction_Accept' || eAction == 'eUIAction_Cancel')
 	{
 		if (!`HQPRES.m_kAvengerHUD.Movie.Stack.HasInstanceOf(class'UIArmory_Promotion')) // If we are already in the promotion screen, just close this popup
@@ -272,7 +277,10 @@ simulated function TrainingCompleteCB(Name eAction, out DynamicPropertySet Alert
 				if (UnitState == none)
 					return;
 
-				class'X2StrategyGameRulesetDataStructures'.static.ShowClassMovie('PsiOperative', UnitState.GetReference());
+				// This was super annoying to debug, but it actually works fine, it just doesn't trigger on any Debug start, including non-cheat,
+				// cuz that records for some reason that has already played.
+				// ... or maybe MeetAllFactions does...
+				class'X2StrategyGameRulesetDataStructures'.static.ShowClassMovie('PsiOperative', UnitState.GetReference(), true);
 				
 				`HQPRES.ShowPromotionUI(UnitState.GetReference());
 			}
